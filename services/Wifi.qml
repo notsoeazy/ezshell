@@ -22,9 +22,8 @@ Singleton {
     readonly property bool scanning: root.device?.scannerEnabled ?? false
     // Reason of the last failed connect, "" after a success; the UI uses it for a wrong password.
     readonly property string lastError: internal.lastError
-    // Saved NetworkManager profiles as { name, uuid }, in range or not. Quickshell only lists in-range
-    // networks, so these come from nmcli; refreshSaved() re-reads them (on demand, not polled).
-    readonly property var saved: internal.saved
+    // Saved profiles as { name, uuid }, in range or not (nmcli, see WifiProfiles).
+    readonly property var saved: profiles.saved
     // A connect() in flight: the network exists, isn't connected yet and hasn't failed.
     readonly property string pendingName: internal.pending?.name ?? ""
     readonly property bool inFlight: internal.pending !== null && !internal.pending.connected
@@ -86,37 +85,17 @@ Singleton {
     }
 
     function refreshSaved(): void {
-        savedReader.exec(["nmcli", "--terse", "--fields", "UUID,TYPE,NAME", "connection", "show"]);
+        profiles.refresh();
     }
 
-    // Deletes one profile by UUID, so duplicate profiles for one SSID can be removed separately.
     function forgetSaved(uuid: string): void {
-        profileAction.exec(["nmcli", "connection", "delete", "uuid", uuid]);
+        profiles.forget(uuid);
     }
 
-    // Hidden networks never appear in a scan, so Quickshell can't connect to them. The password goes
-    // through stdin (--ask), not argv, so it never shows up in the process list.
+    // Hidden networks never appear in a scan, so Quickshell can't connect to them.
     function connectHidden(ssid: string, password: string): void {
         internal.lastError = "";
-        internal.hiddenPassword = password;
-        hiddenConnect.exec(["nmcli", "--ask", "device", "wifi", "connect", ssid, "hidden", "yes"]);
-    }
-
-    // nmcli --terse escapes ":" inside fields as "\:"; NAME is last so only the first two separators split.
-    function parseSaved(text: string): var {
-        const rows = text.trim().split("\n").filter(line => line !== "");
-        const parse = line => {
-            const [uuid, type, ...rest] = line.split(":");
-            return {
-                uuid: uuid,
-                type: type,
-                name: rest.join(":").replace(/\\:/g, ":")
-            };
-        };
-        return rows.map(parse).filter(p => p.type === "802-11-wireless").map(p => ({
-                    name: p.name,
-                    uuid: p.uuid
-                }));
+        profiles.connectHidden(ssid, password);
     }
 
     function status(): string {
@@ -145,41 +124,12 @@ Singleton {
         property string lastError: ""
         // ConnectionFailReason of the last failed connect(), -1 when none.
         property int failReason: -1
-        property var saved: []
-        property string hiddenPassword: ""
     }
 
-    Process {
-        id: savedReader
+    WifiProfiles {
+        id: profiles
 
-        stdout: StdioCollector {
-            onStreamFinished: internal.saved = root.parseSaved(text)
-        }
-    }
-
-    Process {
-        id: profileAction
-
-        onExited: code => {
-            if (code !== 0)
-                console.warn(`[wifi] nmcli connection delete exited with ${code}`);
-            root.refreshSaved();
-        }
-    }
-
-    Process {
-        id: hiddenConnect
-
-        stdinEnabled: true
-        onStarted: {
-            hiddenConnect.write(internal.hiddenPassword + "\n");
-            internal.hiddenPassword = "";
-        }
-        onExited: code => {
-            if (code !== 0)
-                internal.lastError = "Couldn't connect to the hidden network";
-            root.refreshSaved();
-        }
+        onHiddenFailed: internal.lastError = "Couldn't connect to the hidden network"
     }
 
     Connections {

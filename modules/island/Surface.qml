@@ -12,8 +12,8 @@ StyledRect {
     id: root
 
     required property string screenName
-    property real fromWidth: root.targetWidth
-    property real fromHeight: root.targetHeight
+    property real fromWidth: root.target.width
+    property real fromHeight: root.target.height
     property real fromY: root.targetY
     property real progress: 1
     property bool expanding: true
@@ -26,8 +26,7 @@ StyledRect {
     readonly property bool panelHere: root.knownPanel && Visibility.screen === root.screenName
     readonly property string temporaryOrRest: Visibility.temporary !== "" ? Visibility.temporary : root.restMode
     readonly property string mode: root.panelHere ? Visibility.panel : root.temporaryOrRest
-    readonly property real targetWidth: root.widthFor(root.mode)
-    readonly property real targetHeight: root.heightFor(root.mode)
+    readonly property size target: root.sizeFor(root.mode)
     readonly property real targetY: root.mode === "hidden" ? -Appearance.island.height : Appearance.island.margin
     readonly property color normalOutline: Qt.alpha(Colors.outlineVariant, Appearance.island.outlineOpacity)
     readonly property color alertOutline: Qt.alpha(Colors.error, Appearance.island.alertOutlineOpacity)
@@ -43,38 +42,32 @@ StyledRect {
         return mode !== "rest" && mode !== "hidden";
     }
 
-    // Size table: one entry per mode. The banner's height follows its content.
-    function widthFor(mode: string): real {
-        if (mode === "rest")
-            return Math.min(restLayer.implicitWidth + 2 * Appearance.island.padding, Appearance.island.maxWidth);
-        if (mode === "hidden")
-            return Appearance.island.hiddenWidth;
-        if (mode === "notification")
-            return Appearance.island.notification.width;
-        if (mode === "launcher")
-            return Appearance.island.launcher.width;
+    // Mode table: the pill's size in each mode. A new mode is one case. Sizes that follow content read
+    // the layer live, so the target tracks it (banner text, launcher results, section height).
+    function sizeFor(mode: string): size {
+        const island = Appearance.island;
         if (Visibility.isSection(mode))
-            return root.expandedWidth(mode);
-        return mode === "music" ? Appearance.island.music.width : Appearance.island.osd.width;
+            return Qt.size(root.sectionWidth(mode), layers.expandedHeight + 2 * island.expanded.padding);
+        switch (mode) {
+        case "rest":
+            return Qt.size(Math.min(layers.restWidth + 2 * island.padding, island.maxWidth), island.height);
+        case "hidden":
+            return Qt.size(island.hiddenWidth, island.height);
+        case "notification":
+            return Qt.size(island.notification.width, layers.notificationHeight);
+        case "launcher":
+            return Qt.size(island.launcher.width, layers.launcherHeight + 2 * island.launcher.padding);
+        case "music":
+            return Qt.size(island.music.width, island.music.height);
+        default:
+            // volume, brightness, mic
+            return Qt.size(island.osd.width, island.osd.height);
+        }
     }
 
-    function expandedWidth(mode: string): real {
+    function sectionWidth(mode: string): real {
         const expanded = Appearance.island.expanded;
         return Visibility.tabs.includes(mode) ? expanded.tabWidth : expanded.sectionWidth;
-    }
-
-    function heightFor(mode: string): real {
-        if (mode === "rest" || mode === "hidden")
-            return Appearance.island.height;
-        if (mode === "notification")
-            return notificationLayer.implicitHeight;
-        // Follows the result count; the layer loads as the morph starts, and the target updates live.
-        if (mode === "launcher")
-            return launcherLayer.implicitHeight + 2 * Appearance.island.launcher.padding;
-        // Each section reports its own height; the target follows it live, also on a section change.
-        if (Visibility.isSection(mode))
-            return expandedLayer.implicitHeight + 2 * Appearance.island.expanded.padding;
-        return mode === "music" ? Appearance.island.music.height : Appearance.island.osd.height;
     }
 
     // Scrolling on the OSD keeps adjusting what it shows; the resting view's scroll areas are hidden by then.
@@ -91,7 +84,8 @@ StyledRect {
         const y = root.y;
         // Growing gets the overshoot, shrinking doesn't (ISLAND.md "Motion"), whatever the modes are. The
         // target bindings can still hold the old mode here, so the new size comes from the mode itself.
-        root.expanding = root.widthFor(root.mode) * root.heightFor(root.mode) > width * height;
+        const next = root.sizeFor(root.mode);
+        root.expanding = next.width * next.height > width * height;
         if (root.mode === "volume" || root.mode === "brightness")
             root.osdKind = root.mode;
         root.fromWidth = width;
@@ -103,8 +97,8 @@ StyledRect {
         (root.expanding ? grow : shrink).restart();
     }
 
-    width: root.fromWidth + (root.targetWidth - root.fromWidth) * root.progress
-    height: root.fromHeight + (root.targetHeight - root.fromHeight) * root.progress
+    width: root.fromWidth + (root.target.width - root.fromWidth) * root.progress
+    height: root.fromHeight + (root.target.height - root.fromHeight) * root.progress
     y: root.fromY + (root.targetY - root.fromY) * root.progress
     radius: Math.min(height / 2, Appearance.island.cornerRadius)
     color: Colors.island
@@ -145,97 +139,15 @@ StyledRect {
         easing.bezierCurve: Appearance.anim.standard
     }
 
-    ModeLayer {
-        id: restLayer
+    ModeLayers {
+        id: layers
 
-        anchors.centerIn: parent
-        height: Appearance.island.height
-        shown: root.mode === "rest"
-        persistent: true
+        anchors.fill: parent
+        mode: root.mode
+        screenName: root.screenName
+        osdKind: root.osdKind
         fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            Default {
-                screenName: root.screenName
-            }
-        }
-    }
-
-    ModeLayer {
-        anchors.centerIn: parent
-        width: Appearance.island.osd.width
-        height: Appearance.island.osd.height
-        shown: root.mode === "volume" || root.mode === "brightness"
-        fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            OsdView {
-                kind: root.osdKind
-            }
-        }
-    }
-
-    ModeLayer {
-        anchors.centerIn: parent
-        shown: root.mode === "mic"
-        fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            MicView {}
-        }
-    }
-
-    ModeLayer {
-        id: notificationLayer
-
-        anchors.centerIn: parent
-        shown: root.mode === "notification"
-        // Kept loaded so its height is known before the morph starts.
-        persistent: true
-        fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            NotificationView {}
-        }
-    }
-
-    ModeLayer {
-        anchors.centerIn: parent
-        width: Appearance.island.music.width - 2 * Appearance.island.music.padding
-        height: Appearance.island.music.height
-        shown: root.mode === "music"
-        fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            MusicView {}
-        }
-    }
-
-    ModeLayer {
-        id: launcherLayer
-
-        // Pinned to the top so the search field stays put while the height follows the results.
-        anchors.top: parent.top
-        anchors.topMargin: Appearance.island.launcher.padding
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Appearance.island.launcher.width - 2 * Appearance.island.launcher.padding
-        shown: root.mode === "launcher"
-        fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            LauncherView {}
-        }
-    }
-
-    ModeLayer {
-        id: expandedLayer
-
-        // Pinned to the top so the header stays put while the height follows the section.
-        anchors.top: parent.top
-        anchors.topMargin: Appearance.island.expanded.padding
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: root.expandedWidth(root.mode) - 2 * Appearance.island.expanded.padding
-        shown: Visibility.isSection(root.mode)
-        fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
-        sourceComponent: Component {
-            Expanded {
-                screenName: root.screenName
-            }
-        }
+        sectionWidth: root.sectionWidth(root.mode)
     }
 
     WheelArea {

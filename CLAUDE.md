@@ -71,6 +71,7 @@ assets/          images, svg, bundled fonts
 - Each service has its own `IpcHandler`, whose target is the service name in lowercase. IPC functions are typed (`: void`) and only delegate.
 - Native modules first: Pipewire (with `PwObjectTracker`), Mpris, Networking, Bluetooth, UPower, NotificationServer, SystemTray, Hyprland. Shell out only for brightness (`brightnessctl`, `ddcutil`), night light (`hyprctl hyprsunset`), lifting a Bluetooth rfkill block (`rfkill unblock bluetooth`), saved / hidden Wi‑Fi profiles (`nmcli`), session actions (`systemctl suspend|reboot|poweroff`, through `execDetached` in `Session`), and `SysInfo`'s `df`, `nvidia-smi` (only while the GPU is awake) and `scripts/sysinfo-paths.sh`, and `Camera`'s `scripts/camera-watch.sh` (`inotifywait` on `/dev/video*`), and `Theme`'s `matugen`. `Weather` uses `XMLHttpRequest`, no process.
 - Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`, `Theme`.
+- A service may own a non-singleton helper file in `services/` to stay short (`WifiProfiles`, created only by `Wifi`). Nothing else instantiates it.
 - Processes live only in services, one per data source. Outside services, only `Quickshell.execDetached([...])`.
 - Use events, not polling. A `Timer` is a last resort, only in a service, and only running while needed.
 

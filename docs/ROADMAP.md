@@ -27,8 +27,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 
 | # | Feature | Size | Status |
 | --- | --- | --- | --- |
-| F0 | Make room: split the files near 250 lines | S | next |
-| F1 | Wallpaper selector in the island, native transitions | M | |
+| F0 | Make room: split the files near 250 lines | S | done |
+| F1 | Wallpaper selector in the island, native transitions | M | next |
 | F2 | Launcher providers: registry, calculator, run command | M | |
 | F3 | Clipboard history (`;`) | M | |
 | F4 | Emoji, symbols and kaomoji (`:`) | S | |
@@ -55,6 +55,12 @@ Several files are at the 250-line limit, and the next features add island modes.
 | `services/Wifi.qml` | 246 | Saved/hidden-profile `nmcli` work into a helper the service owns. |
 
 Done when every file is under about 200 lines and `panels toggle overview` / `launcher` / OSD behave exactly as before.
+
+**Done.** Before/after screenshots of rest, OSD, launcher, overview, system and Wi‑Fi match; `theme status` and `wifi status/saved` give the same output.
+- `Surface.qml` (158): `sizeFor(mode)` is the mode table (one `case` per mode, sections share one). The mode layers moved to `ModeLayers.qml` (115), which reports the content-driven sizes. Corner radius stays one rule for all modes.
+- `Theme.qml` (193): role map, scheme list, contrast pairs and the JSON → palette mapping moved to `utils/Matugen.qml`.
+- `Appearance.qml` (106): the island group moved to `themes/IslandTokens.qml` (143); `Appearance.island.*` paths are unchanged.
+- `Wifi.qml` (196): saved/hidden-profile `nmcli` work moved to `services/WifiProfiles.qml` (86), a non-singleton helper only `Wifi` creates.
 
 ## F1. Wallpaper selector
 
