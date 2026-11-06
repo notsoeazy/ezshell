@@ -64,6 +64,7 @@ hl.bind("SUPER + W", hl.dsp.exec_cmd(qs .. "panels toggle wifi"))
 hl.bind("SUPER + N", hl.dsp.exec_cmd(qs .. "panels open overview ''; " .. qs .. "panels push notifications"))
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qs .. "panels toggle launcher"), { release = true })
 hl.bind("SUPER + PERIOD", hl.dsp.exec_cmd(qs .. "launcher open '>'"))     -- launcher actions
+hl.bind("SUPER + V", hl.dsp.exec_cmd(qs .. "launcher open ';'"))          -- clipboard history (replaces caelestia's)
 hl.bind("SUPER + I", hl.dsp.exec_cmd(qs .. "panels toggle settings"))
 hl.bind(vars.kbLock, hl.dsp.exec_cmd(qs .. "session lock"))
 
@@ -78,6 +79,8 @@ hl.bind(vars.kbMusicWs, hl.dsp.exec_cmd(qs .. "hypr toggleSpecial music"))
 `vars.kbShowPanels` is `SUPER + K` in `variables.lua`, today caelestia's panels bind; ezshell takes it over (rename the variable if you like). Check that `SUPER + ALT + K` is free.
 
 Pick free keys for anything new (`SUPER + A`, `SUPER + W`, `SUPER + N`, `SUPER + I` are suggestions); check them against `variables.lua` first. The caelestia `fn.toggle(...)` special-workspace binds and its screenshot/record binds can stay until you replace those tools.
+
+Super+V is `pkill fuzzel || caelestia clipboard` today (`keybinds.lua:174`); replace it with the line above. Keep the two `wl-paste --type text|image --watch cliphist store` lines in `execs.lua`: they record the history the shell shows.
 
 ## 4. Night light
 

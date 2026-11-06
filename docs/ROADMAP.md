@@ -30,8 +30,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F0 | Make room: split the files near 250 lines | S | done |
 | F1 | Wallpaper selector in the island, native transitions | M | done |
 | F2 | Launcher providers: registry, `>` actions | M | done |
-| F3 | Clipboard history (`;`) | M | next |
-| F4 | Emoji, symbols and kaomoji (`:`) | S | |
+| F3 | Clipboard history (`;`) | M | done |
+| F4 | Emoji, symbols and kaomoji (`:`) | S | next |
 | F5 | Polkit agent in the island | M | |
 | F6 | Screenshots and screen recording | M | |
 | F7 | Tasks IPC and generic OSD | S | |
@@ -127,24 +127,15 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 
 ## F3. Clipboard history
 
-- **Recording:**
-  - `Clipboard` owns `wl-paste --type text --watch cliphist store` and `wl-paste --type image --watch cliphist store`, plus a third `wl-paste --watch` that only signals a refresh.
-  - Lists come from `cliphist list`; also `decode <id>`, `delete` and `wipe`.
-- **Privacy:**
-  - cliphist already skips copies that password managers mark with `x-kde-passwordManagerHint` (KeePassXC does this).
-  - Add an incognito switch that pauses recording.
-- **Images:** decode on demand into `$XDG_RUNTIME_DIR/ezshell/clip/<id>.png`, show with `Image { asynchronous: true; sourceSize }`, and delete files that are no longer listed.
-- **Launcher provider `;`:** rows show a text preview, or a thumbnail with size and resolution.
-  - **Enter** copies (`cliphist decode | wl-copy`).
-  - **Alt+Enter** pastes: close the launcher, wait about 120 ms, then run `wtype -M ctrl -k v -m ctrl`.
-  - **Delete** removes the entry. "Clear all" asks for confirmation.
-- **IPC:** `clipboard copy(id)`, `paste(id)`, `delete(id)`, `wipe`, `incognito(bool)`, `status`. Keybind Super+Shift+V → `launcher open ";"`.
-- **Dependencies:** `cliphist`, `wl-clipboard`, `wtype`.
-- **Done when:**
-  - text and screenshots both appear;
-  - a KeePassXC copy doesn't appear;
-  - Alt+Enter pastes into a normal app;
-  - history survives a shell restart. If the watchers die with the shell, move them to Hyprland `exec-once` and document that in HYPRLAND.md.
+**Done.** The user's workflow: Super+V opens the history, Enter copies, Ctrl+V pastes.
+
+- **Recording stays in Hyprland** (`wl-paste --type text|image --watch cliphist store` in `execs.lua`), so it keeps working while the shell restarts. The shell runs no watcher.
+- **`Clipboard` service:** reads `cliphist list` at start, when the `;` list opens, and after each change made from the shell. `copy(id)` (`cliphist decode | wl-copy`), `remove(id)`, `wipe()`; changes run one at a time. Commands go through `sh -c` with the id as an argument. Images are recognised from cliphist's `[[ binary data … ]]` preview (size, format, resolution).
+- **Images:** decoded on demand, only for rows on screen and one at a time, into `$XDG_RUNTIME_DIR/ezshell/clip/<id>.png` (mode 700). The folder is emptied at start; remove and wipe delete their files.
+- **Launcher provider `;`:** newest first, filtered on the preview text; Enter copies and closes, Delete removes, "Clear history" (last row, or `;clear`) takes a second Enter. `Provider` gained `hints`, `removable`/`removed(item)` and `preview(item)` for this.
+- **IPC:** `clipboard refresh`, `list`, `copy(id)`, `remove(id)` (`delete` is reserved in JavaScript), `wipe`, `status`. Keybind Super+V → `launcher open ";"`.
+- **Dropped at the user's request:** incognito (not needed), and Alt+Enter paste with `wtype` (Ctrl+V does it).
+- **Not checked:** the password-manager hint (no KeePassXC installed); cliphist itself skips copies marked `x-kde-passwordManagerHint`.
 
 ## F4. Emoji, symbols and kaomoji
 
@@ -267,7 +258,7 @@ hyprism-style cards (clock, weather, performance, network, storage, sensors) on 
 | Package | Feature | Notes |
 | --- | --- | --- |
 | `cliphist`, `wl-clipboard` | F3 | |
-| `wtype` | F3, F4 | |
+| `wtype` | F4 | |
 | `noto-fonts-emoji` | F4 | |
 | `grim`, `slurp`, `wf-recorder` | F6 | |
 | `satty` | F6 | optional |

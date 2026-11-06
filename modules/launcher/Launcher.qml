@@ -20,6 +20,11 @@ ColumnLayout {
         registry.activate(item, modifier);
     }
 
+    function previewUrl(item: var): string {
+        const file = registry.active?.preview(item) ?? "";
+        return file !== "" ? `file://${file}` : "";
+    }
+
     function reveal(): void {
         list.positionViewAtIndex(root.selected, ListView.Contain);
     }
@@ -33,7 +38,7 @@ ColumnLayout {
             root.launch(root.results[root.selected] ?? null, event.modifiers);
         else if (event.key === Qt.Key_Escape)
             Visibility.close();
-        else
+        else if (event.key !== Qt.Key_Delete || !registry.remove(root.results[root.selected] ?? null))
             return;
         event.accepted = true;
     }
@@ -147,6 +152,18 @@ ColumnLayout {
                     radius: Appearance.island.launcher.iconRadius
                     color: Colors.surfaceContainerHighest
 
+                    Image {
+                        id: thumb
+
+                        anchors.fill: parent
+                        visible: thumb.source.toString() !== ""
+                        source: root.previewUrl(row.modelData)
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        sourceSize.width: Appearance.island.launcher.icon
+                        sourceSize.height: Appearance.island.launcher.icon
+                    }
+
                     IconImage {
                         anchors.fill: parent
                         anchors.margins: Appearance.spacing.small
@@ -156,7 +173,7 @@ ColumnLayout {
 
                     MaterialIcon {
                         anchors.centerIn: parent
-                        visible: row.modelData.icon !== undefined
+                        visible: row.modelData.icon !== undefined && !thumb.visible
                         text: row.modelData.icon ?? ""
                         color: Colors.surfaceFg
                     }
@@ -213,7 +230,7 @@ ColumnLayout {
 
         StyledText {
             Layout.fillWidth: true
-            text: "↑↓ navigate    ⏎ open    esc close"
+            text: registry.active?.hints ?? ""
             color: Colors.surfaceVariantFg
             font.pixelSize: Appearance.font.size.small
         }

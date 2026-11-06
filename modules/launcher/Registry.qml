@@ -8,7 +8,8 @@ QtObject {
     property string text: ""
     readonly property list<Provider> providers: [
         AppsProvider {},
-        ActionsProvider {}
+        ActionsProvider {},
+        ClipboardProvider {}
     ]
     readonly property Provider fallback: root.providers.find(p => p.prefix === "") ?? null
     readonly property Provider active: root.pick(root.text)
@@ -32,6 +33,14 @@ QtObject {
     function activate(item: var, modifier: int): void {
         if (item)
             root.active?.activated(item, modifier);
+    }
+
+    // Returns whether the active provider removes rows (Delete is otherwise left to the search field).
+    function remove(item: var): bool {
+        if (!item || !root.active?.removable)
+            return false;
+        root.active.removed(item);
+        return true;
     }
 
     onTextChanged: root.sync()

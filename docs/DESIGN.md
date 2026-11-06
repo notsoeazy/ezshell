@@ -416,6 +416,7 @@ Only two features need external tools: brightness and night light. Everything el
 | Wallpaper | `Wallpapers` | `Config.wallpaper.*` + one `find` over the folder and its subfolders; drawn by a Background-layer window | — | No swww or hyprpaper needed; two-image cross-fade, slideshow timer |
 | Lock | (module) | `WlSessionLock` + `Quickshell.Services.Pam` | pam | Keep it simple; if the shell crashes while locked, the screen stays locked |
 | Idle | `Idle` | `IdleMonitor`, `IdleInhibitor` | — | Lock or DPMS after timeouts from `Config` |
+| Clipboard | `Clipboard` | `cliphist` through `Process`; recording stays in Hyprland | cliphist, wl-clipboard | Never `Quickshell.clipboardText` (empty without shell focus) |
 | Theme | `Theme` | `Process` (matugen) + `FileView` writer | matugen | Writes `theme.json`; dark only, contrast-checked |
 
 **What every service looks like**
@@ -501,6 +502,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `weather` | `services/Weather.qml` | `refresh`, `status`, `hourly` |
 | `sysinfo` | `services/SysInfo.qml` | `status`, `setActive(bool)` |
 | `camera` | `services/Camera.qml` | `status` |
+| `clipboard` | `services/Clipboard.qml` | `refresh`, `list`, `copy(id)`, `remove(id)`, `wipe`, `status` |
 | `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setFromWallpaper(bool)`, `regenerate`, `status` |
 | `wallpaper` | `services/Wallpapers.qml` | `set(path)`, `get`, `random`, `next`, `previous`, `list`, `rescan` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
