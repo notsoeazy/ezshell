@@ -99,7 +99,7 @@ assets/          images, svg, bundled fonts
 
 ## Files and comments
 
-- One root type per PascalCase `.qml` file. Aim for 150 lines and split at 250.
+- One root type per PascalCase `.qml` file. Aim for 150 lines and split at 250, unless the code is efficient and splitting would only scatter it: then a file may go over 250. Efficient code comes before the line count.
 - No new file for something used once and under about 30 lines. No pass-through wrapper components.
 - Comment only *why* (workarounds, tool quirks, units, ordering). No banners, no commented-out code, no filename headers.
 
@@ -110,5 +110,5 @@ assets/          images, svg, bundled fonts
 - [ ] No new `Timer` where an event source exists, and no `Process` outside `services/`.
 - [ ] Everything typed, and delegates bound.
 - [ ] New settings have exactly one key with its default in the adapter.
-- [ ] No file over 250 lines, and hidden UI is lazy-loaded.
+- [ ] No file over 250 lines unless it's efficient and splitting would only scatter it, and hidden UI is lazy-loaded.
 - [ ] `qmlformat` clean, `qmllint` clean, and `qs` starts with no errors in its log.
