@@ -1,6 +1,6 @@
 # ezshell — System Design & Rulebook
 
-Nov 6, 2026 · **Status: phases 1–6 and E1–E5 done; E6 (theming) next.** See Build plan.
+Nov 6, 2026 · **Status: phases 1–6 and E1–E6 done.** See Build plan.
 
 ## Goals and principles
 
@@ -39,7 +39,7 @@ config/
   Paths.qml            resolves ~/.config/ezshell, state and cache dirs
 themes/
   Appearance.qml       static tokens: spacing, rounding, font sizes, animation
-  Colors.qml           palette, read from theme.json (matugen writes it later)
+  Colors.qml           palette, read from ~/.local/state/ezshell/theme.json (the Theme service writes it)
 state/
   Visibility.qml       which panel / island section / temporary mode is open, and where
 services/              one singleton per system domain
@@ -107,7 +107,7 @@ Imports only point downward. A service never knows a module exists, and a compon
 ```
 Inputs        Keybinds / terminal (qs ipc call, GlobalShortcut)
               System (Pipewire, NM, BlueZ, MPRIS, Hyprland, CLIs)
-              ~/.config/ezshell (config.json, theme.json)
+              ~/.config/ezshell/config.json, ~/.local/state/ezshell/theme.json
                  │ IPC / events / file watch
 State layer   state/Visibility   services/   config/Config   themes/
                  │ bind state ↓   call functions ↑
@@ -319,9 +319,9 @@ The resulting file:
 The look is split into two singletons, and every visual value comes from one of them:
 
 - `Appearance` holds static design tokens you edit by hand.
-- `Colors` holds a palette read from `~/.config/ezshell/theme.json`.
+- `Colors` holds a palette read from `~/.local/state/ezshell/theme.json` (generated state, kept out of the dotfiles).
 
-Dynamic wallpaper theming later becomes "a tool writes `theme.json`", with no QML changes.
+The `Theme` service is the only writer of `theme.json`; `Colors` just reads it, so theming needs no QML changes in the UI.
 
 **`themes/Appearance.qml`**: plain nested `QtObject`s, no file IO. This follows end-4's single-singleton model rather than caelestia's C++ tokens.
 
@@ -362,9 +362,9 @@ Singleton {
 }
 ```
 
-**`themes/Colors.qml`**: a `FileView` + `JsonAdapter` with Material 3 role names. The adapter's defaults are the Nord palette; on first run, a missing `theme.json` is created with them (`onLoadFailed` → `writeAdapter()`, plus `onSaved` → reload so the watcher attaches). After that the shell never writes it, and `watchChanges` makes a regenerated file apply instantly. It has the same shape as the `Config` singleton, with `surface`, `surfaceFg`, `primary`, `primaryFg`, `surfaceContainer`, `outline`, `error` and so on as `property color` keys. Material 3's `onX` roles are named `xFg`, because QML rejects declared properties that start with `on` plus a capital letter. `Colors` resolves its own path, because `themes/` may not import `config/`.
+**`themes/Colors.qml`**: a `FileView` + `JsonAdapter` with Material 3 role names. The adapter's defaults are the built-in palette (`utils/Palettes.qml`: black surfaces with Nord blue accents); on first run, a missing `theme.json` is created with them (`onLoadFailed` → `writeAdapter()`, plus `onSaved` → reload so the watcher attaches). After that the shell never writes it, and `watchChanges` makes a regenerated file apply instantly. It has the same shape as the `Config` singleton, with `surface`, `surfaceFg`, `primary`, `primaryFg`, `surfaceContainer`, `outline`, `error` and so on as `property color` keys. Material 3's `onX` roles are named `xFg`, because QML rejects declared properties that start with `on` plus a capital letter. `Colors` resolves its own path, because `themes/` may not import `config/`.
 
-**Future dynamic theme.** The wallpaper service runs `matugen image <path> --json hex` (or a script in `scripts/`), maps the result to the role names, and writes `theme.json` atomically. `Colors` reloads on its own. A separate preview palette for live wallpaper previews (a caelestia idea) can come later.
+**Dynamic theme (E6).** `services/Theme.qml` owns one `Process` that runs `matugen image <path> --json hex --dry-run -m dark -t <scheme> --prefer saturation`. It maps matugen's roles to ours (`onX` → `xFg`), forces `surface` to black, checks the main pairs against WCAG (4.5 for text, 3 for accents; `utils/Contrast.qml`) and tints any failing foreground toward white or black, then writes `theme.json` atomically. It runs when `Config.wallpaper.path`, `Config.theme.fromWallpaper` or `Config.theme.scheme` changes. With theming off, or no wallpaper, it writes the built-in palette. Dark mode only: the island is always black. A preview run fills `Theme.preview` without writing, for the settings page. If matugen is missing, it logs one warning and keeps the current palette.
 
 **Icons.** Install `ttf-material-symbols-variable` as a system font. This is the package caelestia lists. Every icon in the shell is drawn through one component, which takes a ligature name such as `text: "wifi"`.
 
@@ -416,6 +416,7 @@ Only two features need external tools: brightness and night light. Everything el
 | Wallpaper | `Wallpaper` | `Config.wallpaper.path` + a Background-layer window | — | No swww or hyprpaper needed |
 | Lock | (module) | `WlSessionLock` + `Quickshell.Services.Pam` | pam | Keep it simple; if the shell crashes while locked, the screen stays locked |
 | Idle | `Idle` | `IdleMonitor`, `IdleInhibitor` | — | Lock or DPMS after timeouts from `Config` |
+| Theme | `Theme` | `Process` (matugen) + `FileView` writer | matugen | Writes `theme.json`; dark only, contrast-checked |
 
 **What every service looks like**
 
@@ -500,6 +501,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `weather` | `services/Weather.qml` | `refresh`, `status`, `hourly` |
 | `sysinfo` | `services/SysInfo.qml` | `status`, `setActive(bool)` |
 | `camera` | `services/Camera.qml` | `status` |
+| `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setFromWallpaper(bool)`, `regenerate`, `status` |
 | `wallpaper` | `modules/wallpaper/Wallpaper.qml` | `set(path)`, `get` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md) |
@@ -695,7 +697,7 @@ The work runs in six phases, each ending with something usable, followed by an e
 | E3 Dashboard tabs | done (calendar events not yet: month grid only) |
 | E4 Remaining island indicators | done |
 | E5 Motion polish | done |
-| E6 Theming | next |
+| E6 Theming | done (no templates for other apps yet) |
 
 1. **Foundation.** Build `shell.qml`, `Paths`, `Config`, `Appearance`, `Colors` with default colors, `StyledText`, `StyledRect`, `MaterialIcon`, `Anim` and `CAnim`. Set up `.qmlls.ini`, qmlformat and qmllint.
    - Done when editing `config.json` changes the bar's clock format live.
@@ -738,6 +740,8 @@ The work runs in six phases, each ending with something usable, followed by an e
   - Expand overshoot and collapse curves as ISLAND.md "Motion".
   - Spam-test every IPC toggle.
 - **E6. Theming.** On wallpaper change, run `matugen` → `theme.json`. `Colors` reloads on its own. Every role except `island` follows the wallpaper.
+  - Done: `Theme` service (IPC `theme`), `Config.theme.fromWallpaper` / `scheme`, `Config.wallpaper.folder`, contrast fixes, and Settings → Appearance with a wallpaper picker, scheme buttons and a live preview before Apply. Dark only; `surface` stays black.
+  - Not done: matugen templates for kitty, GTK or Hyprland borders.
 
 ## Open decisions and unverified items
 
@@ -746,7 +750,7 @@ The design rests on Quickshell 0.3.2 source and docs read on 2026-11-05. None of
 **Decisions for you**
 
 - [ ] Where the shell lives: `~/.config/quickshell/ezshell` for `qs -c`, or `~/.config/ezshell` next to `config.json` for `qs -p`.
-- [ ] Where `theme.json` lives. This doc puts it in `~/.config/ezshell/` as you asked. Once it is generated from wallpapers, `~/.local/state/ezshell/` keeps generated files out of your dotfiles.
+- [x] Where `theme.json` lives: `~/.local/state/ezshell/` since E6, because it is generated.
 - [ ] Whether to keep `services/Time.qml` or bind `SystemClock` directly in the bar.
 
 **Not yet verified**

@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.utils
 
 Singleton {
     id: root
@@ -37,12 +38,13 @@ Singleton {
     readonly property alias success: adapter.success
     readonly property alias warning: adapter.warning
 
-    // The shell never writes colors after first run; whatever generates theme.json owns it.
+    // Generated state, so it lives in XDG_STATE_HOME, out of the dotfiles. The Theme service writes it;
+    // the only write from here is the first run, which creates it from the defaults below.
     FileView {
         id: fileView
 
-        // Same dir as Paths.config, resolved here because themes/ may not import config/.
-        path: `${Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config"}/ezshell/theme.json`
+        // Same as Paths.state, resolved here because themes/ may not import config/.
+        path: `${Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state"}/ezshell/theme.json`
         watchChanges: true
         onFileChanged: reloadTimer.restart()
         // The watcher only attaches after a successful read, so a file created on first run needs one.
@@ -56,33 +58,32 @@ Singleton {
         JsonAdapter {
             id: adapter
 
-            // Dark defaults from the Figma variables (docs/FIGMA.md). secondary, secondaryFg and
-            // errorFg aren't in Figma; they are the matching Material 3 baseline values.
-            property color surface: "#121318"
-            property color surfaceFg: "#e3e2e9"
-            property color surfaceVariantFg: "#c5c6d0"
-            property color surfaceContainer: "#1e1f25"
-            property color surfaceContainerHigh: "#292a2f"
-            property color surfaceContainerHighest: "#34343a"
-            property color primary: "#b1c5ff"
-            property color primaryFg: "#172e60"
-            property color primaryContainer: "#2f4578"
-            property color primaryContainerFg: "#d9e2ff"
-            property color secondary: "#c0c6dc"
-            property color secondaryFg: "#2a3042"
-            property color secondaryContainer: "#3f4759"
-            property color secondaryContainerFg: "#dbe2f9"
-            property color tertiary: "#e0bbdd"
-            property color tertiaryContainer: "#5a3d59"
-            property color tertiaryContainerFg: "#fdd7f9"
-            property color outline: "#8f909a"
-            property color outlineVariant: "#45464f"
-            property color error: "#ffb4ab"
-            property color errorFg: "#690005"
-            property color errorContainer: "#93000a"
-            property color errorContainerFg: "#ffdad6"
-            property color success: "#9ad58e"
-            property color warning: "#ffb86b"
+            // Defaults: the built-in palette (utils/Palettes.qml), black with Nord blue accents.
+            property color surface: Palettes.base.surface
+            property color surfaceFg: Palettes.base.surfaceFg
+            property color surfaceVariantFg: Palettes.base.surfaceVariantFg
+            property color surfaceContainer: Palettes.base.surfaceContainer
+            property color surfaceContainerHigh: Palettes.base.surfaceContainerHigh
+            property color surfaceContainerHighest: Palettes.base.surfaceContainerHighest
+            property color primary: Palettes.base.primary
+            property color primaryFg: Palettes.base.primaryFg
+            property color primaryContainer: Palettes.base.primaryContainer
+            property color primaryContainerFg: Palettes.base.primaryContainerFg
+            property color secondary: Palettes.base.secondary
+            property color secondaryFg: Palettes.base.secondaryFg
+            property color secondaryContainer: Palettes.base.secondaryContainer
+            property color secondaryContainerFg: Palettes.base.secondaryContainerFg
+            property color tertiary: Palettes.base.tertiary
+            property color tertiaryContainer: Palettes.base.tertiaryContainer
+            property color tertiaryContainerFg: Palettes.base.tertiaryContainerFg
+            property color outline: Palettes.base.outline
+            property color outlineVariant: Palettes.base.outlineVariant
+            property color error: Palettes.base.error
+            property color errorFg: Palettes.base.errorFg
+            property color errorContainer: Palettes.base.errorContainer
+            property color errorContainerFg: Palettes.base.errorContainerFg
+            property color success: Palettes.base.success
+            property color warning: Palettes.base.warning
         }
     }
 

@@ -18,6 +18,7 @@ ShellRoot {
         Weather;
         SysInfo;
         Camera;
+        Theme;
         Apps;
         Audio;
         Brightness;

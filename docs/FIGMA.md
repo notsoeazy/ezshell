@@ -73,7 +73,7 @@ Page **Foundations** holds the reusable pieces: `Icon` component (`1:20`, mirror
 
 These are the Figma file's dark values.
 
-The shell ships Nord defaults in `theme.json` instead (see DESIGN.md "Theme"), so on screen the colors differ from the PNGs. Match **roles**, not hex: if Figma uses `primaryContainer`, the code uses `Colors.primaryContainer`. matugen output will later overwrite every role except `island`, which stays black.
+The shell's defaults are black with Nord blue accents (`utils/Palettes.qml`; see DESIGN.md "Theme"), so on screen the colors differ from the PNGs. Match **roles**, not hex: if Figma uses `primaryContainer`, the code uses `Colors.primaryContainer`. With `Config.theme.fromWallpaper` on, matugen output replaces every role except `surface` and `island`, which stay black.
 
 In `Colors.qml`, each `onX` role is spelled `xFg`: `onSurface` → `surfaceFg`, `onPrimary` → `primaryFg`, and so on. QML rejects properties that start with `on` plus a capital letter.
 

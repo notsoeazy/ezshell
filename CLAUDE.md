@@ -27,7 +27,7 @@ Check `docs/FIGMA.md` and the PNG in `docs/design/` before building any UI.
 ```
 shell.qml        ShellRoot only: force-loads startup services, instantiates modules
 config/          Config.qml (FileView + JsonAdapter on ~/.config/ezshell/config.json), Paths.qml
-themes/          Appearance.qml (static tokens), Colors.qml (reads ~/.config/ezshell/theme.json)
+themes/          Appearance.qml (static tokens), Colors.qml (reads ~/.local/state/ezshell/theme.json)
 state/           Visibility.qml (open panel / island mode, IPC target "panels")
 services/        one singleton per system domain
 components/      stateless UI primitives (StyledText, StyledRect, MaterialIcon, Anim, CAnim)
@@ -68,8 +68,8 @@ assets/          images, svg, bundled fonts
 
 - Root is `Singleton`. Expose state as `readonly property` and intent as verb functions (`set`, `toggle`, `up`, `down`).
 - Each service has its own `IpcHandler`, whose target is the service name in lowercase. IPC functions are typed (`: void`) and only delegate.
-- Native modules first: Pipewire (with `PwObjectTracker`), Mpris, Networking, Bluetooth, UPower, NotificationServer, SystemTray, Hyprland. Shell out only for brightness (`brightnessctl`, `ddcutil`), night light (`hyprctl hyprsunset`), lifting a Bluetooth rfkill block (`rfkill unblock bluetooth`), saved / hidden Wi‑Fi profiles (`nmcli`), session actions (`systemctl suspend|reboot|poweroff`, through `execDetached` in `Session`), and `SysInfo`'s `df`, `nvidia-smi` (only while the GPU is awake) and `scripts/sysinfo-paths.sh`, and `Camera`'s `scripts/camera-watch.sh` (`inotifywait` on `/dev/video*`). `Weather` uses `XMLHttpRequest`, no process.
-- Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`.
+- Native modules first: Pipewire (with `PwObjectTracker`), Mpris, Networking, Bluetooth, UPower, NotificationServer, SystemTray, Hyprland. Shell out only for brightness (`brightnessctl`, `ddcutil`), night light (`hyprctl hyprsunset`), lifting a Bluetooth rfkill block (`rfkill unblock bluetooth`), saved / hidden Wi‑Fi profiles (`nmcli`), session actions (`systemctl suspend|reboot|poweroff`, through `execDetached` in `Session`), and `SysInfo`'s `df`, `nvidia-smi` (only while the GPU is awake) and `scripts/sysinfo-paths.sh`, and `Camera`'s `scripts/camera-watch.sh` (`inotifywait` on `/dev/video*`), and `Theme`'s `matugen`. `Weather` uses `XMLHttpRequest`, no process.
+- Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`, `Theme`.
 - Processes live only in services, one per data source. Outside services, only `Quickshell.execDetached([...])`.
 - Use events, not polling. A `Timer` is a last resort, only in a service, and only running while needed.
 

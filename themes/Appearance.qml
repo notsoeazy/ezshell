@@ -179,6 +179,10 @@ Singleton {
         readonly property int gap: 12
         readonly property int previewWidth: 320
         readonly property int previewHeight: 180
+        readonly property int thumbWidth: 152
+        readonly property int thumbHeight: 86
+        readonly property int swatch: 44
+        readonly property int selectedBorder: 2
     }
 
     // Generic controls (components/Styled*), shared by the settings app and the island.

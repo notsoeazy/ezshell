@@ -22,6 +22,7 @@ Singleton {
     readonly property alias sysinfo: adapter.sysinfo
     readonly property alias indicators: adapter.indicators
     readonly property alias animations: adapter.animations
+    readonly property alias theme: adapter.theme
 
     FileView {
         id: fileView
@@ -55,6 +56,7 @@ Singleton {
             property SysInfoConfig sysinfo: SysInfoConfig {}
             property IndicatorsConfig indicators: IndicatorsConfig {}
             property AnimationsConfig animations: AnimationsConfig {}
+            property ThemeConfig theme: ThemeConfig {}
         }
     }
 
@@ -114,6 +116,8 @@ Singleton {
 
     component WallpaperConfig: JsonObject {
         property string path: ""
+        // Where the settings app looks for wallpapers to pick from.
+        property string folder: "~/Pictures/Wallpapers"
     }
 
     component BatteryConfig: JsonObject {
@@ -157,5 +161,13 @@ Singleton {
     component AnimationsConfig: JsonObject {
         // Multiplier for every animation: 0.25 shows them four times slower, 0 turns them off.
         property real speed: 1.0
+    }
+
+    component ThemeConfig: JsonObject {
+        // Colors from the wallpaper (matugen); off = the built-in palette (black with Nord blue).
+        property bool fromWallpaper: false
+        // matugen scheme type: scheme-tonal-spot, scheme-content, scheme-expressive, scheme-fidelity,
+        // scheme-fruit-salad, scheme-monochrome, scheme-neutral, scheme-rainbow, scheme-vibrant.
+        property string scheme: "scheme-tonal-spot"
     }
 }
