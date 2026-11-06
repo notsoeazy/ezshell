@@ -23,6 +23,7 @@ Singleton {
     readonly property alias indicators: adapter.indicators
     readonly property alias animations: adapter.animations
     readonly property alias theme: adapter.theme
+    readonly property alias capture: adapter.capture
 
     FileView {
         id: fileView
@@ -57,6 +58,7 @@ Singleton {
             property IndicatorsConfig indicators: IndicatorsConfig {}
             property AnimationsConfig animations: AnimationsConfig {}
             property ThemeConfig theme: ThemeConfig {}
+            property CaptureConfig capture: CaptureConfig {}
         }
     }
 
@@ -167,6 +169,14 @@ Singleton {
     component AnimationsConfig: JsonObject {
         // Multiplier for every animation: 0.25 shows them four times slower, 0 turns them off.
         property real speed: 1.0
+    }
+
+    component CaptureConfig: JsonObject {
+        // Folders, created on first use.
+        property string screenshots: "~/Pictures/Screenshots"
+        property string recordings: "~/Videos/Recordings"
+        // Record the default output's sound with the screen.
+        property bool audio: false
     }
 
     component ThemeConfig: JsonObject {

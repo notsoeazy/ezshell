@@ -27,7 +27,7 @@ Singleton {
     readonly property list<string> tabs: ["overview", "media", "system", "calendar"]
     readonly property list<string> details: ["wifi", "bluetooth", "audio", "power"]
     // Sections opened on their own (keybind or IPC), not from the overview: back() collapses them.
-    readonly property list<string> standalone: ["wallpapers"]
+    readonly property list<string> standalone: ["wallpapers", "capture"]
     readonly property bool expanded: root.isSection(root.panel)
 
     function isSection(name: string): bool {

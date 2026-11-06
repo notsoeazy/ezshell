@@ -40,6 +40,13 @@ Scope {
         target: Polkit
     }
 
+    // A region shot waits until the island's "Drag to select" pill has collapsed, so it isn't in the picture.
+    Binding {
+        target: Capture
+        property: "settle"
+        value: Appearance.anim.scaled(Appearance.anim.islandCollapse + Appearance.anim.islandFadeOut)
+    }
+
     // Themes can't read config, so the user's animation speed is pushed into the tokens here.
     Binding {
         target: Appearance.anim
@@ -84,7 +91,7 @@ Scope {
             PanelWindow {
                 id: overlay
 
-                readonly property bool typing: ["launcher", "wallpapers", "polkit"].includes(surface.mode)
+                readonly property bool typing: ["launcher", "wallpapers", "polkit", "capture"].includes(surface.mode)
                 readonly property bool expanded: Visibility.isSection(surface.mode)
                 readonly property int typingFocus: WlrKeyboardFocus.Exclusive
                 readonly property int expandedFocus: root.grabKeys ? overlay.typingFocus : WlrKeyboardFocus.OnDemand

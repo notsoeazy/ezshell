@@ -120,6 +120,26 @@ kill $(pgrep -f '^/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1$')
 
 To go back, put the line back and run `setsid /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &`. Nothing else starts an agent here: there's no `hyprpolkitagent` and no autostart entry. `polkit-gnome` can stay installed.
 
+## 8. Screenshots and recording (recommended, not applied)
+
+Every capture is an IPC call, so any key can call it. Suggested binds, replacing caelestia's in `keybinds.lua` (lines 142–147 today):
+
+```lua
+-- Screenshots: saved to ~/Pictures/Screenshots and copied to the clipboard
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(qs .. "capture screenshot region"))
+hl.bind("SUPER + SHIFT + F", hl.dsp.exec_cmd(qs .. "capture screenshot monitor"))
+hl.bind("Print", hl.dsp.exec_cmd(qs .. "capture screenshot monitor"), { locked = true })
+
+-- The capture section (cards for every screenshot and recording mode, and the sound switch)
+hl.bind("SUPER + SHIFT + R", hl.dsp.exec_cmd(qs .. "panels open capture ''"))
+
+-- Recording: the same key starts and stops (to ~/Videos/Recordings; sound follows the section's switch)
+hl.bind("CTRL + ALT + R", hl.dsp.exec_cmd(qs .. "capture toggle monitor"))
+hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd(qs .. "capture toggle region"))
+```
+
+caelestia's `SUPER + SHIFT + ALT + S` (live region picker) and `SUPER + ALT + R` (record with sound) have no direct replacement: the region screenshot above covers the first, and for the second turn on "Record sound" (`capture setAudio true`) and use the toggle. Other calls: `capture screenshot window|full`, `capture record <mode>`, `capture stop`, `capture status`.
+
 ## 6. Already in place
 
 - `misc.allow_session_lock_restore = true` (`hyprland/misc.lua`): if the shell dies while locked, restarting it takes the lock back instead of leaving you on Hyprland's red "lockscreen died" screen. Keep it.

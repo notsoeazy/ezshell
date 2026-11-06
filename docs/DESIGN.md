@@ -419,6 +419,7 @@ Only two features need external tools: brightness and night light. Everything el
 | Clipboard | `Clipboard` | `cliphist` through `Process`; recording stays in Hyprland | cliphist, wl-clipboard | Never `Quickshell.clipboardText` (empty without shell focus) |
 | Emoji | `Emoji` | `assets/emoji.tsv` through `FileView` (made by `scripts/emoji-gen.py`) | noto-fonts-emoji | Copies through `Clipboard.copyText` |
 | Polkit | `Polkit` | `Quickshell.Services.Polkit` (`PolkitAgent`) | polkit | The only agent: polkit-gnome must not start (HYPRLAND.md §7) |
+| Capture | `Capture` | `grim`, `slurp`, `gpu-screen-recorder`, `notify-send` through `Process` | grim, slurp, gpu-screen-recorder | Drives the recording indicator itself (no Hyprland screencast) |
 | Theme | `Theme` | `Process` (matugen) + `FileView` writer | matugen | Writes `theme.json`; dark only, contrast-checked |
 
 **What every service looks like**
@@ -507,6 +508,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `clipboard` | `services/Clipboard.qml` | `refresh`, `list`, `copy(id)`, `remove(id)`, `wipe`, `status` |
 | `emoji` | `services/Emoji.qml` | `search(text)`, `copy(char)`, `recents` |
 | `polkit` | `services/Polkit.qml` | `status`, `cancel` (never a submit) |
+| `capture` | `services/Capture.qml` | `screenshot(mode)`, `screenshotIn(mode, ms)`, `record(mode)`, `recordIn(mode, ms)`, `stop`, `toggle(mode)`, `setAudio(bool)`, `status` |
 | `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setFromWallpaper(bool)`, `regenerate`, `status` |
 | `wallpaper` | `services/Wallpapers.qml` | `set(path)`, `get`, `random`, `next`, `previous`, `list`, `rescan` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |

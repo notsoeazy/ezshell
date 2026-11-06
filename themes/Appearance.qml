@@ -63,6 +63,8 @@ Singleton {
         readonly property int wallpaper: 700
         // How long "Copied" shows before the launcher closes.
         readonly property int copied: 600
+        // One beat of the pulsing "Starting recording…" dot.
+        readonly property int pulse: 500
         // One swing of the wrong-password shake.
         readonly property int shake: 50
         // Fraction of the morph that passes before new content starts fading in.

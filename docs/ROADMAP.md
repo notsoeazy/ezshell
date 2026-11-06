@@ -33,8 +33,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F3 | Clipboard history (`;`) | M | done |
 | F4 | Emoji, symbols and kaomoji (`:`) | S | done |
 | F5 | Polkit agent in the island | M | done |
-| F6 | Screenshots and screen recording | M | next |
-| F7 | Tasks IPC and generic OSD | S | |
+| F6 | Screenshots and screen recording | M | done |
+| F7 | Tasks IPC and generic OSD | S | next |
 | F8 | Quick utilities | S each | |
 | F9 | Keybind cheat sheet and updates | S | |
 | F10 | Window switcher (Super+Tab) | M | |
@@ -166,20 +166,19 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 
 ## F6. Screenshots and screen recording
 
-- **`Capture` service:** `screenshot(mode)` and `record(mode)`, where mode is `region | window | monitor | full`; plus `stop()` and `status`.
-- **Screenshots:**
-  - `grim`, with `slurp` for a region; window geometry comes from `Hypr`.
-  - Saves to `Config.capture.screenshots` and copies to the clipboard (`wl-copy --type image/png`).
-  - Optional "Edit" opens `satty`.
-- **Recording:**
-  - `wf-recorder`, with an audio toggle (`--audio`), for a region, window or monitor.
-  - Saves to `Config.capture.recordings`. The E4 recording indicator already shows while it runs.
-- **UI:**
-  - Island section `capture`: Screenshot / Record × Region / Window / Screen, plus the audio toggle.
-  - When done, a notification with "Open folder" and "Copy path".
-  - A native frozen-screen region picker (full-screen Overlay window with `ScreencopyView { live: false }`) can replace `slurp` later.
-- **Keybinds:** Super+Shift+S region screenshot, Super+Shift+F monitor screenshot, Super+Shift+R opens the capture section.
-- **Dependencies:** `grim`, `slurp`, `wf-recorder`, `satty` (optional).
+**Done.** Every capture is an IPC call (target `capture`), so binds and launcher actions just call it.
+
+- **`Capture` service** (force-loaded; every capture process lives here; paths and geometry go to `sh -c` as arguments):
+  - `screenshot(mode)`, mode `region | window | monitor | full`: `slurp` for a region (Esc does nothing), the active window from `hyprctl -j activewindow` at that moment, the focused output, or all outputs; `grim` saves `screenshot_<time>.png` to `Config.capture.screenshots` (default `~/Pictures/Screenshots`, created when missing) and `wl-copy --type image/png` copies it.
+  - `record(mode)`, mode `region | window | monitor`, with **gpu-screen-recorder** (installed, GPU-encoded, what caelestia used; chosen over the roadmap's wf-recorder, which isn't installed): the monitor's refresh rate, `-a default_output` when `Config.capture.audio` is on, `recording_<time>.mp4` in `Config.capture.recordings` (default `~/Videos/Recordings`). `stop()` sends SIGINT, which finishes a playable file. It takes 1–2 s to start capturing.
+  - `toggle(mode)`, `setAudio(bool)`, `screenshotIn` / `recordIn(mode, ms)` (after a pause, so a menu can close first), `status`. Properties: `busy`, `recording`, `phase` (`selecting | starting | recording`), `lastShot`, `settle`.
+  - Hyprland reports no screencast for gpu-screen-recorder (it reads the GPU), and `-w portal` would ask for a share picker each time, so `Capture.recording` drives the island's recording indicator itself.
+- **Feedback in the island:** "Drag to select · Esc to cancel" while slurp is up (the shot waits `Capture.settle` for it to clear); "Starting recording…" with a pulsing dot until gpu-screen-recorder reports its encoder, then "Recording" briefly; after a screenshot, the "Saved · Copied" mode with a thumbnail that pops in. The recording indicator (red dot + stop icon) stops the recording when clicked.
+- **Notifications:** sent with `notify-send` (one waiting process each, so older ones keep working buttons) with an `x-ezshell-capture` hint, so they go straight to the list instead of a banner. Screenshot: Open, Open folder, Edit (swappy; satty if installed). Recording: Open, Open folder.
+- **Island section `capture`** (`panels open capture`, standalone): Screenshot and Record × Region / Window / Screen as cards, a "Record sound" switch, arrows and Enter; a Stop card while recording. Picking collapses the island first.
+- **`>` actions:** Capture, Screenshot region / window / screen / all screens, Record screen / region / window (Stop recording while one runs).
+- **Later:** a native frozen-screen region picker (a full-screen Overlay window with `ScreencopyView { live: false }`) can replace `slurp`, like caelestia's `screenshotFreeze`.
+- **Binds:** recommended in HYPRLAND.md §8, not applied.
 
 ## F7. Tasks IPC and generic OSD
 
@@ -240,8 +239,8 @@ hyprism-style cards (clock, weather, performance, network, storage, sensors) on 
 | --- | --- | --- |
 | `cliphist`, `wl-clipboard` | F3 | |
 | `noto-fonts-emoji` | F4 | already installed; `python-fonttools` only to re-run the generator |
-| `grim`, `slurp`, `wf-recorder` | F6 | |
-| `satty` | F6 | optional |
+| `grim`, `slurp`, `gpu-screen-recorder` | F6 | all installed |
+| `swappy` or `satty` | F6 | optional, for Edit; swappy is installed |
 | `hyprpicker` | F8 | |
 | `ddcutil` | F8 | optional |
 | `pacman-contrib` | F9 | |

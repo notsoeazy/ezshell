@@ -34,6 +34,7 @@ ColumnLayout {
             "audio": audioPage,
             "power": powerPage,
             "wallpapers": wallpapersPage,
+            "capture": capturePage,
             "notifications": notificationsPage
         })
 
@@ -160,5 +161,11 @@ ColumnLayout {
         id: wallpapersPage
 
         WallpapersSection {}
+    }
+
+    Component {
+        id: capturePage
+
+        CaptureSection {}
     }
 }

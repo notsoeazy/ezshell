@@ -1,6 +1,8 @@
 import QtQuick
+import qs.config
 import qs.services
 import qs.state
+import qs.themes
 import qs.utils
 
 // ">" actions (caelestia style): open island sections and settings pages, flip toggles, session.
@@ -48,7 +50,7 @@ Provider {
         list.push(open("system", "System", "monitoring"), open("calendar", "Calendar", "calendar_month"));
         list.push(open("wifi", "Wi‑Fi", "wifi"), open("bluetooth", "Bluetooth", "bluetooth"));
         list.push(open("audio", "Audio", "volume_up"), open("power", "Power", "battery_full"));
-        list.push(open("wallpapers", "Wallpapers", "wallpaper"));
+        list.push(open("wallpapers", "Wallpapers", "wallpaper"), open("capture", "Capture", "screenshot_monitor"));
         list.push({
             key: "open-notifications",
             title: "Notifications",
@@ -69,6 +71,39 @@ Provider {
                     stays: true
                 });
         list.push(switchTo(";", "Clipboard history", "content_paste"), switchTo(":", "Emoji & symbols", "mood"));
+        // Taken once the launcher has collapsed, so it isn't in the picture.
+        const settle = Appearance.anim.scaled(Appearance.anim.islandCollapse + Appearance.anim.islandFadeOut);
+        const shot = (mode, title, icon) => ({
+                    key: `screenshot-${mode}`,
+                    title: title,
+                    icon: icon,
+                    group: "Capture",
+                    run: () => Capture.screenshotIn(mode, settle)
+                });
+        list.push(shot("region", "Screenshot region", "screenshot_region"));
+        list.push(shot("window", "Screenshot window", "select_window"));
+        list.push(shot("monitor", "Screenshot screen", "screenshot_monitor"));
+        list.push(shot("full", "Screenshot all screens", "fullscreen"));
+        const rec = (mode, title, icon) => ({
+                    key: `record-${mode}`,
+                    title: title,
+                    icon: icon,
+                    group: Config.capture.audio ? "Capture · with sound" : "Capture",
+                    run: () => Capture.recordIn(mode, settle)
+                });
+        if (Capture.recording) {
+            list.push({
+                key: "record-stop",
+                title: "Stop recording",
+                icon: "stop_circle",
+                group: "Capture",
+                run: () => Capture.stop()
+            });
+        } else {
+            list.push(rec("monitor", "Record screen", "screen_record"));
+            list.push(rec("region", "Record region", "screenshot_region"));
+            list.push(rec("window", "Record window", "select_window"));
+        }
         list.push(page("wifi", "Wi‑Fi", "wifi"), page("bluetooth", "Bluetooth", "bluetooth"));
         list.push(page("audio", "Audio", "volume_up"), page("power", "Power", "battery_full"));
         list.push(page("workspaces", "Workspaces", "grid_view"), page("appearance", "Appearance", "palette"));

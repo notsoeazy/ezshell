@@ -26,6 +26,7 @@ Item {
             "audio": "Audio",
             "power": "Power",
             "wallpapers": "Wallpapers",
+            "capture": "Capture",
             "notifications": "Notifications"
         })
     // A detail page's main switch, on the right of its header.

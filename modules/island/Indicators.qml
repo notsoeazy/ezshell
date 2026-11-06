@@ -24,10 +24,11 @@ RowLayout {
         radius: height / 2
     }
 
-    // Recording or screen share: error dot + screen_share. Does nothing on click for now; the handler
-    // only keeps the click from expanding the island.
+    // Recording or screen share: error dot + an icon. Hyprland reports shares; ezshell's own recordings
+    // (gpu-screen-recorder, invisible to Hyprland) come from Capture, and a click stops them. Otherwise the
+    // handler only keeps the click from expanding the island.
     RowLayout {
-        opacity: Hypr.screenSharing ? 1 : 0
+        opacity: Hypr.screenSharing || Capture.recording ? 1 : 0
         // Fades out before leaving the layout, so the balance-rule width change follows the fade.
         visible: opacity > 0
 
@@ -41,12 +42,13 @@ RowLayout {
         }
 
         MaterialIcon {
-            text: "screen_share"
+            text: Capture.recording ? "stop_circle" : "screen_share"
             color: Colors.error
         }
 
         TapHandler {
             gesturePolicy: TapHandler.ReleaseWithinBounds
+            onTapped: Capture.stop()
         }
     }
 

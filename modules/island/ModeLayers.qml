@@ -133,4 +133,24 @@ Item {
             PolkitView {}
         }
     }
+
+    ModeLayer {
+        anchors.centerIn: parent
+        width: Appearance.island.capture.width - 2 * Appearance.island.capture.padding
+        shown: root.mode === "captured"
+        fadeInDelay: root.fadeInDelay
+        sourceComponent: Component {
+            CapturedView {}
+        }
+    }
+
+    ModeLayer {
+        anchors.centerIn: parent
+        width: Appearance.island.capture.statusWidth - 2 * Appearance.island.capture.padding
+        shown: root.mode === "capturing"
+        fadeInDelay: root.fadeInDelay
+        sourceComponent: Component {
+            CapturingView {}
+        }
+    }
 }

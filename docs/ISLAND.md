@@ -215,6 +215,8 @@ bind = SUPER, W, exec, qs -c ezshell ipc call panels toggle wifi
 
 - **`wallpapers`** (`panels toggle wallpapers`, Super+K): a search field over a single row of thumbnails (`components/WallpaperGrid.qml` with `strip: true`). The selection stays centered and the row slides under it; ←/→, the wheel or a touchpad swipe move it, and dragging the row works too. Clicking a side thumbnail centers it; Enter or a click on the centered one applies it and collapses. The wallpaper in use has a check; the footer shows the selected file's path relative to the folder. The search field takes Exclusive keyboard focus, like the launcher.
 
+- **`capture`** (`panels open capture`): Screenshot and Record × Region / Window / Screen as cards, and a sound switch; arrows and Enter. Picking collapses the island and the capture waits for it (`Capture.settle`). Temporary modes around a capture: `capturing` ("Drag to select", "Starting recording…", "Recording") and `captured` (thumbnail, "Saved · Copied"). The recording indicator also follows `Capture.recording`, and a click on it stops the recording.
+
 ### What a click opens (deep links)
 
 | Click target on the resting island | Result |

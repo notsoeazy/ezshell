@@ -63,6 +63,10 @@ StyledRect {
             return Qt.size(island.notification.width, layers.notificationHeight);
         case "launcher":
             return Qt.size(island.launcher.width, layers.launcherHeight + 2 * island.launcher.padding);
+        case "capturing":
+            return Qt.size(island.capture.statusWidth, island.osd.height);
+        case "captured":
+            return Qt.size(island.capture.width, island.capture.height);
         case "polkit":
             return Qt.size(island.polkit.width, layers.polkitHeight + 2 * island.polkit.padding);
         case "music":
@@ -73,10 +77,10 @@ StyledRect {
         }
     }
 
-    // Detail sections are narrow; tabs and standalone sections (wallpapers) are dashboard-wide.
+    // Detail sections and the capture section are narrow; tabs and wallpapers are dashboard-wide.
     function sectionWidth(mode: string): real {
         const expanded = Appearance.island.expanded;
-        return Visibility.details.includes(mode) ? expanded.sectionWidth : expanded.tabWidth;
+        return Visibility.details.includes(mode) || mode === "capture" ? expanded.sectionWidth : expanded.tabWidth;
     }
 
     // Scrolling on the OSD keeps adjusting what it shows; the resting view's scroll areas are hidden by then.

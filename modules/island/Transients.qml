@@ -33,6 +33,9 @@ Scope {
     // Skipped while expanded (the notification still lands in the list), under DND unless critical,
     // and over fullscreen unless the user allows it.
     function notify(notification: Notification): void {
+        // Capture's own notification: the island has just shown the capture, so it only goes to the list.
+        if (notification.hints["x-ezshell-capture"])
+            return;
         const critical = notification.urgency === NotificationUrgency.Critical;
         if (Visibility.expanded || (Notifs.dnd && !critical))
             return;
@@ -82,6 +85,24 @@ Scope {
         }
 
         target: Notifs
+    }
+
+    Connections {
+        function onShotTaken(): void {
+            root.show("captured", Config.osd.hideDelay);
+        }
+
+        // Selecting and starting stay up until they end; "recording" is said once, then the indicator stays.
+        function onPhaseChanged(): void {
+            if (Capture.phase === "selecting" || Capture.phase === "starting")
+                root.show("capturing", 0);
+            else if (Capture.phase === "recording")
+                root.show("capturing", Config.osd.hideDelay);
+            else if (Visibility.temporary === "capturing")
+                Visibility.temporary = "";
+        }
+
+        target: Capture
     }
 
     // UI-only timer: it ends a UI mode, so it lives with the island rather than in a service.
