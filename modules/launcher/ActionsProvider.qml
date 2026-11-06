@@ -59,6 +59,16 @@ Provider {
                 Visibility.push("notifications");
             }
         });
+        // Other launcher lists: they retype the launcher instead of closing it.
+        const switchTo = (prefix, title, icon) => ({
+                    key: `launcher-${prefix}`,
+                    title: title,
+                    icon: icon,
+                    group: "Launcher",
+                    run: () => Visibility.openLauncher(prefix),
+                    stays: true
+                });
+        list.push(switchTo(";", "Clipboard history", "content_paste"), switchTo(":", "Emoji & symbols", "mood"));
         list.push(page("wifi", "Wi‑Fi", "wifi"), page("bluetooth", "Bluetooth", "bluetooth"));
         list.push(page("audio", "Audio", "volume_up"), page("power", "Power", "battery_full"));
         list.push(page("workspaces", "Workspaces", "grid_view"), page("appearance", "Appearance", "palette"));
@@ -118,8 +128,8 @@ Provider {
         }
         root.armed = "";
         item.run();
-        // Sections replace the launcher in the island; everything else closes it.
-        if (Visibility.panel === "launcher")
+        // Sections replace the launcher in the island; launcher lists retype it; everything else closes it.
+        if (Visibility.panel === "launcher" && !item.stays)
             Visibility.close();
     }
 }

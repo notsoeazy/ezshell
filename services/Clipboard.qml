@@ -28,6 +28,12 @@ Singleton {
         Quickshell.execDetached(["sh", "-c", 'cliphist decode "$1" | wl-copy', "sh", id]);
     }
 
+    // Puts text on the clipboard (the emoji picker); wl-copy takes it as an argument, no shell involved.
+    function copyText(text: string): void {
+        if (text !== "")
+            Quickshell.execDetached(["wl-copy", "--", text]);
+    }
+
     function remove(id: string): void {
         if (id === "")
             return;

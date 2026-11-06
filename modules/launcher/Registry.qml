@@ -9,7 +9,8 @@ QtObject {
     readonly property list<Provider> providers: [
         AppsProvider {},
         ActionsProvider {},
-        ClipboardProvider {}
+        ClipboardProvider {},
+        EmojiProvider {}
     ]
     readonly property Provider fallback: root.providers.find(p => p.prefix === "") ?? null
     readonly property Provider active: root.pick(root.text)

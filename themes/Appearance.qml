@@ -40,6 +40,7 @@ Singleton {
         // The design uses Google Sans Flex; Inter stands in until it is installed.
         readonly property string family: "Inter"
         readonly property string icons: "Material Symbols Rounded"
+        readonly property string emoji: "Noto Color Emoji"
         readonly property FontSizeTokens size: FontSizeTokens {}
     }
 
@@ -60,6 +61,8 @@ Singleton {
         readonly property int islandFadeOut: 100
         readonly property int islandFadeIn: 150
         readonly property int wallpaper: 700
+        // How long "Copied" shows before the launcher closes.
+        readonly property int copied: 600
         // Fraction of the morph that passes before new content starts fading in.
         readonly property real islandFadeInAt: 0.4
 

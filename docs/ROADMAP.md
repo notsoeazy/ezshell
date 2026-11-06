@@ -31,8 +31,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F1 | Wallpaper selector in the island, native transitions | M | done |
 | F2 | Launcher providers: registry, `>` actions | M | done |
 | F3 | Clipboard history (`;`) | M | done |
-| F4 | Emoji, symbols and kaomoji (`:`) | S | next |
-| F5 | Polkit agent in the island | M | |
+| F4 | Emoji, symbols and kaomoji (`:`) | S | done |
+| F5 | Polkit agent in the island | M | next |
 | F6 | Screenshots and screen recording | M | |
 | F7 | Tasks IPC and generic OSD | S | |
 | F8 | Quick utilities | S each | |
@@ -139,21 +139,17 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 
 ## F4. Emoji, symbols and kaomoji
 
-- **Data, committed so the shell works offline:**
-  - A one-off generator in `scripts/` turns emojibase `compact.raw.json` into `assets/emoji.tsv` (character, name, tags, group, skin variants).
-  - Hand-written `assets/symbols.tsv` (arrows, math, currency, typography) and `assets/kaomoji.tsv`.
-- **`Emoji` service:**
-  - loads the TSVs once with `FileView` and indexes them;
-  - searches by prefix plus fuzzy match over name and tags (reuse `utils/Fuzzy`), ignoring accents;
-  - keeps recents and the chosen skin tone in `~/.local/state/ezshell/emoji.json`.
-- **Launcher provider `:`:**
-  - a grid, with category chips (Recent, Smileys, People, Animals, Food, Travel, Objects, Symbols, Flags, Kaomoji);
-  - Enter copies the character;
-  - Alt+Enter types it with `wtype` after the launcher closes;
-  - right-click shows skin tones.
-- **Font:** `Noto Color Emoji`. Hide characters the font can't render.
-- **Keybind:** Ctrl+Period → `launcher open ":"`.
-- **Dependencies:** `noto-fonts-emoji`, `wtype`.
+**Done**, in caelestia's spirit (its `caelestia emoji` data set), shown as a grid. Enter copies and the user pastes with Ctrl+V: no Alt+Enter typing, no `wtype`, no skin tones.
+
+- **Data, committed so the shell works offline:** `assets/emoji.tsv` (`kind`, `text`, `name`, `words`, `font`; 12,836 rows): 1,914 emoji, 243 symbols, 62 kaomoji, 10,617 Nerd Font glyphs.
+  - Built once by `scripts/emoji-gen.py` (run by hand, never by the shell; needs `fontTools`) from emojibase `compact.raw.json` (MIT; names and tags from Unicode CLDR), Nerd Fonts `glyphnames.json` (MIT) and the hand-written `scripts/emoji-extra.tsv` (arrows, math, currency, typography, Greek, kaomoji).
+  - **Hidden when the fonts can't draw them:** emoji are checked against Noto Color Emoji, multi-character ones against its ligatures; the rest against every installed font. Left out: the 9 Emoji 17 characters the installed font lacks. Re-run after a font update.
+  - **Font column:** symbols and kaomoji that Inter can't draw name a family that can (Noto Sans Kannada for ಠ_ಠ). Without it Qt tries Inter first for complex scripts and logs "OpenType support missing" on every draw.
+- **`Emoji` service:** loads the file once with `FileView`; search ranks name start, name word, search word, then contains, accent-insensitive (`Fuzzy.fold`), emoji first; loose in-order matching only when nothing else matches, never over the Nerd Font names. About 10–30 ms per query. Recents (last 30) in `~/.local/state/ezshell/emoji.json`, written on the first pick. `copy(text)` goes through `Clipboard.copyText` (`wl-copy -- <text>`). IPC `emoji search(text)`, `copy(char)`, `recents`.
+- **Launcher grid support:** `Provider.layout` (`"list"` or `"grid"`), `cellWidth`, `chips`/`chip` (Tab and Shift+Tab), `status(item)` for the footer. Rows and cells live in `LauncherRow.qml` and `LauncherCell.qml`; apps, actions and clipboard looked the same before and after.
+- **Provider `:`:** a grid; with nothing typed, recent picks first, then everything (emoji, symbols, kaomoji, Nerd Font glyphs). Chips by kind: All, Recent, Emoji, Symbols, Kaomoji, Nerd Font. Kaomoji get wide cells under their chip and are cut short elsewhere. The footer names the selection; Enter copies, shows "Copied" for 0.6 s and closes. `>` also has "Emoji & symbols" and "Clipboard history".
+- **Not done:** emoji category chips (Smileys, People, …) need a category column in the generator; skin tones (not wanted).
+- **Keybind:** Super+Period → `launcher open ":"`, replacing caelestia's emoji picker.
 
 ## F5. Polkit agent in the island
 
@@ -258,8 +254,7 @@ hyprism-style cards (clock, weather, performance, network, storage, sensors) on 
 | Package | Feature | Notes |
 | --- | --- | --- |
 | `cliphist`, `wl-clipboard` | F3 | |
-| `wtype` | F4 | |
-| `noto-fonts-emoji` | F4 | |
+| `noto-fonts-emoji` | F4 | already installed; `python-fonttools` only to re-run the generator |
 | `grim`, `slurp`, `wf-recorder` | F6 | |
 | `satty` | F6 | optional |
 | `hyprpicker` | F8 | |

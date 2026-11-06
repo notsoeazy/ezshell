@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import qs.components
 import qs.state
 import qs.themes
@@ -15,6 +14,12 @@ ColumnLayout {
 
     property int selected: 0
     readonly property var results: registry.items
+    readonly property bool grid: registry.active?.layout === "grid"
+    // Arrow steps: rows in a list; cells, and a row of cells up or down, in a grid.
+    readonly property int rowStep: root.grid ? cells.columns : 1
+    readonly property var current: root.results[root.selected] ?? null
+    readonly property string status: root.current ? registry.active?.status(root.current) ?? "" : ""
+    readonly property list<string> chips: registry.active?.chips ?? []
 
     function launch(item: var, modifier: int): void {
         registry.activate(item, modifier);
@@ -26,19 +31,39 @@ ColumnLayout {
     }
 
     function reveal(): void {
-        list.positionViewAtIndex(root.selected, ListView.Contain);
+        if (root.grid)
+            cells.positionViewAtIndex(root.selected, GridView.Contain);
+        else
+            list.positionViewAtIndex(root.selected, ListView.Contain);
+    }
+
+    function move(by: int): void {
+        root.selected = Math.max(0, Math.min(root.selected + by, root.results.length - 1));
+    }
+
+    // Left and Right stay with the search field in a list, and move between cells in a grid.
+    function cycleChip(by: int): void {
+        const provider = registry.active;
+        const count = provider.chips.length;
+        const index = provider.chips.indexOf(provider.chip);
+        provider.chip = provider.chips[((index + by) % count + count) % count];
+        root.selected = 0;
     }
 
     function handleKey(event: KeyEvent): void {
-        if (event.key === Qt.Key_Down)
-            root.selected = Math.min(root.selected + 1, root.results.length - 1);
+        if ((event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) && root.chips.length > 0)
+            root.cycleChip(event.key === Qt.Key_Backtab ? -1 : 1);
+        else if (event.key === Qt.Key_Down)
+            root.move(root.rowStep);
         else if (event.key === Qt.Key_Up)
-            root.selected = Math.max(root.selected - 1, 0);
+            root.move(-root.rowStep);
+        else if (root.grid && (event.key === Qt.Key_Left || event.key === Qt.Key_Right))
+            root.move(event.key === Qt.Key_Right ? 1 : -1);
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
-            root.launch(root.results[root.selected] ?? null, event.modifiers);
+            root.launch(root.current, event.modifiers);
         else if (event.key === Qt.Key_Escape)
             Visibility.close();
-        else if (event.key !== Qt.Key_Delete || !registry.remove(root.results[root.selected] ?? null))
+        else if (event.key !== Qt.Key_Delete || !registry.remove(root.current))
             return;
         event.accepted = true;
     }
@@ -56,9 +81,8 @@ ColumnLayout {
     }
 
     Connections {
-        function onLauncherTextChanged(): void {
-            if (Visibility.launcherText !== "")
-                input.text = Visibility.launcherText;
+        function onLauncherRequestChanged(): void {
+            input.text = Visibility.launcherText;
         }
 
         target: Visibility
@@ -68,6 +92,13 @@ ColumnLayout {
         id: registry
 
         text: input.text
+    }
+
+    // One model, handed to whichever view the active provider's layout uses.
+    ScriptModel {
+        id: results
+
+        values: root.results
     }
 
     StyledRect {
@@ -116,98 +147,89 @@ ColumnLayout {
         interactive: list.count > Appearance.island.launcher.maxResults
         clip: true
         boundsBehavior: Flickable.StopAtBounds
-        model: ScriptModel {
-            values: root.results
-        }
+        model: root.grid ? null : results
 
-        delegate: StyledRect {
+        delegate: LauncherRow {
             id: row
 
-            required property var modelData
-            required property int index
-            readonly property bool current: row.index === root.selected
-
             width: list.width
-            implicitHeight: Appearance.island.launcher.row
-            radius: Appearance.rounding.normal
-            color: row.current ? Colors.surfaceContainerHigh : Colors.transparent
+            current: row.index === root.selected
+            picture: root.previewUrl(row.modelData)
+            onHovered: root.selected = row.index
+            onClicked: modifiers => root.launch(row.modelData, modifiers)
+        }
+    }
 
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onEntered: root.selected = row.index
-                onClicked: mouse => root.launch(row.modelData, mouse.modifiers)
-            }
+    Row {
+        id: chipRow
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: Appearance.island.launcher.padding
-                anchors.rightMargin: Appearance.island.launcher.padding
-                spacing: Appearance.island.launcher.padding
+        Layout.fillWidth: true
+        visible: root.chips.length > 0
+        spacing: Appearance.spacing.small
 
-                ClippingRectangle {
-                    implicitWidth: Appearance.island.launcher.icon
-                    implicitHeight: Appearance.island.launcher.icon
-                    radius: Appearance.island.launcher.iconRadius
-                    color: Colors.surfaceContainerHighest
+        Repeater {
+            model: root.chips
 
-                    Image {
-                        id: thumb
+            StyledRect {
+                id: chip
 
-                        anchors.fill: parent
-                        visible: thumb.source.toString() !== ""
-                        source: root.previewUrl(row.modelData)
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        sourceSize.width: Appearance.island.launcher.icon
-                        sourceSize.height: Appearance.island.launcher.icon
-                    }
+                required property string modelData
+                readonly property bool active: chip.modelData === registry.active?.chip
 
-                    IconImage {
-                        anchors.fill: parent
-                        anchors.margins: Appearance.spacing.small
-                        visible: row.modelData.image !== undefined
-                        source: visible ? Quickshell.iconPath(row.modelData.image, "application-x-executable") : ""
-                    }
-
-                    MaterialIcon {
-                        anchors.centerIn: parent
-                        visible: row.modelData.icon !== undefined && !thumb.visible
-                        text: row.modelData.icon ?? ""
-                        color: Colors.surfaceFg
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    StyledText {
-                        Layout.fillWidth: true
-                        text: row.modelData.title
-                        elide: Text.ElideRight
-                        font.weight: Font.Medium
-                    }
-
-                    StyledText {
-                        Layout.fillWidth: true
-                        visible: text !== ""
-                        text: row.modelData.subtitle ?? ""
-                        elide: Text.ElideRight
-                        color: Colors.surfaceVariantFg
-                        font.pixelSize: Appearance.font.size.small
-                    }
-                }
+                implicitWidth: label.implicitWidth + 2 * Appearance.island.chipPadding
+                implicitHeight: Appearance.island.chipHeight
+                radius: height / 2
+                color: chip.active ? Colors.primary : Colors.surfaceContainerHigh
 
                 StyledText {
-                    visible: row.current
-                    text: "Enter"
-                    color: Colors.surfaceVariantFg
+                    id: label
+
+                    anchors.centerIn: parent
+                    text: chip.modelData
+                    color: chip.active ? Colors.primaryFg : Colors.surfaceFg
                     font.pixelSize: Appearance.font.size.small
                     font.weight: Font.Medium
                 }
+
+                TapHandler {
+                    onTapped: {
+                        registry.active.chip = chip.modelData;
+                        root.selected = 0;
+                    }
+                }
             }
+        }
+    }
+
+    // As tall as the list's rows at most; the columns that fit, centered.
+    GridView {
+        id: cells
+
+        readonly property int columns: Math.max(1, Math.floor(width / cells.cellWidth))
+        // The chip row takes from the same height, so the launcher never grows past its tallest list.
+        readonly property int chipsHeight: chipRow.visible ? chipRow.implicitHeight + Appearance.island.launcher.rowGap : 0
+        readonly property int maxRows: Math.floor((Appearance.island.launcher.rowsHeight - cells.chipsHeight) / cells.cellHeight)
+        readonly property int rows: Math.min(Math.ceil(cells.count / cells.columns), cells.maxRows)
+
+        Layout.fillWidth: true
+        implicitHeight: cells.rows * cells.cellHeight
+        leftMargin: (cells.width - cells.columns * cells.cellWidth) / 2
+        visible: cells.count > 0
+        cellWidth: registry.active?.cellWidth ?? Appearance.island.launcher.cell
+        cellHeight: Appearance.island.launcher.cell
+        interactive: cells.count > cells.columns * cells.maxRows
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        model: root.grid ? results : null
+
+        delegate: LauncherCell {
+            id: cell
+
+            width: cells.cellWidth
+            height: cells.cellHeight
+            current: cell.index === root.selected
+            onHovered: root.selected = cell.index
+            onClicked: modifiers => root.launch(cell.modelData, modifiers)
         }
     }
 
@@ -230,7 +252,8 @@ ColumnLayout {
 
         StyledText {
             Layout.fillWidth: true
-            text: registry.active?.hints ?? ""
+            text: root.status !== "" ? root.status : registry.active?.hints ?? ""
+            elide: Text.ElideRight
             color: Colors.surfaceVariantFg
             font.pixelSize: Appearance.font.size.small
         }

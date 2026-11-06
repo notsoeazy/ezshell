@@ -20,8 +20,10 @@ Singleton {
     property bool openedByPointer: false
     property string settingsPage: ""
     property string lastSettingsPage: "wifi"
-    // Text the launcher starts with (a provider prefix), set by openLauncher().
+    // Text the launcher starts with (a provider prefix), set by openLauncher(); the request count changes on
+    // every call, so an open launcher retypes even the same text, or clears for "".
     property string launcherText: ""
+    property int launcherRequest: 0
     readonly property list<string> tabs: ["overview", "media", "system", "calendar"]
     readonly property list<string> details: ["wifi", "bluetooth", "audio", "power"]
     // Sections opened on their own (keybind or IPC), not from the overview: back() collapses them.
@@ -83,12 +85,11 @@ Singleton {
         root.launcherText = "";
     }
 
-    // Opens the launcher with `text` typed, or retypes it if the launcher is already open. Cleared first
-    // so the same prefix twice still reaches an open launcher.
+    // Opens the launcher with `text` typed, or retypes it if the launcher is already open.
     function openLauncher(text: string): void {
-        root.launcherText = "";
-        root.open("launcher", "");
         root.launcherText = text;
+        root.open("launcher", "");
+        root.launcherRequest++;
     }
 
     function closeSettings(): void {

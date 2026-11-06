@@ -99,6 +99,11 @@ QtObject {
         readonly property int maxResults: 5
         readonly property int footer: 28
         readonly property int rowGap: 4
+        // Grid providers (emoji): square cells and the glyph size inside them.
+        readonly property int cell: 52
+        // Kaomoji cells: four to a row.
+        readonly property int wideCell: 144
+        readonly property int glyph: 28
         // Largest height (search, rows with gaps, footer, padding); the island window is sized from it.
         readonly property int rowsHeight: launcher.maxResults * (launcher.row + launcher.rowGap)
         readonly property int maxHeight: launcher.search + launcher.rowsHeight + launcher.footer + 2 * launcher.padding

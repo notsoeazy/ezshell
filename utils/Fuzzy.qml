@@ -4,6 +4,11 @@ import Quickshell
 
 // Pure matching helpers for search. Higher score = better; -1 = no match.
 Singleton {
+    // Lowercase without accents, so "cafe" finds "café".
+    function fold(text: string): string {
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
     function score(query: string, text: string): real {
         const q = query.toLowerCase();
         const t = text.toLowerCase();

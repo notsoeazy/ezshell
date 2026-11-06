@@ -10,7 +10,7 @@ ShellRoot {
     // Singletons load lazily. These must be live at startup: NightLight applies the saved state,
     // Notifs must own the notification bus name before the first notification arrives, Players backs
     // media keys, Idle runs the idle timers, Apps indexes desktop entries before the launcher opens and
-    // Wallpapers and Clipboard own their IPC.
+    // Wallpapers, Clipboard and Emoji own their IPC.
     Component.onCompleted: {
         Notifs;
         Players;
@@ -22,6 +22,7 @@ ShellRoot {
         Theme;
         Wallpapers;
         Clipboard;
+        Emoji;
         Apps;
         Audio;
         Brightness;

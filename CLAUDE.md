@@ -47,7 +47,7 @@ assets/          images, svg, bundled fonts
 5. UI used by two or more modules, or generic → `components/`.
 6. UI used by one feature → `modules/<feature>/`.
 7. A pure function → a function on a `utils/` singleton.
-8. Shell or Python → `scripts/`, called by exactly one service through `Quickshell.shellPath("scripts/x.sh")`.
+8. Shell or Python → `scripts/`, called by exactly one service through `Quickshell.shellPath("scripts/x.sh")`. One-off generators run by hand (`scripts/emoji-gen.py`) also live there; the shell never runs them.
 
 ## Layering (imports point down only)
 
@@ -70,7 +70,7 @@ assets/          images, svg, bundled fonts
 - Root is `Singleton`. Expose state as `readonly property` and intent as verb functions (`set`, `toggle`, `up`, `down`).
 - Each service has its own `IpcHandler`, whose target is the service name in lowercase. IPC functions are typed (`: void`) and only delegate.
 - Native modules first: Pipewire (with `PwObjectTracker`), Mpris, Networking, Bluetooth, UPower, NotificationServer, SystemTray, Hyprland. Shell out only for brightness (`brightnessctl`, `ddcutil`), night light (`hyprctl hyprsunset`), lifting a Bluetooth rfkill block (`rfkill unblock bluetooth`), saved / hidden Wi‑Fi profiles (`nmcli`), session actions (`systemctl suspend|reboot|poweroff`, through `execDetached` in `Session`), and `SysInfo`'s `df`, `nvidia-smi` (only while the GPU is awake) and `scripts/sysinfo-paths.sh`, and `Camera`'s `scripts/camera-watch.sh` (`inotifywait` on `/dev/video*`), `Theme`'s `matugen`, `Wallpapers`' `find` (Qt's folder model doesn't recurse), and `Clipboard`'s `cliphist` and `wl-copy` (never `Quickshell.clipboardText`). `Weather` uses `XMLHttpRequest`, no process.
-- Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`, `Theme`, `Wallpapers`, `Clipboard`.
+- Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`, `Theme`, `Wallpapers`, `Clipboard`, `Emoji`.
 - A service may own a non-singleton helper file in `services/` to stay short (`WifiProfiles`, created only by `Wifi`). Nothing else instantiates it.
 - Processes live only in services, one per data source. Outside services, only `Quickshell.execDetached([...])`.
 - Use events, not polling. A `Timer` is a last resort, only in a service, and only running while needed.

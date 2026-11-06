@@ -1,0 +1,307 @@
+# Hand-written symbols (s) and kaomoji (k) for the emoji picker: kind<TAB>text<TAB>name<TAB>words.
+# scripts/emoji-gen.py merges this with emojibase and Nerd Font glyph names into assets/emoji.tsv.
+s	←	left arrow	arrow
+s	↑	up arrow	arrow
+s	→	right arrow	arrow
+s	↓	down arrow	arrow
+s	↔	left right arrow	arrow
+s	↕	up down arrow	arrow
+s	↖	up left arrow	arrow
+s	↗	up right arrow	arrow
+s	↘	down right arrow	arrow
+s	↙	down left arrow	arrow
+s	⇐	left double arrow	arrow
+s	⇑	up double arrow	arrow
+s	⇒	right double arrow implies	arrow
+s	⇓	down double arrow	arrow
+s	⇔	left right double arrow iff	arrow
+s	⇇	leftwards paired arrows	arrow
+s	⇉	rightwards paired arrows	arrow
+s	⇈	upwards paired arrows	arrow
+s	⇊	downwards paired arrows	arrow
+s	⇶	three rightwards arrows	arrow
+s	⬱	three leftwards arrows	arrow
+s	↩	left hook arrow return	arrow
+s	↪	right hook arrow	arrow
+s	↺	anticlockwise open circle arrow undo	arrow
+s	↻	clockwise open circle arrow redo refresh	arrow
+s	⟵	long left arrow	arrow
+s	⟶	long right arrow	arrow
+s	⟷	long left right arrow	arrow
+s	⟹	long right double arrow	arrow
+s	↵	enter key return	arrow
+s	⇥	tab key right arrow to bar	arrow
+s	⇤	left arrow to bar	arrow
+s	⇧	shift key up arrow	arrow
+s	⌫	backspace erase left	arrow
+s	⌦	delete erase right	arrow
+s	➜	heavy right arrow	arrow
+s	➔	heavy wide right arrow	arrow
+s	▲	up triangle	arrow
+s	▼	down triangle	arrow
+s	◀	left triangle	arrow
+s	▶	right triangle play	arrow
+s	←↑→↓	all directions arrows	up down left right
+s	±	plus minus	math
+s	∓	minus plus	math
+s	×	multiply times	math
+s	÷	divide division	math
+s	−	minus sign	math
+s	√	square root	math
+s	∛	cube root	math
+s	∞	infinity	math
+s	≈	approximately equal	math
+s	≠	not equal	math
+s	≡	identical congruent	math
+s	≤	less than or equal	math
+s	≥	greater than or equal	math
+s	≪	much less than	math
+s	≫	much greater than	math
+s	∝	proportional to	math
+s	∑	sum sigma summation	math
+s	∏	product	math
+s	∫	integral	math
+s	∬	double integral	math
+s	∮	contour integral	math
+s	∂	partial derivative	math
+s	∇	nabla del gradient	math
+s	∆	increment delta	math
+s	∈	element of in	math
+s	∉	not element of	math
+s	∋	contains as member	math
+s	⊂	subset of	math
+s	⊃	superset of	math
+s	⊆	subset or equal	math
+s	⊇	superset or equal	math
+s	∪	union	math
+s	∩	intersection	math
+s	∅	empty set	math
+s	∀	for all	math
+s	∃	there exists	math
+s	∄	there does not exist	math
+s	¬	not negation	math
+s	∧	logical and	math
+s	∨	logical or	math
+s	⊕	xor circled plus	math
+s	⊗	circled times tensor	math
+s	⊥	perpendicular up tack false	math
+s	∥	parallel	math
+s	∠	angle	math
+s	°	degree	math
+s	′	prime minutes feet	math
+s	″	double prime seconds inches	math
+s	‰	per mille	math
+s	½	one half fraction	math
+s	⅓	one third fraction	math
+s	¼	one quarter fraction	math
+s	¾	three quarters fraction	math
+s	²	superscript two squared	math
+s	³	superscript three cubed	math
+s	¹	superscript one	math
+s	ⁿ	superscript n	math
+s	₀	subscript zero	math
+s	₁	subscript one	math
+s	₂	subscript two	math
+s	ℕ	natural numbers	math
+s	ℤ	integers	math
+s	ℚ	rational numbers	math
+s	ℝ	real numbers	math
+s	ℂ	complex numbers	math
+s	∴	therefore	math
+s	∵	because	math
+s	≅	congruent approximately	math
+s	⌊	left floor	math
+s	⌋	right floor	math
+s	⌈	left ceiling	math
+s	⌉	right ceiling	math
+s	€	euro	currency money
+s	£	pound sterling	currency money
+s	¥	yen yuan	currency money
+s	₱	peso philippine	currency money
+s	₹	rupee indian	currency money
+s	₩	won korean	currency money
+s	₽	ruble russian	currency money
+s	₺	lira turkish	currency money
+s	₫	dong vietnamese	currency money
+s	₦	naira nigerian	currency money
+s	₴	hryvnia ukrainian	currency money
+s	₿	bitcoin	currency money
+s	¢	cent	currency money
+s	₪	shekel	currency money
+s	฿	baht thai	currency money
+s	₡	colon costa rica	currency money
+s	₲	guarani	currency money
+s	₸	tenge	currency money
+s	¤	currency sign generic	currency money
+s	$	dollar	currency money
+s	—	em dash	typography punctuation
+s	–	en dash	typography punctuation
+s	‐	hyphen	typography punctuation
+s	…	ellipsis dots	typography punctuation
+s	•	bullet dot	typography punctuation
+s	·	middle dot interpunct	typography punctuation
+s	‣	triangular bullet	typography punctuation
+s	◦	white bullet	typography punctuation
+s	§	section sign	typography punctuation
+s	¶	pilcrow paragraph	typography punctuation
+s	†	dagger	typography punctuation
+s	‡	double dagger	typography punctuation
+s	©	copyright	typography punctuation
+s	®	registered trademark	typography punctuation
+s	™	trademark tm	typography punctuation
+s	℠	service mark	typography punctuation
+s	“	left double quote	typography punctuation
+s	”	right double quote	typography punctuation
+s	‘	left single quote	typography punctuation
+s	’	right single quote apostrophe	typography punctuation
+s	«	left guillemet angle quote	typography punctuation
+s	»	right guillemet angle quote	typography punctuation
+s	‹	left single guillemet	typography punctuation
+s	›	right single guillemet	typography punctuation
+s	„	low double quote	typography punctuation
+s	「」	japanese quote square bracket corner	typography punctuation
+s	『』	japanese double quote corner	typography punctuation
+s	【】	black lenticular brackets	typography punctuation
+s	¿	inverted question mark spanish	typography punctuation
+s	¡	inverted exclamation spanish	typography punctuation
+s	¿?	question upside down reversed spanish	typography punctuation
+s	‽	interrobang	typography punctuation
+s	№	numero number sign	typography punctuation
+s	℃	celsius degrees	typography punctuation
+s	℉	fahrenheit degrees	typography punctuation
+s	µ	micro sign	typography punctuation
+s	Ω	ohm	typography punctuation
+s	℮	estimated	typography punctuation
+s	⁂	asterism	typography punctuation
+s	※	reference mark	typography punctuation
+s	✓	check mark tick	typography punctuation
+s	✗	ballot x cross	typography punctuation
+s	★	black star	typography punctuation
+s	☆	white star	typography punctuation
+s	♥	heart suit	typography punctuation
+s	♦	diamond suit	typography punctuation
+s	♣	club suit	typography punctuation
+s	♠	spade suit	typography punctuation
+s	♪	eighth note music	typography punctuation
+s	♫	beamed notes music	typography punctuation
+s	⌘	command key mac	typography punctuation
+s	⌥	option key alt mac	typography punctuation
+s	⌃	control key mac	typography punctuation
+s	⎋	escape key	typography punctuation
+s	␣	open box space	typography punctuation
+s	‿	undertie	typography punctuation
+s	¦	broken bar	typography punctuation
+s	ǀ	dental click pipe	typography punctuation
+s	α	greek small alpha	greek letter
+s	Α	greek capital alpha	greek letter
+s	β	greek small beta	greek letter
+s	Β	greek capital beta	greek letter
+s	γ	greek small gamma	greek letter
+s	Γ	greek capital gamma	greek letter
+s	δ	greek small delta	greek letter
+s	Δ	greek capital delta	greek letter
+s	ε	greek small epsilon	greek letter
+s	Ε	greek capital epsilon	greek letter
+s	ζ	greek small zeta	greek letter
+s	Ζ	greek capital zeta	greek letter
+s	η	greek small eta	greek letter
+s	Η	greek capital eta	greek letter
+s	θ	greek small theta	greek letter
+s	Θ	greek capital theta	greek letter
+s	ι	greek small iota	greek letter
+s	Ι	greek capital iota	greek letter
+s	κ	greek small kappa	greek letter
+s	Κ	greek capital kappa	greek letter
+s	λ	greek small lambda	greek letter
+s	Λ	greek capital lambda	greek letter
+s	μ	greek small mu	greek letter
+s	Μ	greek capital mu	greek letter
+s	ν	greek small nu	greek letter
+s	Ν	greek capital nu	greek letter
+s	ξ	greek small xi	greek letter
+s	Ξ	greek capital xi	greek letter
+s	ο	greek small omicron	greek letter
+s	Ο	greek capital omicron	greek letter
+s	π	greek small pi	greek letter
+s	Π	greek capital pi	greek letter
+s	ρ	greek small rho	greek letter
+s	Ρ	greek capital rho	greek letter
+s	σ	greek small sigma	greek letter
+s	Σ	greek capital sigma	greek letter
+s	τ	greek small tau	greek letter
+s	Τ	greek capital tau	greek letter
+s	υ	greek small upsilon	greek letter
+s	Υ	greek capital upsilon	greek letter
+s	φ	greek small phi	greek letter
+s	Φ	greek capital phi	greek letter
+s	χ	greek small chi	greek letter
+s	Χ	greek capital chi	greek letter
+s	ψ	greek small psi	greek letter
+s	Ψ	greek capital psi	greek letter
+s	ω	greek small omega	greek letter
+s	Ω	greek capital omega	greek letter
+s	ς	greek final sigma	greek letter
+s	ϑ	greek theta symbol	greek letter
+s	ϕ	greek phi symbol	greek letter
+k	¯\_(ツ)_/¯	shrug	idk i dont know whatever
+k	(╯°□°)╯︵ ┻━┻	table flip	angry rage flip
+k	┬─┬ノ( º _ ºノ)	table put back	calm sorry
+k	( ͡° ͜ʖ ͡°)	lenny face	smirk suggestive
+k	ಠ_ಠ	look of disapproval	disapprove stare
+k	(ง'̀-'́)ง	fight me	fists ready
+k	(ง🔥ﾛ🔥)ง	person with fire eyes	eyes on fire angry
+k	(づ｡◕‿‿◕｡)づ	hug	cuddle love
+k	ʕ•ᴥ•ʔ	bear	cute animal
+k	(=^･ω･^=)	cat	cute animal meow
+k	(◕‿◕)	happy	smile cute
+k	(✿◠‿◠)	flower happy	smile cute
+k	(｡♥‿♥｡)	heart eyes	love in love
+k	(*^‿^*)	blush happy	smile
+k	ヽ(•‿•)ノ	yay	happy excited cheer
+k	\(^o^)/	hooray	happy excited cheer
+k	(ノ◕ヮ◕)ノ*:･ﾟ✧	sparkles magic	excited happy
+k	(╥﹏╥)	crying	sad tears
+k	(ಥ﹏ಥ)	sobbing	sad tears cry
+k	(;´༎ຶД༎ຶ`)	ugly crying	sad tears
+k	(._.)	sad quiet	shy
+k	(¬_¬)	side eye	suspicious annoyed
+k	(¬‿¬)	smug	sly smirk
+k	(⌐■_■)	deal with it	cool sunglasses
+k	(•_•)	neutral	blank stare
+k	( •_•)>⌐■-■	putting on sunglasses	cool deal with it
+k	(ʘ‿ʘ)	wide eyes	surprised
+k	(°ロ°)	shocked	surprised gasp
+k	Σ(°△°|||)	shock	surprised scared
+k	(⊙_⊙)	staring	surprised confused
+k	(・_・;)	nervous	sweat awkward
+k	(^_^;)	awkward smile	nervous sweat
+k	(-_-;)	annoyed sweat	tired
+k	(-_-)zzz	sleeping	tired sleep
+k	(￣▽￣)ノ	wave hi	hello greeting
+k	(^_^)/	hi wave	hello greeting
+k	(｡•́︿•̀｡)	pouting	sad upset
+k	(ﾉಥ益ಥ)ﾉ	rage	angry furious
+k	(╬ಠ益ಠ)	angry	rage mad
+k	(҂◡_◡)	battle scarred	tough
+k	ᕦ(ò_óˇ)ᕤ	flexing	strong muscle
+k	ᕕ( ᐛ )ᕗ	happy walk	excited go
+k	┐(︶▽︶)┌	whatever	shrug meh
+k	(￣ー￣)	smirk	smug
+k	(o^▽^o)	joy	happy laugh
+k	(≧▽≦)	excited	happy laugh
+k	(＾▽＾)	grin	happy
+k	(˘▾˘)	content	calm happy
+k	(•‿•)	smile	happy
+k	<(￣︶￣)>	proud	satisfied
+k	(⁄ ⁄•⁄ω⁄•⁄ ⁄)	embarrassed	blush shy
+k	(っ˘ڡ˘ς)	yummy	delicious food
+k	(*￣▽￣)b	thumbs up	good ok
+k	♪~ ᕕ(ᐛ)ᕗ	dancing	music happy
+k	(ノ°▽°)ノ	celebrate	happy party
+k	ʘ‿ʘ	creepy smile	eyes
+k	(◡ ‿ ◡ ✿)	peaceful	calm flower
+k	༼ つ ◕_◕ ༽つ	give	gimme summon
+k	(っ◔◡◔)っ ♥	sending love	heart give
+k	(⊃｡•́‿•̀｡)⊃	hug please	cuddle
+k	¯\(°_o)/¯	confused shrug	dunno
+k	(•ˋ _ ˊ•)	mad	annoyed
