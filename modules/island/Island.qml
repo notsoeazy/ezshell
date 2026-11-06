@@ -70,7 +70,7 @@ Scope {
             PanelWindow {
                 id: overlay
 
-                readonly property bool typing: surface.mode === "launcher"
+                readonly property bool typing: surface.mode === "launcher" || surface.mode === "wallpapers"
                 readonly property bool expanded: Visibility.isSection(surface.mode)
                 readonly property int typingFocus: WlrKeyboardFocus.Exclusive
                 readonly property int expandedFocus: root.grabKeys ? overlay.typingFocus : WlrKeyboardFocus.OnDemand
@@ -90,7 +90,7 @@ Scope {
                 // draws above fullscreen but blocks scanout, so it is used only while a transient shows.
                 WlrLayershell.layer: surface.elevated ? WlrLayer.Overlay : WlrLayer.Top
                 WlrLayershell.namespace: "ezshell-island"
-                // None at rest, OnDemand while expanded, Exclusive for the launcher's search field.
+                // None at rest, OnDemand while expanded, Exclusive for the launcher's and wallpapers' search fields.
                 WlrLayershell.keyboardFocus: overlay.typing ? overlay.typingFocus : overlay.sectionFocus
 
                 // Clicking outside an open panel closes it. A clear that arrives while the pill is still

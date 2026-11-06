@@ -28,8 +28,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | # | Feature | Size | Status |
 | --- | --- | --- | --- |
 | F0 | Make room: split the files near 250 lines | S | done |
-| F1 | Wallpaper selector in the island, native transitions | M | next |
-| F2 | Launcher providers: registry, calculator, run command | M | |
+| F1 | Wallpaper selector in the island, native transitions | M | done |
+| F2 | Launcher providers: registry, calculator, run command | M | next |
 | F3 | Clipboard history (`;`) | M | |
 | F4 | Emoji, symbols and kaomoji (`:`) | S | |
 | F5 | Polkit agent in the island | M | |
@@ -87,6 +87,17 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 5. **More IPC:** `wallpaper random`, `next`, `previous` (in folder order) and `list`. Keybind Super+Alt+K for random.
 6. **Optional slideshow:** `Config.wallpaper.interval` in minutes; 0 means off. Use a `Timer` that runs only while the interval is above 0.
 7. **Large folders.** `sourceSize` thumbnails plus `Image.cache` are enough for a few hundred files. Note how the grid behaves with the user's real folder; don't add a disk thumbnail cache unless it's slow.
+
+8. **Single-row strip** (added during F1): the island section is one row with the selection always centered; ←/→, the wheel and touchpad swipes slide it.
+
+**Done.**
+- `Wallpapers` service: one `find -L` over the folder and its subfolders (hidden ones skipped), on start, on a folder change and when a picker opens; IPC `wallpaper set/get/random/next/previous/list/rescan`.
+- `WallpaperView`: two slots per screen, switching only once the new image is `Ready`; fade, wipe or none; crop, fit or center. Rapid switches cut the running transition short and land on the newest.
+- `components/WallpaperGrid.qml`: a growing grid in Settings, a centered strip in the island. Settings also has Transition, Fill and Slideshow rows.
+- Slideshow: `Config.wallpaper.interval` minutes, next in folder order; the timer runs only while it's above 0, and any change restarts the interval.
+- The palette preview in the island was skipped (Settings has it).
+- Large folders, tested with 300 generated 1440p images in 6 subfolders: the scan takes 5 ms and the strip adds about 7 MB. The Settings grid creates every thumbnail (about 110 MB and 1 s of CPU for 300), like the Flow it replaced.
+- Not checked: a second monitor, and the user's real folder (still downloading at the time).
 
 **Done when:**
 - picking from the island and from settings both apply with a smooth cross-fade on every monitor;

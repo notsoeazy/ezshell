@@ -22,10 +22,12 @@ Singleton {
     property string lastSettingsPage: "wifi"
     readonly property list<string> tabs: ["overview", "media", "system", "calendar"]
     readonly property list<string> details: ["wifi", "bluetooth", "audio", "power"]
+    // Sections opened on their own (keybind or IPC), not from the overview: back() collapses them.
+    readonly property list<string> standalone: ["wallpapers"]
     readonly property bool expanded: root.isSection(root.panel)
 
     function isSection(name: string): bool {
-        return root.tabs.includes(name) || root.details.includes(name);
+        return root.tabs.includes(name) || root.details.includes(name) || root.standalone.includes(name);
     }
 
     // mon "" = the focused monitor. For "settings", the second argument is the page instead.
@@ -62,7 +64,7 @@ Singleton {
         root.stack = [...root.stack, page];
     }
 
-    // Sub-page → detail section → overview → collapsed.
+    // Sub-page → detail section → overview → collapsed. Tabs and standalone sections collapse.
     function back(): void {
         if (root.stack.length > 0)
             root.stack = root.stack.slice(0, -1);

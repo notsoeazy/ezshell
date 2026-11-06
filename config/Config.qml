@@ -116,8 +116,14 @@ Singleton {
 
     component WallpaperConfig: JsonObject {
         property string path: ""
-        // Where the settings app looks for wallpapers to pick from.
+        // Scanned with its subfolders (hidden ones skipped) for the pickers, random, next and previous.
         property string folder: "~/Pictures/Wallpapers"
+        // "fade", "wipe" or "none".
+        property string transition: "fade"
+        // "crop" (fill the screen), "fit" (whole image, black bars) or "center" (actual size).
+        property string fill: "crop"
+        // Slideshow: minutes between wallpapers, in folder order; 0 = off.
+        property int interval: 0
     }
 
     component BatteryConfig: JsonObject {

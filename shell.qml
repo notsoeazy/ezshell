@@ -9,7 +9,8 @@ import qs.services
 ShellRoot {
     // Singletons load lazily. These must be live at startup: NightLight applies the saved state,
     // Notifs must own the notification bus name before the first notification arrives, Players backs
-    // media keys, Idle runs the idle timers and Apps indexes desktop entries before the launcher opens.
+    // media keys, Idle runs the idle timers, Apps indexes desktop entries before the launcher opens and
+    // Wallpapers owns the wallpaper IPC.
     Component.onCompleted: {
         Notifs;
         Players;
@@ -19,6 +20,7 @@ ShellRoot {
         SysInfo;
         Camera;
         Theme;
+        Wallpapers;
         Apps;
         Audio;
         Brightness;

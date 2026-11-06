@@ -65,9 +65,10 @@ StyledRect {
         }
     }
 
+    // Detail sections are narrow; tabs and standalone sections (wallpapers) are dashboard-wide.
     function sectionWidth(mode: string): real {
         const expanded = Appearance.island.expanded;
-        return Visibility.tabs.includes(mode) ? expanded.tabWidth : expanded.sectionWidth;
+        return Visibility.details.includes(mode) ? expanded.sectionWidth : expanded.tabWidth;
     }
 
     // Scrolling on the OSD keeps adjusting what it shows; the resting view's scroll areas are hidden by then.

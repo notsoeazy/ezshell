@@ -33,6 +33,7 @@ ColumnLayout {
             "bluetooth": bluetoothPage,
             "audio": audioPage,
             "power": powerPage,
+            "wallpapers": wallpapersPage,
             "notifications": notificationsPage
         })
 
@@ -153,5 +154,11 @@ ColumnLayout {
         id: powerPage
 
         PowerSection {}
+    }
+
+    Component {
+        id: wallpapersPage
+
+        WallpapersSection {}
     }
 }

@@ -35,11 +35,19 @@ QtObject {
     readonly property LauncherTokens launcher: LauncherTokens {}
     readonly property ExpandedTokens expanded: ExpandedTokens {}
     readonly property DashboardTokens dashboard: DashboardTokens {}
+    readonly property WallpaperTokens wallpapers: WallpaperTokens {}
     // The island window: tallest mode plus margin and overshoot room, so the morph never resizes it.
     readonly property int panelHeight: Math.max(island.launcher.maxHeight, island.expanded.maxHeight)
     readonly property int tallestMode: Math.max(island.notification.maxHeight, island.panelHeight)
     readonly property int overshootMargin: Math.ceil(island.tallestMode * island.overshootFraction)
     readonly property int windowHeight: island.margin + island.tallestMode + island.overshootMargin
+
+    // Wallpapers section: one row in the dashboard-wide island, the selection centered with one full
+    // neighbour and part of the next on each side; 16:9 like the screen.
+    component WallpaperTokens: QtObject {
+        readonly property int thumbWidth: 224
+        readonly property int thumbHeight: 126
+    }
 
     component OsdTokens: QtObject {
         readonly property int width: 340

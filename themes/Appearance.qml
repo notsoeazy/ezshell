@@ -59,6 +59,7 @@ Singleton {
         readonly property real islandOvershoot: 1.2
         readonly property int islandFadeOut: 100
         readonly property int islandFadeIn: 150
+        readonly property int wallpaper: 700
         // Fraction of the morph that passes before new content starts fading in.
         readonly property real islandFadeInAt: 0.4
 
@@ -102,5 +103,7 @@ Singleton {
         readonly property int trackHeight: 6
         readonly property real disabledOpacity: 0.4
         readonly property int borderWidth: 1
+        // The disc behind a check mark on a thumbnail.
+        readonly property int check: 22
     }
 }

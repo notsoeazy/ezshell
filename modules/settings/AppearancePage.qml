@@ -20,7 +20,11 @@ ColumnLayout {
     }
 
     spacing: Appearance.settings.padding
-    Component.onCompleted: root.previewNow()
+    Component.onCompleted: {
+        root.previewNow();
+        // Opening the page picks up images added since the last scan.
+        Wallpapers.rescan();
+    }
 
     Section {
         title: "Wallpaper"
@@ -36,8 +40,16 @@ ColumnLayout {
             }
         }
 
-        WallpaperPicker {
+        StyledText {
+            visible: Wallpapers.files.length === 0 && !Wallpapers.scanning
+            text: `No images in ${Config.wallpaper.folder}`
+            color: Colors.surfaceVariantFg
+        }
+
+        WallpaperGrid {
             Layout.fillWidth: true
+            paths: Wallpapers.files
+            folder: Wallpapers.folder
             selected: root.candidate
             onPicked: path => {
                 root.candidate = path;
@@ -53,6 +65,56 @@ ColumnLayout {
                 text: "Clear"
                 enabled: Config.wallpaper.path !== ""
                 onClicked: Theme.setWallpaper("")
+            }
+        }
+
+        SettingRow {
+            label: "Transition"
+
+            Repeater {
+                model: ["fade", "wipe", "none"]
+
+                StyledButton {
+                    required property string modelData
+
+                    text: modelData
+                    checked: Config.wallpaper.transition === modelData
+                    onClicked: Config.wallpaper.transition = modelData
+                }
+            }
+        }
+
+        SettingRow {
+            label: "Slideshow"
+            sublabel: "Next image in folder order."
+
+            Repeater {
+                model: [0, 10, 30, 60]
+
+                StyledButton {
+                    required property int modelData
+
+                    text: modelData === 0 ? "off" : modelData < 60 ? `${modelData} min` : `${modelData / 60} h`
+                    checked: Config.wallpaper.interval === modelData
+                    onClicked: Config.wallpaper.interval = modelData
+                }
+            }
+        }
+
+        SettingRow {
+            label: "Fill"
+            sublabel: "Crop fills, fit shows it all, center is actual size."
+
+            Repeater {
+                model: ["crop", "fit", "center"]
+
+                StyledButton {
+                    required property string modelData
+
+                    text: modelData
+                    checked: Config.wallpaper.fill === modelData
+                    onClicked: Config.wallpaper.fill = modelData
+                }
             }
         }
     }

@@ -66,9 +66,15 @@ hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qs .. "panels toggle launcher"), { re
 hl.bind("SUPER + I", hl.dsp.exec_cmd(qs .. "panels toggle settings"))
 hl.bind(vars.kbLock, hl.dsp.exec_cmd(qs .. "session lock"))
 
+-- Wallpapers: the island picker, and a random one from the folder
+hl.bind(vars.kbShowPanels, hl.dsp.exec_cmd(qs .. "panels toggle wallpapers"))
+hl.bind("SUPER + ALT + K", hl.dsp.exec_cmd(qs .. "wallpaper random"))
+
 -- Special workspaces (names from Config.workspaces.special)
 hl.bind(vars.kbMusicWs, hl.dsp.exec_cmd(qs .. "hypr toggleSpecial music"))
 ```
+
+`vars.kbShowPanels` is `SUPER + K` in `variables.lua`, today caelestia's panels bind; ezshell takes it over (rename the variable if you like). Check that `SUPER + ALT + K` is free.
 
 Pick free keys for anything new (`SUPER + A`, `SUPER + W`, `SUPER + N`, `SUPER + I` are suggestions); check them against `variables.lua` first. The caelestia `fn.toggle(...)` special-workspace binds and its screenshot/record binds can stay until you replace those tools.
 

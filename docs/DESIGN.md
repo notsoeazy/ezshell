@@ -413,7 +413,7 @@ Only two features need external tools: brightness and night light. Everything el
 | Tray | `Tray` | `Quickshell.Services.SystemTray` | — | Menus through `QsMenuOpener` |
 | Clock | `Time` | `SystemClock` | — | Use `precision: SystemClock.Minutes` unless seconds are shown |
 | Apps | `Apps` | `DesktopEntries` + `ScriptModel` | — | Launcher data source |
-| Wallpaper | `Wallpaper` | `Config.wallpaper.path` + a Background-layer window | — | No swww or hyprpaper needed |
+| Wallpaper | `Wallpapers` | `Config.wallpaper.*` + one `find` over the folder and its subfolders; drawn by a Background-layer window | — | No swww or hyprpaper needed; two-image cross-fade, slideshow timer |
 | Lock | (module) | `WlSessionLock` + `Quickshell.Services.Pam` | pam | Keep it simple; if the shell crashes while locked, the screen stays locked |
 | Idle | `Idle` | `IdleMonitor`, `IdleInhibitor` | — | Lock or DPMS after timeouts from `Config` |
 | Theme | `Theme` | `Process` (matugen) + `FileView` writer | matugen | Writes `theme.json`; dark only, contrast-checked |
@@ -502,7 +502,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `sysinfo` | `services/SysInfo.qml` | `status`, `setActive(bool)` |
 | `camera` | `services/Camera.qml` | `status` |
 | `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setFromWallpaper(bool)`, `regenerate`, `status` |
-| `wallpaper` | `modules/wallpaper/Wallpaper.qml` | `set(path)`, `get` |
+| `wallpaper` | `services/Wallpapers.qml` | `set(path)`, `get`, `random`, `next`, `previous`, `list`, `rescan` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md) |
 | `lock` | `modules/lockscreen/Lockscreen.qml` | `lock` |

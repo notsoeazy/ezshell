@@ -183,7 +183,7 @@ The expanded island floats over windows, tiled or floating. The reserved gap at 
 ### State and IPC (`state/Visibility.qml`)
 
 ```qml
-property string panel: ""            // "" = collapsed; or overview | media | system | calendar | wifi | bluetooth | audio | power | launcher | settings
+property string panel: ""            // "" = collapsed; or overview | media | system | calendar | wifi | bluetooth | audio | power | wallpapers | launcher | settings
 property list<string> stack: []      // sub-pages inside the section
 property string screen: ""           // monitor the panel is open on
 
@@ -208,6 +208,12 @@ function close(): void                           // collapse, clear stack and dr
 bind = SUPER, A, exec, qs -c ezshell ipc call panels toggle overview
 bind = SUPER, W, exec, qs -c ezshell ipc call panels toggle wifi
 ```
+
+### Standalone sections
+
+`Visibility.standalone` holds sections opened only by keybind or IPC, never from the overview; `back()` and Esc collapse them.
+
+- **`wallpapers`** (`panels toggle wallpapers`, Super+K): a search field over a single row of thumbnails (`components/WallpaperGrid.qml` with `strip: true`). The selection stays centered and the row slides under it; ←/→, the wheel or a touchpad swipe move it, and dragging the row works too. Clicking a side thumbnail centers it; Enter or a click on the centered one applies it and collapses. The wallpaper in use has a check; the footer shows the selected file's path relative to the folder. The search field takes Exclusive keyboard focus, like the launcher.
 
 ### What a click opens (deep links)
 
@@ -297,7 +303,7 @@ The dashboard is the `overview`, `media`, `system` and `calendar` sections of th
 ## Motion
 
 - One interruptible `progress` drives `{width, height, y}`; radius is `min(height / 2, cornerRadius)`. It runs through one of two animations, `grow` (OutBack) or `shrink` (standard curve), chosen in `retarget()` from the actual size change: setting `easing.bezierCurve` turns any easing into a Bezier, so one animation can't do both. Compute the new size from the mode there, because the target bindings may still hold the old mode inside `onModeChanged`.
-- Each mode has one entry in a size table (`Surface.widthFor` / `heightFor`); changing mode retargets from the current values, never from the previous mode's end state.
+- Each mode has one entry in the mode table (`Surface.sizeFor`; the content of each mode is in `ModeLayers.qml`); changing mode retargets from the current values, never from the previous mode's end state. Detail sections are narrow; tabs and standalone sections (`wallpapers`) are dashboard-wide.
 - Every duration goes through `Appearance.anim.scaled(ms)`, which divides by `Config.animations.speed` (bound into `Appearance.anim.speed` in Island.qml; 0 = instant, and the equalizer stops).
 - Section changes inside the expanded island fade the page out, swap it, and fade it in (`Expanded.qml`, restartable mid-fade); the tab underline is one item that slides; indicators fade before they leave the layout.
 - Expand: slight overshoot (`OutBack`, overshoot ~1.2), 350–450 ms.

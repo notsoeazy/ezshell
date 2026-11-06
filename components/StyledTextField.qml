@@ -13,6 +13,8 @@ StyledRect {
 
     signal accepted
     signal editingFinished
+    // Every key before the field handles it; set event.accepted to take it (arrows for a list below).
+    signal keyPressed(KeyEvent event)
 
     function focusInput(): void {
         input.forceActiveFocus();
@@ -39,6 +41,7 @@ StyledRect {
         font.family: Appearance.font.family
         font.pixelSize: Appearance.font.size.normal
         echoMode: root.password ? TextInput.Password : TextInput.Normal
+        Keys.onPressed: event => root.keyPressed(event)
         onAccepted: root.accepted()
         onEditingFinished: root.editingFinished()
     }

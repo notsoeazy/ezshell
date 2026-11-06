@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import qs.services
 import qs.utils
 
 // Turns the wallpaper into theme.json, which themes/Colors.qml reads (this service never touches Colors).
@@ -35,7 +36,7 @@ Singleton {
     }
 
     function setWallpaper(path: string): void {
-        Config.wallpaper.path = Paths.expand(path);
+        Wallpapers.set(path);
     }
 
     function setScheme(scheme: string): void {
