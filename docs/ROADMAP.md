@@ -29,8 +29,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | --- | --- | --- | --- |
 | F0 | Make room: split the files near 250 lines | S | done |
 | F1 | Wallpaper selector in the island, native transitions | M | done |
-| F2 | Launcher providers: registry, calculator, run command | M | next |
-| F3 | Clipboard history (`;`) | M | |
+| F2 | Launcher providers: registry, `>` actions | M | done |
+| F3 | Clipboard history (`;`) | M | next |
 | F4 | Emoji, symbols and kaomoji (`:`) | S | |
 | F5 | Polkit agent in the island | M | |
 | F6 | Screenshots and screen recording | M | |
@@ -107,30 +107,23 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 
 ## F2. Launcher providers
 
-Today `modules/island/LauncherView.qml` searches apps only, through `Apps.search`. Turn it into one launcher that serves several providers, chosen by the prefix the user types. Visual or modal features (wallpapers, polkit, screenshots) stay out of the launcher.
+**Done.** The launcher serves several providers, picked by the prefix typed first. Visual or modal features (wallpapers, polkit, screenshots) stay out of the launcher.
 
-- **Registry.** Each provider is one file in `modules/island/launcher/`. It declares:
-  - `prefix` (`""` for apps);
-  - `query(text)`, returning items with `icon`, `title`, `subtitle`, plus an optional image or grid flag;
-  - `activate(item, modifier)`.
-
-  Providers call services; any `Process` stays in the service. Adding a provider means one file plus one registry line, and `LauncherView` never changes.
+- **Where:** `modules/launcher/` (moved out of `modules/island/`): `Launcher.qml` (the view the island hosts), `Registry.qml`, `Provider.qml` and one file per provider.
+- **Provider:** `prefix` (`""` for apps), `name` and `icon` for the hints, `emptyText`, and `items`, computed from `query` (the text after the prefix, set by the Registry only on the active provider). Rows are `{ key, title, subtitle, icon | image }` plus whatever `activated(item, modifier)` needs. Providers call services; any `Process` stays in a service.
+- **Adding a provider:** one file plus one entry in `Registry.providers`; `Launcher.qml` never changes.
+- **List:** up to `maxResults` rows show and longer lists scroll. Typing resets the selection; a row that only changes keeps it.
+- **IPC:** `launcher open <prefix>` (target in `state/Visibility.qml`) opens with the prefix typed, or retypes it in an open launcher. With nothing typed, the footer lists the prefixes; clicking one types it.
 
 | Prefix | Provider | Service | Feature |
 | --- | --- | --- | --- |
-| none | apps | `Apps` (existing) | — |
-| `=` | calculator; also offered automatically when the text starts with a digit | new `Calc` | F2 |
-| `>` | run a shell command, with the last 20 as recents | none: `Quickshell.execDetached(["sh", "-c", text])` | F2 |
+| none | apps | `Apps` (existing) | F2 |
+| `>` | actions (caelestia style): open island sections and settings pages, toggles (Wi‑Fi, Bluetooth, do not disturb, night light, keep awake), random wallpaper, session; log out, reboot and power off take a second Enter | existing services and `Visibility` | F2 |
 | `;` | clipboard history | new `Clipboard` | F3 |
 | `:` | emoji, symbols, kaomoji | new `Emoji` | F4 |
 
-- **Calculator:** `Calc` runs `qalc -t <expr>` in one `Process`, debounced about 150 ms. Enter copies the result with `wl-copy`. Never evaluate the input as JavaScript.
-- **IPC:** `launcher open <prefix>`, so a keybind opens straight into a mode, e.g. `launcher open ";"`.
-- **Dependency:** `libqalculate` (provides `qalc`).
-- **Done when:**
-  - `=2^10` gives 1024 and `5 km to mi` converts;
-  - `>notify-send hi` runs;
-  - apps search works exactly as before.
+- **Dropped at the user's request:** the `=` calculator (`qalc`) and the run-a-shell-command provider.
+- **Later:** once sections inside the expanded island get keyboard selection, actions can deep-link into them (e.g. a Wi‑Fi network).
 
 ## F3. Clipboard history
 
@@ -273,7 +266,6 @@ hyprism-style cards (clock, weather, performance, network, storage, sensors) on 
 
 | Package | Feature | Notes |
 | --- | --- | --- |
-| `libqalculate` | F2 | |
 | `cliphist`, `wl-clipboard` | F3 | |
 | `wtype` | F3, F4 | |
 | `noto-fonts-emoji` | F4 | |

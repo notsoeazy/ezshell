@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import qs.modules.launcher
 import qs.state
 import qs.themes
 
@@ -92,7 +93,7 @@ Item {
         shown: root.mode === "launcher"
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
-            LauncherView {}
+            Launcher {}
         }
     }
 

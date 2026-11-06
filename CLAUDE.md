@@ -61,7 +61,7 @@ assets/          images, svg, bundled fonts
 | `config/`, `themes/` | `Quickshell.*`, utils | everything else |
 
 - Always `import qs.<dir>`. Never use relative imports or hand-written `qmldir` files.
-- Modules never talk to each other. Share data through a service, and UI state through `Visibility`.
+- Modules never talk to each other. Share data through a service, and UI state through `Visibility`. One exception: the island hosts the launcher's view (`modules/island/ModeLayers.qml` imports `qs.modules.launcher`).
 - Components take data through properties and report through signals.
 - Services never know UI exists. The OSD listens to services itself; services don't trigger it.
 

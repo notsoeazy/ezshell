@@ -504,6 +504,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setFromWallpaper(bool)`, `regenerate`, `status` |
 | `wallpaper` | `services/Wallpapers.qml` | `set(path)`, `get`, `random`, `next`, `previous`, `list`, `rescan` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
+| `launcher` | `state/Visibility.qml` | `open(prefix)`: the launcher with a provider prefix typed, e.g. `>` for actions (F2) |
 | `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md) |
 | `lock` | `modules/lockscreen/Lockscreen.qml` | `lock` |
 

@@ -63,6 +63,7 @@ hl.bind("SUPER + A", hl.dsp.exec_cmd(qs .. "panels toggle overview"))
 hl.bind("SUPER + W", hl.dsp.exec_cmd(qs .. "panels toggle wifi"))
 hl.bind("SUPER + N", hl.dsp.exec_cmd(qs .. "panels open overview ''; " .. qs .. "panels push notifications"))
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qs .. "panels toggle launcher"), { release = true })
+hl.bind("SUPER + PERIOD", hl.dsp.exec_cmd(qs .. "launcher open '>'"))     -- launcher actions
 hl.bind("SUPER + I", hl.dsp.exec_cmd(qs .. "panels toggle settings"))
 hl.bind(vars.kbLock, hl.dsp.exec_cmd(qs .. "session lock"))
 

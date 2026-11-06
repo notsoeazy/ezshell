@@ -84,8 +84,10 @@ Singleton {
         }
         stderr: StdioCollector {
             onStreamFinished: {
-                if (text.trim() !== "")
-                    console.warn(`[wallpapers] find: ${text.trim().split("\n")[0]}`);
+                const first = text.trim().split("\n")[0];
+                // A missing folder isn't an error: the pickers say there are no images.
+                if (first !== "" && !(first.includes(root.folder) && first.endsWith("No such file or directory")))
+                    console.warn(`[wallpapers] find: ${first}`);
             }
         }
     }

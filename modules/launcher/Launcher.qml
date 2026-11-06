@@ -5,20 +5,23 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import qs.components
-import qs.services
 import qs.state
 import qs.themes
 
-// Launcher mode (docs/design/08-launcher.png): search field, best matches, keyboard hints.
+// Launcher mode (docs/design/08-launcher.png): search field, best matches, keyboard hints. The rows
+// come from the provider the typed prefix picks (launcher/Registry.qml); this file knows no provider.
 ColumnLayout {
     id: root
 
     property int selected: 0
-    readonly property list<DesktopEntry> results: Apps.search(input.text, Appearance.island.launcher.maxResults)
+    readonly property var results: registry.items
 
-    function launch(entry: DesktopEntry): void {
-        Apps.launch(entry);
-        Visibility.close();
+    function launch(item: var, modifier: int): void {
+        registry.activate(item, modifier);
+    }
+
+    function reveal(): void {
+        list.positionViewAtIndex(root.selected, ListView.Contain);
     }
 
     function handleKey(event: KeyEvent): void {
@@ -27,7 +30,7 @@ ColumnLayout {
         else if (event.key === Qt.Key_Up)
             root.selected = Math.max(root.selected - 1, 0);
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
-            root.launch(root.results[root.selected] ?? null);
+            root.launch(root.results[root.selected] ?? null, event.modifiers);
         else if (event.key === Qt.Key_Escape)
             Visibility.close();
         else
@@ -36,8 +39,31 @@ ColumnLayout {
     }
 
     spacing: Appearance.island.launcher.rowGap
-    onResultsChanged: root.selected = 0
-    Component.onCompleted: input.forceActiveFocus()
+    // Typing starts over at the top; a row that only changes (an action asking to confirm) keeps its place.
+    onResultsChanged: {
+        root.selected = Math.min(root.selected, Math.max(0, root.results.length - 1));
+        Qt.callLater(root.reveal);
+    }
+    onSelectedChanged: root.reveal()
+    Component.onCompleted: {
+        input.text = Visibility.launcherText;
+        input.forceActiveFocus();
+    }
+
+    Connections {
+        function onLauncherTextChanged(): void {
+            if (Visibility.launcherText !== "")
+                input.text = Visibility.launcherText;
+        }
+
+        target: Visibility
+    }
+
+    Registry {
+        id: registry
+
+        text: input.text
+    }
 
     StyledRect {
         Layout.fillWidth: true
@@ -67,24 +93,36 @@ ColumnLayout {
                 font.pixelSize: Appearance.font.size.title
                 focus: true
                 Keys.onPressed: event => root.handleKey(event)
+                onTextChanged: root.selected = 0
             }
         }
     }
 
-    Repeater {
+    // Up to maxResults rows show; longer lists (actions) scroll to keep the selection in view.
+    ListView {
+        id: list
+
+        readonly property int shownRows: Math.min(list.count, Appearance.island.launcher.maxResults)
+
+        Layout.fillWidth: true
+        implicitHeight: Math.max(0, list.shownRows * (Appearance.island.launcher.row + list.spacing) - list.spacing)
+        visible: list.count > 0
+        spacing: Appearance.island.launcher.rowGap
+        interactive: list.count > Appearance.island.launcher.maxResults
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
         model: ScriptModel {
-            values: [...root.results]
+            values: root.results
         }
 
-        StyledRect {
+        delegate: StyledRect {
             id: row
 
-            required property DesktopEntry modelData
+            required property var modelData
             required property int index
             readonly property bool current: row.index === root.selected
-            readonly property string subtitle: row.modelData.comment || row.modelData.genericName
 
-            Layout.fillWidth: true
+            width: list.width
             implicitHeight: Appearance.island.launcher.row
             radius: Appearance.rounding.normal
             color: row.current ? Colors.surfaceContainerHigh : Colors.transparent
@@ -94,7 +132,7 @@ ColumnLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onEntered: root.selected = row.index
-                onClicked: root.launch(row.modelData)
+                onClicked: mouse => root.launch(row.modelData, mouse.modifiers)
             }
 
             RowLayout {
@@ -112,7 +150,15 @@ ColumnLayout {
                     IconImage {
                         anchors.fill: parent
                         anchors.margins: Appearance.spacing.small
-                        source: Quickshell.iconPath(row.modelData.icon, "application-x-executable")
+                        visible: row.modelData.image !== undefined
+                        source: visible ? Quickshell.iconPath(row.modelData.image, "application-x-executable") : ""
+                    }
+
+                    MaterialIcon {
+                        anchors.centerIn: parent
+                        visible: row.modelData.icon !== undefined
+                        text: row.modelData.icon ?? ""
+                        color: Colors.surfaceFg
                     }
                 }
 
@@ -122,7 +168,7 @@ ColumnLayout {
 
                     StyledText {
                         Layout.fillWidth: true
-                        text: row.modelData.name
+                        text: row.modelData.title
                         elide: Text.ElideRight
                         font.weight: Font.Medium
                     }
@@ -130,7 +176,7 @@ ColumnLayout {
                     StyledText {
                         Layout.fillWidth: true
                         visible: text !== ""
-                        text: row.subtitle
+                        text: row.modelData.subtitle ?? ""
                         elide: Text.ElideRight
                         color: Colors.surfaceVariantFg
                         font.pixelSize: Appearance.font.size.small
@@ -154,16 +200,42 @@ ColumnLayout {
         visible: root.results.length === 0
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        text: "No matching apps"
+        text: registry.active?.emptyText ?? ""
         color: Colors.surfaceVariantFg
     }
 
-    StyledText {
+    RowLayout {
+        Layout.fillWidth: true
         Layout.preferredHeight: Appearance.island.launcher.footer
         Layout.leftMargin: Appearance.island.launcher.padding
-        verticalAlignment: Text.AlignVCenter
-        text: "↑↓ navigate    ⏎ open    esc close"
-        color: Colors.surfaceVariantFg
-        font.pixelSize: Appearance.font.size.small
+        Layout.rightMargin: Appearance.island.launcher.padding
+        spacing: Appearance.spacing.large
+
+        StyledText {
+            Layout.fillWidth: true
+            text: "↑↓ navigate    ⏎ open    esc close"
+            color: Colors.surfaceVariantFg
+            font.pixelSize: Appearance.font.size.small
+        }
+
+        // With nothing typed, the prefixes on offer; clicking one types it.
+        Repeater {
+            model: input.text === "" ? registry.prefixed : []
+
+            StyledText {
+                id: hint
+
+                required property Provider modelData
+
+                text: `${hint.modelData.prefix} ${hint.modelData.name}`
+                color: Colors.surfaceVariantFg
+                font.pixelSize: Appearance.font.size.small
+                font.weight: Font.Medium
+
+                TapHandler {
+                    onTapped: input.text = hint.modelData.prefix
+                }
+            }
+        }
     }
 }
