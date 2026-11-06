@@ -1,6 +1,6 @@
 # ezshell — System Design & Rulebook
 
-Nov 6, 2026 · **Status: phases 1–6 and E1–E6 done.** See Build plan.
+Nov 6, 2026 · **Status: phases 1–6 and E1–E6 done.** New features are planned in `docs/ROADMAP.md`. This file stays the rulebook.
 
 ## Goals and principles
 
@@ -741,7 +741,9 @@ The work runs in six phases, each ending with something usable, followed by an e
   - Spam-test every IPC toggle.
 - **E6. Theming.** On wallpaper change, run `matugen` → `theme.json`. `Colors` reloads on its own. Every role except `island` follows the wallpaper.
   - Done: `Theme` service (IPC `theme`), `Config.theme.fromWallpaper` / `scheme`, `Config.wallpaper.folder`, contrast fixes, and Settings → Appearance with a wallpaper picker, scheme buttons and a live preview before Apply. Dark only; `surface` stays black.
-  - Not done: matugen templates for kitty, GTK or Hyprland borders.
+  - Not done: matugen templates for kitty, GTK or Hyprland borders (now ROADMAP F11).
+
+The build plan ends here. Further features (wallpaper selector, launcher providers, clipboard, emoji, polkit, capture, utilities and more) are in `docs/ROADMAP.md`.
 
 ## Open decisions and unverified items
 

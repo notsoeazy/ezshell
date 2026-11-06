@@ -6,10 +6,11 @@ The full design, with code skeletons, is in `docs/DESIGN.md`. Read the relevant 
 
 ## Current priority
 
-Build a functional shell before UI polish. Follow the build plan in `docs/DESIGN.md`:
-foundation → plain bar → controls and OSD → connectivity → media and notifications → launcher, wallpaper, lockscreen → settings, theme, dynamic island.
+The functional shell and the enhancements (DESIGN.md "Build plan", phases 1–6 and E1–E6) are done. New work follows `docs/ROADMAP.md`:
+- Take the next feature in its table unless the user names another.
+- Follow its "How to work on a roadmap feature" steps: plan and wait for an OK, service and IPC before UI, then mark the feature done and commit.
 
-Don't work on the island look or animations until the functional phases are done, unless asked.
+Test wallpapers are in `~/Pictures/Wallpapers/`. Wallpapers are drawn by the shell itself; never add swww, awww, hyprpaper or imagemagick.
 
 ## Run and test
 
@@ -31,7 +32,7 @@ themes/          Appearance.qml (static tokens), Colors.qml (reads ~/.local/stat
 state/           Visibility.qml (open panel / island mode, IPC target "panels")
 services/        one singleton per system domain
 components/      stateless UI primitives (StyledText, StyledRect, MaterialIcon, Anim, CAnim)
-modules/<feat>/  feature UI; entry file named after the module (osd/Osd.qml)
+modules/<feat>/  feature UI; entry file named after the module (island/Island.qml, settings/Settings.qml)
 utils/           pure-function QML singletons (Icons.qml); qs.<dir> modules don't export .js files
 scripts/         non-QML helpers, run only by services
 assets/          images, svg, bundled fonts
