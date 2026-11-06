@@ -18,7 +18,7 @@ Test wallpapers are in `~/Pictures/Wallpapers/`. Wallpapers are drawn by the she
 - Every feature must work from a terminal before it has UI: `qs -c ezshell ipc call <target> <fn> [args]`.
 - List IPC targets: `qs -c ezshell ipc show`.
 - Format: `/usr/lib/qt6/bin/qmlformat -i <file>`. `/usr/bin/qmlformat` is the Qt 5 one and mangles pragmas. Keep `.qmlformat.ini` to `IndentWidth=4`: in qmlformat 6.11, `SemicolonRule=essential` and `MaxColumnWidth` de-indent function bodies and break template strings. Wrap lines over 120 columns by hand.
-- Lint: `/usr/lib/qt6/bin/qmllint`, with the import paths and `buildDir` from `.qmlls.ini` (only resolves while `qs` runs). Ignore the "pragma Singleton without qmldir", `FileViewAdapter` incomplete type, `PanelWindow is not creatable`, `QProcess::ExitStatus ... onExited`, `margins` grouped-property, and unresolved-type warnings for `Quickshell.Bluetooth` types, `Notification.actions` and `PwNodeType::Flags` (Quickshell type-info gaps).
+- Lint: `/usr/lib/qt6/bin/qmllint`, with the import paths and `buildDir` from `.qmlls.ini` (only resolves while `qs` runs). Ignore the "pragma Singleton without qmldir", `FileViewAdapter` incomplete type, `PanelWindow is not creatable`, `QProcess::ExitStatus ... onExited`, `margins` grouped-property, and unresolved-type warnings for `Quickshell.Bluetooth` types, `Notification.actions`, `PwNodeType::Flags` and the polkit `AuthFlow`/`Identity` types (Quickshell type-info gaps).
 
 ## Directory layout
 
@@ -70,7 +70,7 @@ assets/          images, svg, bundled fonts
 - Root is `Singleton`. Expose state as `readonly property` and intent as verb functions (`set`, `toggle`, `up`, `down`).
 - Each service has its own `IpcHandler`, whose target is the service name in lowercase. IPC functions are typed (`: void`) and only delegate.
 - Native modules first: Pipewire (with `PwObjectTracker`), Mpris, Networking, Bluetooth, UPower, NotificationServer, SystemTray, Hyprland. Shell out only for brightness (`brightnessctl`, `ddcutil`), night light (`hyprctl hyprsunset`), lifting a Bluetooth rfkill block (`rfkill unblock bluetooth`), saved / hidden Wi‑Fi profiles (`nmcli`), session actions (`systemctl suspend|reboot|poweroff`, through `execDetached` in `Session`), and `SysInfo`'s `df`, `nvidia-smi` (only while the GPU is awake) and `scripts/sysinfo-paths.sh`, and `Camera`'s `scripts/camera-watch.sh` (`inotifywait` on `/dev/video*`), `Theme`'s `matugen`, `Wallpapers`' `find` (Qt's folder model doesn't recurse), and `Clipboard`'s `cliphist` and `wl-copy` (never `Quickshell.clipboardText`). `Weather` uses `XMLHttpRequest`, no process.
-- Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`, `Theme`, `Wallpapers`, `Clipboard`, `Emoji`.
+- Never reuse a Quickshell singleton name. Use `Audio`, `Players`, `Wifi`, `Bt`, `Hypr`, `Battery`, `Notifs`, `Tray`, `Apps`, `Time`, `Brightness`, `NightLight`, `Idle`, `Session`, `Weather`, `SysInfo`, `Camera`, `Theme`, `Wallpapers`, `Clipboard`, `Emoji`, `Polkit`.
 - A service may own a non-singleton helper file in `services/` to stay short (`WifiProfiles`, created only by `Wifi`). Nothing else instantiates it.
 - Processes live only in services, one per data source. Outside services, only `Quickshell.execDetached([...])`.
 - Use events, not polling. A `Timer` is a last resort, only in a service, and only running while needed.

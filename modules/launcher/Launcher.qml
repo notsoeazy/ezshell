@@ -75,6 +75,11 @@ ColumnLayout {
         Qt.callLater(root.reveal);
     }
     onSelectedChanged: root.reveal()
+    // Back from under the polkit prompt: the search field takes the keyboard again.
+    onVisibleChanged: {
+        if (visible)
+            input.forceActiveFocus();
+    }
     Component.onCompleted: {
         input.text = Visibility.launcherText;
         input.forceActiveFocus();

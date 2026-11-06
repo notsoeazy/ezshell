@@ -16,10 +16,13 @@ Item {
     required property string osdKind
     required property int fadeInDelay
     required property real sectionWidth
+    // The mode under the polkit prompt, kept loaded while hidden ("" otherwise).
+    required property string held
     readonly property real restWidth: restLayer.implicitWidth
     readonly property real notificationHeight: notificationLayer.implicitHeight
     readonly property real launcherHeight: launcherLayer.implicitHeight
     readonly property real expandedHeight: expandedLayer.implicitHeight
+    readonly property real polkitHeight: polkitLayer.implicitHeight
 
     ModeLayer {
         id: restLayer
@@ -91,6 +94,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         width: Appearance.island.launcher.width - 2 * Appearance.island.launcher.padding
         shown: root.mode === "launcher"
+        persistent: root.held === "launcher"
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
             Launcher {}
@@ -106,11 +110,27 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         width: root.sectionWidth - 2 * Appearance.island.expanded.padding
         shown: Visibility.isSection(root.mode)
+        persistent: Visibility.isSection(root.held)
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
             Expanded {
                 screenName: root.screenName
             }
+        }
+    }
+
+    ModeLayer {
+        id: polkitLayer
+
+        // Pinned to the top so the message stays put while the failure line comes and goes.
+        anchors.top: parent.top
+        anchors.topMargin: Appearance.island.polkit.padding
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Appearance.island.polkit.width - 2 * Appearance.island.polkit.padding
+        shown: root.mode === "polkit"
+        fadeInDelay: root.fadeInDelay
+        sourceComponent: Component {
+            PolkitView {}
         }
     }
 }

@@ -31,6 +31,11 @@ ColumnLayout {
     }
 
     spacing: root.gap
+    // Back from under the polkit prompt: the search field takes the keyboard again.
+    onVisibleChanged: {
+        if (visible)
+            search.focusInput();
+    }
     Component.onCompleted: {
         // Picks up images added since the last scan; the list keeps showing meanwhile.
         Wallpapers.rescan();

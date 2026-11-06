@@ -12,6 +12,8 @@ StyledRect {
     id: root
 
     required property string screenName
+    // Monitor that shows the polkit prompt (Island.qml picks the focused one when a request arrives).
+    required property string authScreen
     property real fromWidth: root.target.width
     property real fromHeight: root.target.height
     property real fromY: root.targetY
@@ -25,7 +27,11 @@ StyledRect {
     readonly property bool knownPanel: Visibility.expanded || Visibility.panel === "launcher"
     readonly property bool panelHere: root.knownPanel && Visibility.screen === root.screenName
     readonly property string temporaryOrRest: Visibility.temporary !== "" ? Visibility.temporary : root.restMode
-    readonly property string mode: root.panelHere ? Visibility.panel : root.temporaryOrRest
+    readonly property string underlying: root.panelHere ? Visibility.panel : root.temporaryOrRest
+    // Polkit outranks everything, panels included. Visibility isn't touched, so when the prompt ends the
+    // island goes back to whatever was open underneath.
+    readonly property bool authHere: Polkit.active && root.authScreen === root.screenName
+    readonly property string mode: root.authHere ? "polkit" : root.underlying
     readonly property size target: root.sizeFor(root.mode)
     readonly property real targetY: root.mode === "hidden" ? -Appearance.island.height : Appearance.island.margin
     readonly property color normalOutline: Qt.alpha(Colors.outlineVariant, Appearance.island.outlineOpacity)
@@ -57,6 +63,8 @@ StyledRect {
             return Qt.size(island.notification.width, layers.notificationHeight);
         case "launcher":
             return Qt.size(island.launcher.width, layers.launcherHeight + 2 * island.launcher.padding);
+        case "polkit":
+            return Qt.size(island.polkit.width, layers.polkitHeight + 2 * island.polkit.padding);
         case "music":
             return Qt.size(island.music.width, island.music.height);
         default:
@@ -149,6 +157,8 @@ StyledRect {
         osdKind: root.osdKind
         fadeInDelay: root.morphDuration * Appearance.anim.islandFadeInAt
         sectionWidth: root.sectionWidth(root.mode)
+        // While the prompt covers a panel, the panel stays loaded so its text and page survive.
+        held: root.mode === "polkit" ? root.underlying : ""
     }
 
     WheelArea {

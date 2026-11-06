@@ -258,6 +258,10 @@ Tiles without an on/off state (power) open their section directly.
 - Sections call the existing `Wifi`, `Bt`, `Audio` and `Battery` services; no new data paths.
 - Wi‑Fi: try `connect()` first, and ask for a password only when it fails for missing secrets.
 
+### Polkit prompt (top priority)
+
+A polkit request outranks everything: `Surface.mode` is `polkit` on the monitor that was focused when it arrived, then the open panel, then temporary modes, then rest. `Visibility` isn't changed, and the panel underneath stays loaded (`ModeLayers.held`), so the island returns to it as it was. While the prompt shows, the island window is on `Overlay` with `Exclusive` keyboard focus, and nothing auto-collapses. The lock screen still covers it.
+
 ### Focus and dismissal
 
 - **`keyboardFocus`:**

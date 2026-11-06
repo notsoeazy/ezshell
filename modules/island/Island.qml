@@ -12,11 +12,16 @@ import qs.themes
 Scope {
     id: root
 
-    // Never auto-collapse while a password is being typed or a connect or pair is in flight.
-    readonly property bool holdOpen: Visibility.stack.includes("password") || Wifi.connecting || Bt.busy
+    // Never auto-collapse while a password is being typed or a connect or pair is in flight, or while a polkit
+    // prompt covers the panel.
+    readonly property bool busy: Wifi.connecting || Bt.busy || Polkit.active
+    readonly property bool holdOpen: Visibility.stack.includes("password") || root.busy
     // Exclusive keyboard only for the password page, and only when opened by keybind/IPC: a click
     // already gives the island focus, and Exclusive would lock the keyboard for nothing.
     readonly property bool grabKeys: Visibility.stack.includes("password") && !Visibility.openedByPointer
+
+    // The monitor focused when a polkit request arrives shows the prompt, until polkit has none left.
+    property string authScreen: ""
 
     // Workspace or monitor focus changes collapse whatever is open (docs/ISLAND.md, Focus and dismissal).
     function collapse(): void {
@@ -25,6 +30,15 @@ Scope {
     }
 
     Transients {}
+
+    Connections {
+        function onActiveChanged(): void {
+            if (Polkit.active)
+                root.authScreen = Hyprland.focusedMonitor?.name ?? "";
+        }
+
+        target: Polkit
+    }
 
     // Themes can't read config, so the user's animation speed is pushed into the tokens here.
     Binding {
@@ -70,7 +84,7 @@ Scope {
             PanelWindow {
                 id: overlay
 
-                readonly property bool typing: surface.mode === "launcher" || surface.mode === "wallpapers"
+                readonly property bool typing: ["launcher", "wallpapers", "polkit"].includes(surface.mode)
                 readonly property bool expanded: Visibility.isSection(surface.mode)
                 readonly property int typingFocus: WlrKeyboardFocus.Exclusive
                 readonly property int expandedFocus: root.grabKeys ? overlay.typingFocus : WlrKeyboardFocus.OnDemand
@@ -88,9 +102,10 @@ Scope {
                 }
                 // Hyprland hides Top surfaces under fullscreen and keeps the game on direct scanout. Overlay
                 // draws above fullscreen but blocks scanout, so it is used only while a transient shows.
-                WlrLayershell.layer: surface.elevated ? WlrLayer.Overlay : WlrLayer.Top
+                // The polkit prompt always takes Overlay: nothing may cover a password prompt but the lock screen.
+                WlrLayershell.layer: surface.elevated || surface.authHere ? WlrLayer.Overlay : WlrLayer.Top
                 WlrLayershell.namespace: "ezshell-island"
-                // None at rest, OnDemand while expanded, Exclusive for the launcher's and wallpapers' search fields.
+                // None at rest, OnDemand while expanded, Exclusive for the search fields and the polkit prompt.
                 WlrLayershell.keyboardFocus: overlay.typing ? overlay.typingFocus : overlay.sectionFocus
 
                 // Clicking outside an open panel closes it. A clear that arrives while the pill is still
@@ -124,6 +139,7 @@ Scope {
                     id: surface
 
                     screenName: perScreen.modelData.name
+                    authScreen: root.authScreen
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
             }

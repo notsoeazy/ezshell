@@ -32,8 +32,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F2 | Launcher providers: registry, `>` actions | M | done |
 | F3 | Clipboard history (`;`) | M | done |
 | F4 | Emoji, symbols and kaomoji (`:`) | S | done |
-| F5 | Polkit agent in the island | M | next |
-| F6 | Screenshots and screen recording | M | |
+| F5 | Polkit agent in the island | M | done |
+| F6 | Screenshots and screen recording | M | next |
 | F7 | Tasks IPC and generic OSD | S | |
 | F8 | Quick utilities | S each | |
 | F9 | Keybind cheat sheet and updates | S | |
@@ -153,31 +153,16 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 
 ## F5. Polkit agent in the island
 
-The polkit password prompt appears in the island, replacing hyprpolkitagent or polkit-gnome.
+**Done.** Polkit password prompts (pkexec, GUI admin actions) show in the island, replacing polkit-gnome.
 
-- **First step:** confirm the installed Quickshell is built with polkit support. `PolkitAgent.isRegistered` should be true, with no "failed to register listener" in the log. If it isn't, stop and report.
-- **API** (checked in the Quickshell 0.3.2 source, `Quickshell.Services.Polkit`):
-  - `PolkitAgent` registers itself on creation. It has `isRegistered`, `flow: AuthFlow` and the signal `authenticationRequestStarted`.
-  - `AuthFlow` gives `message`, `actionId`, `iconName`, `identities` and a writable `selectedIdentity`.
-  - For input it has `inputPrompt` and `responseVisible`; for progress, `supplementaryMessage` / `supplementaryIsError`, `isCompleted` and `isSuccessful`.
-  - Methods: `submit(string)` and `cancelAuthenticationRequest()`.
-  - Signals: `authenticationSucceeded`, `authenticationFailed` (a new attempt starts by itself) and `authenticationRequestCancelled`.
-  - Requests queue in order.
-- **Service:** a `Polkit` singleton with `state: idle | prompt | checking | failed`, force-loaded in `shell.qml`.
-- **Island:** temporary mode `polkit`, which outranks everything, including the expanded island and the launcher.
-  - While it's showing: the island window is on `Overlay` with `keyboardFocus: Exclusive`.
-  - Content: lock icon, message, an identity chooser only when there's more than one identity, a password field, and Cancel / Authenticate buttons.
-  - On failure, shake and show `supplementaryMessage`. Esc cancels.
-- **Security:**
-  - The password field uses `echoMode: TextInput.Password` unless `responseVisible`.
-  - Clear it right after `submit()`, on cancel and on success. Never log it.
-  - **No IPC `submit`, ever.** IPC is `polkit cancel` and `polkit status` only.
-- **Setup in HYPRLAND.md:** run only one agent. `systemctl --user disable --now hyprpolkitagent`, and remove any other agent's autostart.
-- **Done when:**
-  - `pkexec true` and a GUI action both prompt in the island;
-  - a wrong password shakes and lets you retry;
-  - Cancel works;
-  - the lock screen still appears above the prompt.
+- **Quickshell support:** confirmed on 0.3.1 (`Quickshell.Services.Polkit`). Polkit allows one agent per session: while polkit-gnome runs, ezshell's agent fails to register (two Quickshell warnings in the log) and polkit-gnome keeps answering. HYPRLAND.md §7 has the line to remove.
+- **`Polkit` service** (force-loaded): `registered`, `active`, `state` (`idle | prompt | checking | failed`), the request's `message`, `actionId`, `iconName`, `identities`, `selectedIdentity`, `inputPrompt`, `responseVisible`, `supplementaryMessage`/`supplementaryIsError`; `submit(response)`, `cancel()`, `selectIdentity()`. IPC `polkit status` and `polkit cancel` only; never a submit.
+- **Quickshell 0.3.1 bug, worked around:** its agent pops the active request off its queue, so a second request replaced the open one and the first was never answered (its pkexec hung). The service keeps replaced requests and shows them after the newer one: newest first, none dropped. Rare race left: a kept request that times out on polkit's side while a newer one shows makes Quickshell clean up the newer one.
+- **Island:** a tier above panels (`Surface.mode`: polkit, then panels, then temporary modes), on the monitor focused when the request arrives. `Visibility` isn't touched and the panel underneath stays loaded, so the launcher's text and the open section come back as they were. While it shows: Overlay layer, Exclusive keyboard, clicks outside and workspace changes don't close anything.
+- **Prompt (`PolkitView.qml`):** lock icon, message, action id, identity picker when there's more than one, password field (hidden unless `responseVisible`, with a show toggle), Cancel and Authenticate; Esc cancels, Enter submits; a wrong password shakes and shows polkit's message.
+- **Security:** the field is cleared right after `submit()`, on cancel, for each new request and when the view goes away; the response is never stored, logged or sent over IPC.
+- **faillock:** cancelling a request after PAM asked for the password counts as a failed login (`pam_faillock authfail` in `system-auth`); three in a row lock the account for 10 minutes, the ezshell lockscreen included. Test with the real password, and don't script cancels.
+- **Tested:** request delivery, cancel, queued requests and the prompt over the launcher and a section (scripted); passwords, keys and the lock screen by the user, who reported it works.
 
 ## F6. Screenshots and screen recording
 
@@ -261,7 +246,7 @@ hyprism-style cards (clock, weather, performance, network, storage, sensors) on 
 | `ddcutil` | F8 | optional |
 | `pacman-contrib` | F9 | |
 
-F1 adds none. Disable `hyprpolkitagent` and `polkit-gnome` when F5 lands.
+F1 adds none. F5 landed: stop starting `polkit-gnome` (HYPRLAND.md §7).
 
 ## Open questions to check on the real machine
 

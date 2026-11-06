@@ -36,6 +36,7 @@ QtObject {
     readonly property ExpandedTokens expanded: ExpandedTokens {}
     readonly property DashboardTokens dashboard: DashboardTokens {}
     readonly property WallpaperTokens wallpapers: WallpaperTokens {}
+    readonly property PolkitTokens polkit: PolkitTokens {}
     // The island window: tallest mode plus margin and overshoot room, so the morph never resizes it.
     readonly property int panelHeight: Math.max(island.launcher.maxHeight, island.expanded.maxHeight)
     readonly property int tallestMode: Math.max(island.notification.maxHeight, island.panelHeight)
@@ -47,6 +48,16 @@ QtObject {
     component WallpaperTokens: QtObject {
         readonly property int thumbWidth: 224
         readonly property int thumbHeight: 126
+    }
+
+    // Polkit password prompt (above every other mode).
+    component PolkitTokens: QtObject {
+        readonly property int width: 460
+        readonly property int padding: 20
+        readonly property int gap: 12
+        readonly property int icon: 32
+        // How far the prompt shakes sideways after a wrong password.
+        readonly property int shake: 10
     }
 
     component OsdTokens: QtObject {
