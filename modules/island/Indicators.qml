@@ -5,7 +5,7 @@ import qs.services
 import qs.state
 import qs.themes
 
-// Trailing indicators, highest priority first: recording / screen share, mic and camera, DND, unread
+// Trailing indicators, highest priority first: recording / screen share, mic and camera, keep awake, DND, unread
 // badge (docs/ISLAND.md "Default island variations"). No timers; workspaces and date are untouched.
 RowLayout {
     id: root
@@ -85,6 +85,26 @@ RowLayout {
             margin: Appearance.spacing.small
             gesturePolicy: TapHandler.ReleaseWithinBounds
             onTapped: Visibility.openByPointer("audio", root.screenName)
+        }
+    }
+
+    // Keep awake: a click turns it off.
+    MaterialIcon {
+        opacity: Idle.inhibited ? 1 : 0
+        // Fades out before leaving the layout, so the balance-rule width change follows the fade.
+        visible: opacity > 0
+
+        Behavior on opacity {
+            Anim {}
+        }
+        text: "coffee"
+        fill: 1
+        color: Colors.surfaceVariantFg
+
+        TapHandler {
+            margin: Appearance.spacing.small
+            gesturePolicy: TapHandler.ReleaseWithinBounds
+            onTapped: Idle.setInhibited(false)
         }
     }
 

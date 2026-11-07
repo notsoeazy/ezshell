@@ -39,7 +39,8 @@ Card {
 
     GridLayout {
         Layout.fillWidth: true
-        columns: 3
+        // Two rows of four.
+        columns: 4
         rowSpacing: Appearance.spacing.normal
         columnSpacing: Appearance.spacing.normal
 
@@ -96,6 +97,17 @@ Card {
             active: !Audio.micMuted
             onToggled: Audio.toggleMicMute()
             onOpened: root.open("audio")
+        }
+
+        Tile {
+            Layout.fillWidth: true
+            compact: true
+            icon: "coffee"
+            label: "Keep awake"
+            status: Idle.inhibited ? "On" : "Off"
+            active: Idle.inhibited
+            hasDetail: false
+            onToggled: Idle.toggleInhibit()
         }
 
         Tile {
