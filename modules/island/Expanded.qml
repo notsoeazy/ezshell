@@ -33,7 +33,8 @@ ColumnLayout {
             "power": powerPage,
             "display": displayPage,
             "wallpapers": wallpapersPage,
-            "capture": capturePage
+            "capture": capturePage,
+            "keybinds": keybindsPage
         })
 
     spacing: Appearance.island.expanded.gap
@@ -171,5 +172,11 @@ ColumnLayout {
         id: capturePage
 
         CaptureSection {}
+    }
+
+    Component {
+        id: keybindsPage
+
+        KeybindsSection {}
     }
 }

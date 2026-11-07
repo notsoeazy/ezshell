@@ -517,6 +517,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8), `peek(on\|off)` (R1) |
 | `color` | `services/Color.qml` | `pick`, `pickIn(ms)`, `last` |
 | `keyboard` | `services/Keyboard.qml` | `status` |
+| `keybinds` | `services/Keybinds.qml` | `list`, `status`, `refresh` (F9) |
 | `gamemode` | `services/GameMode.qml` | `on`, `off`, `toggle`, `status` |
 | `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md). Since R1 the tabs are `control`, `media`, `system`, `weather`, `calendar`; `overview` and `notifications` are aliases for `control` |
 | `lock` | `modules/lockscreen/Lockscreen.qml` | `lock` |

@@ -28,6 +28,7 @@ ShellRoot {
         Color;
         Keyboard;
         GameMode;
+        Keybinds;
         Apps;
         Audio;
         Brightness;

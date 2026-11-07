@@ -28,7 +28,8 @@ Item {
             "power": "Power",
             "display": "Display",
             "wallpapers": "Wallpapers",
-            "capture": "Capture"
+            "capture": "Capture",
+            "keybinds": "Keybinds"
         })
     // A detail page's main switch, on the right of its header.
     readonly property var switches: ({

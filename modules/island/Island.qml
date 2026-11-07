@@ -92,7 +92,7 @@ Scope {
             PanelWindow {
                 id: overlay
 
-                readonly property bool typing: ["launcher", "wallpapers", "polkit", "capture"].includes(surface.mode)
+                readonly property bool typing: ["launcher", "wallpapers", "polkit", "capture", "keybinds"].includes(surface.mode)
                 readonly property bool expanded: Visibility.isSection(surface.mode)
                 readonly property int typingFocus: WlrKeyboardFocus.Exclusive
                 readonly property int expandedFocus: root.grabKeys ? overlay.typingFocus : WlrKeyboardFocus.OnDemand

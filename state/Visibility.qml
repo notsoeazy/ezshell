@@ -50,7 +50,7 @@ Singleton {
             notifications: "control"
         })
     // Sections opened on their own (keybind or IPC), not from the overview: back() collapses them.
-    readonly property list<string> standalone: ["wallpapers", "capture"]
+    readonly property list<string> standalone: ["wallpapers", "capture", "keybinds"]
     readonly property bool expanded: root.isSection(root.panel)
 
     function isSection(name: string): bool {

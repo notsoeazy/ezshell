@@ -155,6 +155,21 @@ hl.bind("SUPER + CTRL + G", hl.dsp.exec_cmd(qs .. "gamemode toggle"))
 hl.bind("SUPER + CTRL + H", hl.dsp.exec_cmd(qs .. "island toggle"))
 ```
 
+## 10. Keybind cheat sheet (recommended, not applied)
+
+The island's `keybinds` section lists every bind from `hyprctl -j binds`. Lua binds only report their keys, so what a bind does comes from its description, the `description` option of `hl.bind`. A prefix before `:` is the group; binds without a prefix go under "Other", binds without a description last, with keys only.
+
+```lua
+-- Open the cheat sheet (SUPER + slash is free)
+hl.bind("SUPER + slash", hl.dsp.exec_cmd(qs .. "panels toggle keybinds"), { description = "Shell: Keybind cheat sheet" })
+
+-- Descriptions on existing binds: add them to the options table
+hl.bind("SUPER + Q", hl.dsp.window.close(), { description = "Windows: Close window" })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(qs .. "players playPause"), { locked = true, description = "Media: Play or pause" })
+```
+
+The list refreshes on every config reload. `qs -c ezshell ipc call keybinds status` shows how many binds have a description.
+
 ## 6. Already in place
 
 - `misc.allow_session_lock_restore = true` (`hyprland/misc.lua`): if the shell dies while locked, restarting it takes the lock back instead of leaving you on Hyprland's red "lockscreen died" screen. Keep it.

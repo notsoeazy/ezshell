@@ -50,7 +50,7 @@ Provider {
         list.push(open("system", "System", "monitoring"), open("calendar", "Calendar", "calendar_month"));
         list.push(open("wifi", "Wi‑Fi", "wifi"), open("bluetooth", "Bluetooth", "bluetooth"));
         list.push(open("audio", "Audio", "volume_up"), open("power", "Power", "battery_full"));
-        list.push(open("wallpapers", "Wallpapers", "wallpaper"), open("capture", "Capture", "screenshot_monitor"));
+        list.push(open("wallpapers", "Wallpapers", "wallpaper"), open("capture", "Capture", "screenshot_monitor"), open("keybinds", "Keybinds", "keyboard"));
         list.push({
             key: "open-notifications",
             title: "Notifications",

@@ -40,6 +40,7 @@ QtObject {
     readonly property WallpaperTokens wallpapers: WallpaperTokens {}
     readonly property PolkitTokens polkit: PolkitTokens {}
     readonly property CaptureTokens capture: CaptureTokens {}
+    readonly property KeybindTokens keybinds: KeybindTokens {}
     readonly property MessageTokens message: MessageTokens {}
     // The island window: tallest mode plus margin and overshoot room, so the morph never resizes it.
     readonly property int panelHeight: Math.max(island.launcher.maxHeight, island.expanded.maxHeight)
@@ -211,6 +212,16 @@ QtObject {
         readonly property int notifIconRadius: 8
         // The notification center's empty state ("All caught up").
         readonly property int emptyHeight: 72
+    }
+
+    // The keybind cheat sheet: rows with key caps.
+    component KeybindTokens: QtObject {
+        readonly property int row: 36
+        readonly property int rowRadius: 10
+        readonly property int cap: 22
+        readonly property int capPadding: 6
+        readonly property int capRadius: 6
+        readonly property int capGap: 7
     }
 
     component DashboardTokens: QtObject {

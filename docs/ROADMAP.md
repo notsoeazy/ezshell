@@ -37,8 +37,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F7 | Generic OSD and capture feedback (tasks dropped) | S | done |
 | R1 | [Island redesign: hover peek and Control tab](ISLAND-R1.md) | L | done |
 | F8 | Quick utilities (external brightness skipped) | S each | done |
-| F9 | Keybind cheat sheet and updates | S | next |
-| F10 | Window switcher (Super+Tab) | M | |
+| F9 | Keybind cheat sheet (updates skipped) | S | done |
+| F10 | Window switcher (Super+Tab) | M | next |
 | F11 | Theme presets and matugen templates for other apps | M | |
 | F12 | Desktop widgets (optional) | L | |
 
@@ -222,7 +222,8 @@ Spec and design record: [`docs/ISLAND-R1.md`](ISLAND-R1.md); the final rules are
   - Data from `hyprctl binds -j`; modmask bits are SHIFT 1, CTRL 4, ALT 8, SUPER 64.
   - Show the bind's description when it has one. First check that the Lua config exposes descriptions.
   - Island section `keybinds`, grouped and searchable; Super+/.
-- **Updates:**
+  - Done: Lua binds expose `description` (`hl.bind` options), but none of the user's binds had one yet, so the sheet groups by the description's prefix and lists undescribed binds last with keys only. HYPRLAND.md §10 has the bind and examples. Identical press/release entries are merged.
+- **Updates:** skipped for now (user's call, Nov 7 2026).
   - `Updates` service runs `checkupdates` hourly. Exit code 2 means no updates, not an error.
   - Optional AUR count with `paru -Qua`.
   - An Overview card with the count and the list, and an "Update" button that opens a terminal with `paru` and reports progress through F7.
