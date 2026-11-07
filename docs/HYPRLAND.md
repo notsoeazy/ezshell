@@ -187,6 +187,87 @@ When `Config.theme.kitty` is on (`qs -c ezshell ipc call theme setKitty true`, o
 include ~/.local/state/ezshell/kitty-theme.conf
 ```
 
+## 13. Workspace paging (`wsaction` in `utils/functions.lua` and `hyprland/keybinds.lua`)
+
+Your current `~/.config/hypr/utils/functions.lua` (lines 1–17) defines `wsaction(action, range, i)` with pages hardcoded to `10`:
+
+```lua
+-- Current ~/.config/hypr/utils/functions.lua
+local function wsaction(action, range, i)
+    return function()
+        local activews = hl.get_active_workspace()
+        if activews then
+            local id = activews.id
+            local s  = (i - 1) * 10 + (id % 10)
+            local t  = math.floor((id - 1) / 10) * 10 + i
+            local z  = (range == "group") and s or t
+
+            if action == "move" then
+                return hl.dispatch(hl.dsp.window.move({ workspace = z }))
+            else
+                return hl.dispatch(hl.dsp.focus({ workspace = z }))
+            end
+        end
+    end
+end
+```
+
+And `~/.config/hypr/hyprland/keybinds.lua` (lines 42–61) binds `SUPER + 1..0` (`focus`), `SUPER + ALT + 1..0` (`move`), `CTRL + SUPER + 1..0` (`focus` group), `CTRL + SUPER + ALT + 1..0` (`move` group), and `CTRL + SUPER + mouse_up/down` (`-10` / `+10`).
+
+### Option A — Delegate to ezshell IPC (follows `Config.workspaces.shown` automatically)
+
+`Hypr` exposes page-aware IPC calls that read `Config.workspaces.shown` dynamically (`5`, `8`, `10`, or any number set in Settings → Island):
+
+- `hypr focusSlot <i>` — focuses $\lfloor(\text{active} - 1) / \text{shown}\rfloor \times \text{shown} + i$ (e.g. `Super+1` focuses `1` on page 1, `11` on page 2 when `shown = 10`, or `6` on page 2 when `shown = 5`).
+- `hypr moveSlot <i>` — moves the active window to slot `i` on the current workspace page.
+- `hypr focusGroup <i>` — jumps to workspace page `i` while keeping the relative slot index.
+- `hypr moveGroup <i>` — moves the active window to workspace page `i` at the same relative slot.
+- `hypr cycle <step>` — steps `-1` or `+1` across workspaces without clamping at `shown` (flips into page 2, 3, etc.).
+- `hypr cyclePage <step>` — steps `-1` or `+1` full page ($\pm \text{shown}$ workspaces).
+
+In `hyprland/keybinds.lua`:
+
+```lua
+for i = 1, 10 do
+    local key = i % 10
+    hl.bind(vars.kbGoToWs .. " + " .. key, hl.dsp.exec_cmd(qs .. "hypr focusSlot " .. i), { description = "Workspaces: Focus slot " .. i })
+    hl.bind(vars.kbMoveWinToWs .. " + " .. key, hl.dsp.exec_cmd(qs .. "hypr moveSlot " .. i), { description = "Workspaces: Move window to slot " .. i })
+    hl.bind(vars.kbGoToWsGroup .. " + " .. key, hl.dsp.exec_cmd(qs .. "hypr focusGroup " .. i), { description = "Workspaces: Focus page " .. i })
+    hl.bind(vars.kbMoveWinToWsGroup .. " + " .. key, hl.dsp.exec_cmd(qs .. "hypr moveGroup " .. i), { description = "Workspaces: Move window to page " .. i })
+end
+
+-- Step across workspace pages with Ctrl+Super+Wheel
+hl.bind("CTRL + SUPER + mouse_up", hl.dsp.exec_cmd(qs .. "hypr cyclePage -1"))
+hl.bind("CTRL + SUPER + mouse_down", hl.dsp.exec_cmd(qs .. "hypr cyclePage 1"))
+```
+
+### Option B — Keep pure-Lua `wsaction` with a configurable `per_page`
+
+If you prefer keeping `wsaction` directly in `~/.config/hypr/utils/functions.lua` (Notice: replace `id % per_page` with `((id - 1) % per_page) + 1` so slot `10` doesn't map to offset `0`):
+
+```lua
+local per_page = 10 -- or 5, 8, matching Config.workspaces.shown
+
+local function wsaction(action, range, i)
+    return function()
+        local activews = hl.get_active_workspace()
+        if activews then
+            local id = activews.id
+            local slot = ((id - 1) % per_page) + 1
+            local s = (i - 1) * per_page + slot
+            local t = math.floor((id - 1) / per_page) * per_page + i
+            local z = (range == "group") and s or t
+
+            if action == "move" then
+                return hl.dispatch(hl.dsp.window.move({ workspace = z }))
+            else
+                return hl.dispatch(hl.dsp.focus({ workspace = z }))
+            end
+        end
+    end
+end
+```
+
 ## 6. Already in place
 
 - `misc.allow_session_lock_restore = true` (`hyprland/misc.lua`): if the shell dies while locked, restarting it takes the lock back instead of leaving you on Hyprland's red "lockscreen died" screen. Keep it.

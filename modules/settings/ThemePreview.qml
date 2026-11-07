@@ -137,7 +137,7 @@ ColumnLayout {
 
     SettingRow {
         label: "Corner radius"
-        sublabel: "Scales card and panel corners; pills stay round."
+        sublabel: "Scales card and control corners; the island has its own radius in Island settings."
 
         Repeater {
             model: [[0.5, "Sharp"], [1, "Normal"], [1.5, "Round"]]

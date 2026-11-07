@@ -82,18 +82,18 @@ Color names in this file use Material 3 spelling (`onSurface`, `onPrimaryContain
 
 The resting island (the former "peek" design) has three sections:
 
-- **Leading:** workspace indicator. Active workspace is a 22x8 `primary` pill, others are 8x8 dots, empty ones dimmed. Width animates when the active workspace changes.
-- **Center:** clock + date, one group.
-- **Trailing:** status icons in order wifi, bluetooth, volume, battery, 8px apart.
+- **Leading:** workspace indicator (`Workspaces.qml`) and system tray (`TrayWidget.qml`). Workspaces are paged in groups of `Config.workspaces.shown` (`pageOffset = Math.floor((active - 1) / shown) * shown`); `Config.workspaces.showNumbers` optionally draws the workspace number inside each dot. Active workspace is a 22x8 `primary` pill, others are 8x8 dots, empty ones dimmed. Width animates when the active workspace changes.
+- **Center:** clock (`Clock.qml`). By default (`Config.island.showDateOnHover = true`), only the time is shown at rest, and the full date appears centered directly beneath the clock on hover (`PeekView.qml`); `showDateOnHover = false` shows the date inline next to the time.
+- **Trailing:** music equalizer, indicators, and status icons in order wifi, bluetooth, volume, battery (`Config.island.itemSpacing` px apart, default 8). Every widget and status icon can be individually shown or hidden through `Config.island.show*` in Settings → Island.
 
 ## The balance rule
 
 The most important rule in this file. It is a layout rule, so it is not visible in Figma; check it in code review.
 
-1. The center group (clock + date) is always exactly centered on the island and on the screen.
-2. Leading and trailing always have **equal width**: `sideWidth = max(leading.implicitWidth, trailing.implicitWidth)`.
-3. `islandWidth = 2 * sideWidth + centerWidth + 2 * gap + 2 * padding`.
-4. When one side gains items (tray icons after the workspace indicator, an extra indicator on the right), **both** sides grow by the same amount. Leading content hugs the outer-left edge, trailing content hugs the outer-right edge; the slack sits next to the center.
+1. When `Config.island.balancedWings` is `true` (default), the center group (clock) is always exactly centered on the island and on the screen. When `balancedWings` is `false`, each wing sizes to its own natural width (`leading.implicitWidth` and `trailing.implicitWidth`).
+2. With `balancedWings` on, leading and trailing always have **equal width**: `sideWidth = max(leading.implicitWidth, trailing.implicitWidth)`.
+3. `islandWidth = leadingWidth + trailingWidth + centerWidth + 2 * sectionGap + 2 * sidePadding`.
+4. Outer corner radius is controlled independently by `Config.island.cornerRadius` (`Appearance.island.cornerRadius`, default 22), decoupled from `Appearance.rounding.scale` so Settings → Appearance's Corner radius only scales inner cards and controls.
 5. Width changes always animate through the morph or `Anim`. They never jump.
 
 ```qml

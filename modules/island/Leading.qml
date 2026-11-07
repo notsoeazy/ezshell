@@ -18,10 +18,11 @@ RowLayout {
     // Width with nothing compacted, so Default can decide without a binding loop.
     readonly property real naturalWidth: root.implicitWidth + (root.compactSpecial ? root.specialSaving : 0)
 
-    spacing: Appearance.spacing.normal
+    spacing: Appearance.island.itemSpacing
 
     // The chip covers the workspace indicator in place, so the slot takes whichever is showing.
     Item {
+        visible: Config.island.showWorkspaces || root.special !== ""
         implicitWidth: root.special ? chip.implicitWidth : workspaces.implicitWidth
         implicitHeight: Appearance.island.chipHeight
 
@@ -89,5 +90,7 @@ RowLayout {
         }
     }
 
-    TrayWidget {}
+    TrayWidget {
+        visible: Config.island.showTray
+    }
 }

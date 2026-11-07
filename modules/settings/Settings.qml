@@ -34,6 +34,11 @@ Scope {
             icon: "battery_full"
         },
         {
+            name: "island",
+            label: "Island",
+            icon: "dock_to_bottom"
+        },
+        {
             name: "workspaces",
             label: "Workspaces",
             icon: "space_dashboard"
@@ -61,6 +66,8 @@ Scope {
             return audioPage;
         case "power":
             return powerPage;
+        case "island":
+            return islandPage;
         case "workspaces":
             return workspacesPage;
         case "display":
@@ -135,6 +142,12 @@ Scope {
         id: powerPage
 
         PowerPage {}
+    }
+
+    Component {
+        id: islandPage
+
+        IslandPage {}
     }
 
     Component {

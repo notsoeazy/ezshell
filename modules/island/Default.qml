@@ -1,39 +1,48 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
+import qs.config
 import qs.themes
 
-// Balance rule (docs/ISLAND.md): equal-width sides keep the clock centered on the island and the screen.
+// Balance rule (docs/ISLAND.md): equal-width sides keep the clock centered when balancedWings is true.
 // Leading hugs the left edge and Trailing the right, so when the pill widens (peek) they move with it.
 RowLayout {
     id: root
 
     required property string screenName
-    property real animatedSideWidth: root.sideWidth
+    property real animatedLeadingWidth: root.leadingTargetWidth
+    property real animatedTrailingWidth: root.trailingTargetWidth
+    readonly property bool balanced: Config.island.balancedWings
     readonly property real sideWidth: Math.max(leading.implicitWidth, trailing.implicitWidth)
-    // Room for the two equal sides inside Appearance.island.maxWidth.
+    readonly property real leadingTargetWidth: root.balanced ? root.sideWidth : leading.implicitWidth
+    readonly property real trailingTargetWidth: root.balanced ? root.sideWidth : trailing.implicitWidth
+    // Room for the two wings inside Appearance.island.maxWidth.
     readonly property real chrome: 2 * Appearance.island.padding + clock.implicitWidth + 2 * root.spacing
-    readonly property real sideBudget: (Appearance.island.maxWidth - root.chrome) / 2
+    readonly property real wingBudget: Appearance.island.maxWidth - root.chrome
     // How many labels/counts to drop, lowest priority first (docs/ISLAND.md): 1 the unread count,
     // 2 the special chip's name, 3 the battery percentage. Music, mic/camera and recording are icons already.
-    readonly property int compactLevel: [0, 1, 2, 3].find(level => root.sideAt(level) <= root.sideBudget) ?? 3
+    readonly property int compactLevel: [0, 1, 2, 3].find(level => root.wingsWidthAt(level) <= root.wingBudget) ?? 3
 
-    function sideAt(level: int): real {
+    function wingsWidthAt(level: int): real {
         const left = leading.naturalWidth - (level >= 2 ? leading.specialSaving : 0);
         const saved = (level >= 1 ? trailing.badgeSaving : 0) + (level >= 3 ? trailing.batterySaving : 0);
         const right = trailing.naturalWidth - saved;
-        return Math.max(left, right);
+        return root.balanced ? 2 * Math.max(left, right) : left + right;
     }
 
-    spacing: Appearance.spacing.normal
+    spacing: Appearance.island.sectionGap
 
-    Behavior on animatedSideWidth {
+    Behavior on animatedLeadingWidth {
         Anim {}
     }
 
-    // Both sides share any width beyond the content equally (the peek), so the clock stays centered.
+    Behavior on animatedTrailingWidth {
+        Anim {}
+    }
+
+    // Both sides share any width beyond the content equally (the peek), so the clock stays put.
     Item {
-        Layout.preferredWidth: root.animatedSideWidth
+        Layout.preferredWidth: root.animatedLeadingWidth
         Layout.fillWidth: true
         Layout.horizontalStretchFactor: 1
         Layout.fillHeight: true
@@ -53,7 +62,7 @@ RowLayout {
     }
 
     Item {
-        Layout.preferredWidth: root.animatedSideWidth
+        Layout.preferredWidth: root.animatedTrailingWidth
         Layout.fillWidth: true
         Layout.horizontalStretchFactor: 1
         Layout.fillHeight: true

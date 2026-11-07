@@ -107,6 +107,7 @@ Singleton {
     // Edit by reassigning the whole list: in-place edits inside a list<var> may not trigger a save.
     component WorkspacesConfig: JsonObject {
         property int shown: 5
+        property bool showNumbers: false
         property list<var> special: [
             {
                 name: "music",
@@ -181,6 +182,27 @@ Singleton {
     component IslandConfig: JsonObject {
         // Hovering the resting island shows a second line (app, media, notifications); off = hover does nothing.
         property bool hoverPeek: true
+        // Show the date underneath the clock on hover (peek); when false and showDate is true, show inline at rest.
+        property bool showDate: true
+        property bool showDateOnHover: true
+        // Spacing, padding, and corner radius (px) for the resting island pill.
+        property int cornerRadius: 22
+        property int sectionGap: 8
+        property int sidePadding: 14
+        property int topMargin: 6
+        property int itemSpacing: 8
+        property bool balancedWings: true
+        // Visibility toggles for individual resting island widgets and status icons.
+        property bool showWorkspaces: true
+        property bool showTray: true
+        property bool showEqualizer: true
+        property bool showPrivacy: true
+        property bool showRecord: true
+        property bool showNotifDot: true
+        property bool showWifi: true
+        property bool showBluetooth: true
+        property bool showVolume: true
+        property bool showBattery: true
     }
 
     component CaptureConfig: JsonObject {

@@ -125,16 +125,57 @@ Singleton {
         Hyprland.dispatch(root.usingLua ? lua : classic);
     }
 
-    // Steps through workspaces 1 to Config.workspaces.shown, stopping at both ends.
+    // Steps through workspaces (1 and up), crossing page boundaries freely.
     function cycle(screenName: string, step: int): void {
-        const current = root.activeWorkspace(screenName);
-        const next = Math.max(1, Math.min(Config.workspaces.shown, current + step));
+        const current = Math.max(1, root.activeWorkspace(screenName));
+        const next = Math.max(1, current + step);
         if (next !== current)
             root.focus(next);
     }
 
     function focus(id: int): void {
         root.dispatch(`hl.dsp.focus({ workspace = "${id}" })`, `workspace ${id}`);
+    }
+
+    function moveWindow(id: int): void {
+        root.dispatch(`hl.dsp.window.move({ workspace = "${id}" })`, `movetoworkspace ${id}`);
+    }
+
+    // Page-aware workspace target for a 1-based slot (1..shown) on the current page of `shown` workspaces.
+    function slotWorkspace(screenName: string, slot: int): int {
+        const shown = Math.max(1, Config.workspaces.shown);
+        const current = Math.max(1, root.activeWorkspace(screenName));
+        const pageOffset = Math.floor((current - 1) / shown) * shown;
+        return Math.max(1, pageOffset + slot);
+    }
+
+    // Page-aware group target: jumps to page `group` (1-based) while keeping the current relative slot.
+    function groupWorkspace(screenName: string, group: int): int {
+        const shown = Math.max(1, Config.workspaces.shown);
+        const current = Math.max(1, root.activeWorkspace(screenName));
+        const slotIndex = (current - 1) % shown;
+        return Math.max(1, (Math.max(1, group) - 1) * shown + slotIndex + 1);
+    }
+
+    function focusSlot(slot: int): void {
+        root.focus(root.slotWorkspace(root.focusedScreen, slot));
+    }
+
+    function moveSlot(slot: int): void {
+        root.moveWindow(root.slotWorkspace(root.focusedScreen, slot));
+    }
+
+    function focusGroup(group: int): void {
+        root.focus(root.groupWorkspace(root.focusedScreen, group));
+    }
+
+    function moveGroup(group: int): void {
+        root.moveWindow(root.groupWorkspace(root.focusedScreen, group));
+    }
+
+    function cyclePage(step: int): void {
+        const shown = Math.max(1, Config.workspaces.shown);
+        root.cycle(root.focusedScreen, step * shown);
     }
 
     // Launches the entry's app on first use, so the workspace never opens empty.
@@ -196,6 +237,30 @@ Singleton {
     IpcHandler {
         function focus(id: int): void {
             root.focus(id);
+        }
+
+        function moveWindow(id: int): void {
+            root.moveWindow(id);
+        }
+
+        function focusSlot(slot: int): void {
+            root.focusSlot(slot);
+        }
+
+        function moveSlot(slot: int): void {
+            root.moveSlot(slot);
+        }
+
+        function focusGroup(group: int): void {
+            root.focusGroup(group);
+        }
+
+        function moveGroup(group: int): void {
+            root.moveGroup(group);
+        }
+
+        function cyclePage(step: int): void {
+            root.cyclePage(step);
         }
 
         function toggleSpecial(name: string): void {

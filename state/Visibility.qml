@@ -215,6 +215,38 @@ Singleton {
             return root.islandHidden ? "hidden" : "shown";
         }
 
+        function setShown(count: int): void {
+            Config.workspaces.shown = Math.max(1, Math.min(20, count));
+        }
+
+        function setShowNumbers(on: bool): void {
+            Config.workspaces.showNumbers = on;
+        }
+
+        function setSectionGap(px: int): void {
+            Config.island.sectionGap = Math.max(0, Math.min(64, px));
+        }
+
+        function setSidePadding(px: int): void {
+            Config.island.sidePadding = Math.max(4, Math.min(48, px));
+        }
+
+        function setTopMargin(px: int): void {
+            Config.island.topMargin = Math.max(0, Math.min(32, px));
+        }
+
+        function setItemSpacing(px: int): void {
+            Config.island.itemSpacing = Math.max(2, Math.min(24, px));
+        }
+
+        function setBalancedWings(on: bool): void {
+            Config.island.balancedWings = on;
+        }
+
+        function setCornerRadius(px: int): void {
+            Config.island.cornerRadius = Math.max(0, Math.min(28, px));
+        }
+
         // "on" peeks on the focused screen, "off" closes it; for testing without a mouse.
         function peek(state: string): void {
             root.peekScreen = state === "on" ? Hyprland.focusedMonitor?.name ?? "" : "";

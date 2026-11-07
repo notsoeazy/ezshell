@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
+import qs.config
 import qs.services
 import qs.themes
 
@@ -16,6 +17,7 @@ RowLayout {
     }
 
     StyledText {
+        visible: Config.island.showDate && !Config.island.showDateOnHover
         text: Qt.formatDateTime(Time.date, "ddd d MMM")
         color: Colors.surfaceVariantFg
         font.weight: Font.Medium

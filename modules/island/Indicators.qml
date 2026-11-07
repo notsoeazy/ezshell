@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
+import qs.config
 import qs.services
 import qs.state
 import qs.themes
@@ -15,9 +16,10 @@ RowLayout {
     // Lowest priority goes first when space is tight: the unread count becomes a plain dot.
     property bool compactBadge: false
     // Width given back by compactBadge, measured from the full badge so it doesn't depend on the state.
-    readonly property real badgeSaving: Notifs.count > 0 ? fullBadge.pill - Appearance.island.indicatorDot : 0
+    readonly property bool badgeVisible: Config.island.showNotifDot && Notifs.count > 0
+    readonly property real badgeSaving: root.badgeVisible ? fullBadge.pill - Appearance.island.indicatorDot : 0
 
-    spacing: Appearance.spacing.normal
+    spacing: Appearance.island.itemSpacing
 
     component Dot: StyledRect {
         implicitWidth: Appearance.island.indicatorDot
@@ -29,7 +31,7 @@ RowLayout {
     // (gpu-screen-recorder, invisible to Hyprland) come from Capture, and a click stops them. Otherwise the
     // handler only keeps the click from expanding the island.
     RowLayout {
-        opacity: Hypr.screenSharing || Capture.recording ? 1 : 0
+        opacity: Config.island.showRecord && (Hypr.screenSharing || Capture.recording) ? 1 : 0
         // Fades out before leaving the layout, so the balance-rule width change follows the fade.
         visible: opacity > 0
 
@@ -55,7 +57,7 @@ RowLayout {
 
     // Mic or camera in use: warning dot + mic and/or videocam. Opens the audio section, which names the apps.
     RowLayout {
-        opacity: (Audio.micInUse || Camera.inUse) ? 1 : 0
+        opacity: Config.island.showPrivacy && (Audio.micInUse || Camera.inUse) ? 1 : 0
         // Fades out before leaving the layout, so the balance-rule width change follows the fade.
         visible: opacity > 0
 
@@ -145,7 +147,7 @@ RowLayout {
     }
 
     MaterialIcon {
-        opacity: Notifs.dnd ? 1 : 0
+        opacity: Config.island.showNotifDot && Notifs.dnd ? 1 : 0
         // Fades out before leaving the layout, so the balance-rule width change follows the fade.
         visible: opacity > 0
 
@@ -157,7 +159,7 @@ RowLayout {
     }
 
     StyledRect {
-        opacity: (Notifs.count > 0) ? 1 : 0
+        opacity: Config.island.showNotifDot && (Notifs.count > 0) ? 1 : 0
         // Fades out before leaving the layout, so the balance-rule width change follows the fade.
         visible: opacity > 0
 

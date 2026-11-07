@@ -495,7 +495,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `brightness` | `services/Brightness.qml` | `up`, `down`, `set(real)` |
 | `nightlight` | `services/NightLight.qml` | `toggle`, `set(bool)`, `setTemperature(int)`, `setSchedule(off/fixed/sun)`, `setTimes(start, end)`, `status` |
 | `players` | `services/Players.qml` | `playPause`, `next`, `previous`, `status`, `list`, `select(identity)`, `seek(seconds)`, `position` |
-| `hypr` | `services/Hypr.qml` | `toggleSpecial(string)`, `focus(int)`, `cycle(int)`, `screencast`, `simulateScreencast(bool)`, `recent`, `focusWindow(address)` (F10) |
+| `hypr` | `services/Hypr.qml` | `toggleSpecial(string)`, `focus(int)`, `moveWindow(int)`, `focusSlot(int)`, `moveSlot(int)`, `focusGroup(int)`, `moveGroup(int)`, `cycle(int)`, `cyclePage(int)`, `screencast`, `simulateScreencast(bool)`, `recent`, `focusWindow(address)` (F10) |
 | `notifs` | `services/Notifs.qml` | `clear`, `toggleDnd`, `setDnd(bool)`, `status`, `list` |
 | `wifi` | `services/Wifi.qml` | `toggle`, `setEnabled(bool)`, `scan(bool)`, `connect(name, password)`, `disconnect`, `forget(name)`, `status`, `list`, `saved`, `refreshSaved`, `forgetSaved(uuid)`, `connectHidden(ssid, password)` |
 | `bt` | `services/Bt.qml` | `toggle`, `setEnabled(bool)`, `scan(bool)`, `connect(addr)`, `disconnect(addr)`, `forget(addr)`, `status`, `list`, `paired` |
@@ -514,7 +514,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `launcher` | `state/Visibility.qml` | `open(prefix)`: the launcher with a provider prefix typed, e.g. `>` for actions (F2) |
 | `osd` | `state/Visibility.qml` | `say(icon, text)`, `say2(icon, text, subtitle)`: a short message in the island (F7); `nowPlaying`: the now-playing pill |
-| `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8), `peek(on\|off)` (R1) |
+| `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8), `peek(on\|off)` (R1), `setShown(int)`, `setShowNumbers(bool)`, `setSectionGap(int)`, `setSidePadding(int)`, `setTopMargin(int)`, `setItemSpacing(int)`, `setBalancedWings(bool)`, `setCornerRadius(int)` |
 | `color` | `services/Color.qml` | `pick`, `pickIn(ms)`, `last` |
 | `keyboard` | `services/Keyboard.qml` | `status` |
 | `keybinds` | `services/Keybinds.qml` | `list`, `status`, `refresh` (F9) |

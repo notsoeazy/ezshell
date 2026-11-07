@@ -7,9 +7,11 @@ import qs.themes
 QtObject {
     id: island
 
-    readonly property int margin: 6
+    property int margin: 6
     readonly property int height: 44
-    readonly property int padding: 14
+    property int padding: 14
+    property int sectionGap: 8
+    property int itemSpacing: 8
     readonly property int maxWidth: 900
     readonly property int outlineWidth: 1
     readonly property real outlineOpacity: 0.4
@@ -27,8 +29,10 @@ QtObject {
     // fraction of the tallest mode is the room kept around it so the bounce never clips.
     readonly property real overshootFraction: 0.07
     readonly property OsdTokens osd: OsdTokens {}
-    // Corner radius cap: short modes stay pills (height / 2), tall ones like the banner get this.
-    readonly property int cornerRadius: island.scaled(28)
+    // Outer island pill corner radius (bound from Config.island.cornerRadius in Island.qml; decoupled from
+    // Appearance.rounding.scale so the Appearance tab's Corner radius only scales inner cards and controls).
+    property int cornerRadius: 22
+    readonly property int expandedRadius: Math.max(island.cornerRadius, 28)
     readonly property int badge: 20
     // Status dot before a privacy or recording indicator (ISLAND.md: 6px).
     readonly property int indicatorDot: 6
@@ -188,7 +192,8 @@ QtObject {
     component PeekTokens: QtObject {
         readonly property int width: 600
         readonly property int height: 88
-        readonly property int radius: island.scaled(26)
+        readonly property int dateRowHeight: 18
+        readonly property int radius: Math.max(island.cornerRadius, 26)
         readonly property int bottomPadding: 12
         readonly property int appIcon: 16
         readonly property int appMaxWidth: 160

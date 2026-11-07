@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.components
+import qs.config
 import qs.services
 import qs.state
 import qs.themes
@@ -16,7 +17,7 @@ RowLayout {
     // Space priority (docs/ISLAND.md): Default.qml sets these when the island would pass its max width.
     property bool compactBadge: false
     property bool compactBattery: false
-    readonly property bool batteryLabel: Battery.charging || Battery.low
+    readonly property bool batteryLabel: Config.island.showBattery && (Battery.charging || Battery.low)
     readonly property real badgeSaving: indicators.badgeSaving
     readonly property real batterySaving: root.batteryLabel ? percent.implicitWidth + Appearance.spacing.small : 0
     // Width with nothing compacted, so Default can decide without a binding loop.
@@ -30,10 +31,10 @@ RowLayout {
         Visibility.openByPointer(section, root.screenName);
     }
 
-    spacing: Appearance.spacing.normal
+    spacing: Appearance.island.itemSpacing
 
     Equalizer {
-        opacity: (Players.active !== null && Players.title !== "") ? 1 : 0
+        opacity: (Config.island.showEqualizer && Players.active !== null && Players.title !== "") ? 1 : 0
         // Fades out before leaving the layout, so the balance-rule width change follows the fade.
         visible: opacity > 0
 
@@ -59,7 +60,7 @@ RowLayout {
     }
 
     MaterialIcon {
-        visible: Wifi.device !== null
+        visible: Config.island.showWifi && Wifi.device !== null
         text: Icons.wifi(Wifi.enabled, Wifi.connected, Wifi.strength)
 
         // Exclusive grab on press, so the island's background TapHandler doesn't also fire.
@@ -71,7 +72,7 @@ RowLayout {
     }
 
     MaterialIcon {
-        visible: Bt.available
+        visible: Config.island.showBluetooth && Bt.available
         text: Icons.bluetooth(Bt.enabled, Bt.connected.length > 0)
 
         // Exclusive grab on press, so the island's background TapHandler doesn't also fire.
@@ -83,6 +84,7 @@ RowLayout {
     }
 
     MaterialIcon {
+        visible: Config.island.showVolume
         text: Icons.volume(Audio.volume, Audio.muted)
 
         // Exclusive grab on press, so the island's background TapHandler doesn't also fire.
@@ -100,7 +102,7 @@ RowLayout {
     }
 
     RowLayout {
-        visible: Battery.available
+        visible: Config.island.showBattery && Battery.available
         spacing: Appearance.spacing.small
 
         // Exclusive grab on press, so the island's background TapHandler doesn't also fire.

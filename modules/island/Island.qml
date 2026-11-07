@@ -86,6 +86,36 @@ Scope {
         value: Config.theme.cardOpacity
     }
 
+    Binding {
+        target: Appearance.island
+        property: "margin"
+        value: Config.island.topMargin
+    }
+
+    Binding {
+        target: Appearance.island
+        property: "padding"
+        value: Config.island.sidePadding
+    }
+
+    Binding {
+        target: Appearance.island
+        property: "sectionGap"
+        value: Config.island.sectionGap
+    }
+
+    Binding {
+        target: Appearance.island
+        property: "itemSpacing"
+        value: Config.island.itemSpacing
+    }
+
+    Binding {
+        target: Appearance.island
+        property: "cornerRadius"
+        value: Config.island.cornerRadius
+    }
+
     Connections {
         function onFocusedWorkspaceChanged(): void {
             root.collapse();

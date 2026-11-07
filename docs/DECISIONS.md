@@ -4,6 +4,12 @@ The user's calls and the reasons behind them, newest first. Read this before pla
 
 ## 2026-11-07
 
+- **Island customization & workspace paging:**
+  - Skip F12 (desktop widgets) for now to focus on polishing and customizing the Dynamic Island.
+  - **Workspace paging (caelestia style):** `Config.workspaces.shown` is configurable (`1..20`, presets `5`, `8`, `10`). Going past `shown` flips to the next page (`pageOffset = Math.floor((active - 1) / shown) * shown`); `Hypr` exposes `focusSlot`, `moveSlot`, `focusGroup`, `moveGroup`, and `cyclePage`, and `docs/HYPRLAND.md` records the `wsaction` Lua setup. Workspace numbers inside dots are strictly controlled by `Config.workspaces.showNumbers` (not forced on page 2+).
+  - **3-part layout, wing balance & island corner radius:** Settings → Island (`IslandPage.qml`) provides both sliders and numeric text fields (`PxField`) for `sectionGap`, `sidePadding`, `itemSpacing`, `topMargin`, and `cornerRadius`. `Config.island.balancedWings` (`true` by default) can be toggled off so each wing fits its own content width. `Config.island.cornerRadius` controls the outer island pill radius independently from `Config.theme.radiusScale` (which only scales inner cards and controls).
+  - **Resting clock & hover date:** At rest, the center clock shows only the time by default (`Config.island.showDateOnHover = true`), and hovering (`peek`) reveals the full date directly underneath the clock.
+  - **Per-element visibility toggles:** Every resting island element (workspaces, system tray, music equalizer, Wi‑Fi, Bluetooth, volume, battery, notification/DND dot, privacy dot, recording indicator) has its own switch in Settings → Island.
 - **Theme presets & app templates (F11):**
   - Built-in dark colour presets (`nord`, `catppuccin`, `gruvbox`, `rose-pine`, `tokyo-night`) when wallpaper theming is off.
   - Never touch the island background colour: it stays pure opaque `#000000` (no blur on the island); `cardOpacity` only adjusts inner card containers (`surfaceContainer*`) in the expanded island and settings, and `radiusScale` scales non-pill corner radii.

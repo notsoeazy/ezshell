@@ -28,6 +28,7 @@ Item {
     readonly property real musicWidth: musicLayer.implicitWidth
     readonly property real switcherWidth: switcherLayer.implicitWidth
     readonly property real switcherHeight: switcherLayer.implicitHeight
+    readonly property real peekHeight: peekLayer.implicitHeight
 
     // Pinned to the top 44 px, so the peek's first line is this same layer (the clock never shifts). As
     // wide as the pill's live width, so while it grows into the peek the sides slide out with its edges;
@@ -201,6 +202,8 @@ Item {
 
     // The peek's second line, right under the first.
     ModeLayer {
+        id: peekLayer
+
         anchors.top: parent.top
         anchors.topMargin: Appearance.island.height
         anchors.left: parent.left
@@ -208,6 +211,7 @@ Item {
         anchors.leftMargin: Appearance.island.padding
         anchors.rightMargin: Appearance.island.padding
         shown: root.mode === "peek"
+        persistent: true
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
             PeekView {

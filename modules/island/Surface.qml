@@ -69,7 +69,7 @@ StyledRect {
         case "launcher":
             return Qt.size(island.launcher.width, layers.launcherHeight + 2 * island.launcher.padding);
         case "peek":
-            return Qt.size(Math.max(layers.restWidth + 2 * island.padding, island.peek.width), island.peek.height);
+            return root.peekSize();
         case "message":
             return root.messageSize();
         case "polkit":
@@ -86,6 +86,12 @@ StyledRect {
 
     function padded(width: real, height: real, padding: real): size {
         return Qt.size(width + 2 * padding, height + 2 * padding);
+    }
+
+    function peekSize(): size {
+        const island = Appearance.island;
+        const width = Math.max(layers.restWidth + 2 * island.padding, island.peek.width);
+        return Qt.size(width, island.height + layers.peekHeight + island.peek.bottomPadding);
     }
 
     // As wide as the now-playing content, within its bounds.
@@ -146,10 +152,18 @@ StyledRect {
         (root.expanding ? grow : shrink).restart();
     }
 
+    function pillRadius(): real {
+        const island = Appearance.island;
+        if (root.mode === "rest" || root.mode === "hidden" || root.mode === "music")
+            return Math.min(root.height / 2, island.cornerRadius);
+        const cap = root.peekHere ? Math.min(island.cornerRadius, island.peek.radius) : island.cornerRadius;
+        return Math.min(root.height / 2, cap);
+    }
+
     width: root.fromWidth + (root.target.width - root.fromWidth) * root.progress
     height: root.fromHeight + (root.target.height - root.fromHeight) * root.progress
     y: root.fromY + (root.targetY - root.fromY) * root.progress
-    radius: Math.min(height / 2, root.peekHere ? Appearance.island.peek.radius : Appearance.island.cornerRadius)
+    radius: root.pillRadius()
     color: Colors.island
     border.width: Appearance.island.outlineWidth
     border.color: Battery.low ? root.alertOutline : root.normalOutline
