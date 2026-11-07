@@ -38,6 +38,7 @@ QtObject {
     readonly property WallpaperTokens wallpapers: WallpaperTokens {}
     readonly property PolkitTokens polkit: PolkitTokens {}
     readonly property CaptureTokens capture: CaptureTokens {}
+    readonly property MessageTokens message: MessageTokens {}
     // The island window: tallest mode plus margin and overshoot room, so the morph never resizes it.
     readonly property int panelHeight: Math.max(island.launcher.maxHeight, island.expanded.maxHeight)
     readonly property int tallestMode: Math.max(island.notification.maxHeight, island.panelHeight)
@@ -51,18 +52,21 @@ QtObject {
         readonly property int thumbHeight: 126
     }
 
-    // "Saved · Copied" after a screenshot: a small 16:9 thumbnail and two lines.
+    // Capture section cards (Screenshot / Record × Region / Window / Screen).
     component CaptureTokens: QtObject {
-        readonly property int width: 300
-        readonly property int height: 64
+        readonly property int card: 96
+    }
+
+    // The message mode: as wide as its content between these, at least as tall as the OSD.
+    component MessageTokens: QtObject {
+        readonly property int minWidth: 300
+        readonly property int maxWidth: 520
         readonly property int padding: 10
+        readonly property int gap: 12
+        // A screenshot's thumbnail: small and 16:9.
         readonly property int thumbWidth: 76
         readonly property int thumbHeight: 44
-        // The "Drag to select" / "Starting recording…" pill.
-        readonly property int statusWidth: 340
-        // Capture section cards (Screenshot / Record × Region / Window / Screen).
-        readonly property int card: 96
-        // How far the new screenshot's thumbnail starts scaled down before it pops in.
+        // How far the thumbnail starts scaled down before it pops in.
         readonly property real popFrom: 0.8
     }
 

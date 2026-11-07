@@ -23,6 +23,8 @@ Item {
     readonly property real launcherHeight: launcherLayer.implicitHeight
     readonly property real expandedHeight: expandedLayer.implicitHeight
     readonly property real polkitHeight: polkitLayer.implicitHeight
+    readonly property real messageWidth: messageLayer.implicitWidth
+    readonly property real messageHeight: messageLayer.implicitHeight
 
     ModeLayer {
         id: restLayer
@@ -49,15 +51,6 @@ Item {
             OsdView {
                 kind: root.osdKind
             }
-        }
-    }
-
-    ModeLayer {
-        anchors.centerIn: parent
-        shown: root.mode === "mic"
-        fadeInDelay: root.fadeInDelay
-        sourceComponent: Component {
-            MicView {}
         }
     }
 
@@ -135,22 +128,16 @@ Item {
     }
 
     ModeLayer {
-        anchors.centerIn: parent
-        width: Appearance.island.capture.width - 2 * Appearance.island.capture.padding
-        shown: root.mode === "captured"
-        fadeInDelay: root.fadeInDelay
-        sourceComponent: Component {
-            CapturedView {}
-        }
-    }
+        id: messageLayer
 
-    ModeLayer {
         anchors.centerIn: parent
-        width: Appearance.island.capture.statusWidth - 2 * Appearance.island.capture.padding
-        shown: root.mode === "capturing"
+        // Its own width, centered in the pill; squeezed (texts elide) only when wider than the pill allows.
+        // The message's size is its implicit size, so this doesn't loop.
+        width: Math.min(messageLayer.implicitWidth, parent.width - 2 * Appearance.island.message.padding)
+        shown: root.mode === "message"
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
-            CapturingView {}
+            MessageView {}
         }
     }
 }

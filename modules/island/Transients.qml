@@ -19,6 +19,31 @@ Scope {
     readonly property string micState: Audio.micReady ? `${Audio.micMuted}` : ""
     readonly property string trackState: Players.playing ? Players.title : ""
     readonly property bool fullscreen: Hypr.fullscreen(Hypr.focusedScreen)
+    readonly property var captureMessages: ({
+            selecting: {
+                source: "capture",
+                icon: "screenshot_region",
+                tone: "primary",
+                text: "Drag to select",
+                hint: "Esc to cancel"
+            },
+            starting: {
+                source: "capture",
+                dot: "pulse",
+                text: "Starting recording…"
+            },
+            recording: {
+                source: "capture",
+                dot: "steady",
+                text: "Recording",
+                hint: "click the red indicator to stop"
+            }
+        })
+
+    // 75 → "1:15".
+    function clock(seconds: int): string {
+        return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+    }
 
     // duration 0 keeps the mode until something else replaces or closes it.
     function show(mode: string, duration: int): void {
@@ -56,7 +81,11 @@ Scope {
     }
     onMicStateChanged: {
         if (root.lastMic !== "" && root.micState !== "")
-            root.show("mic", Config.osd.hideDelay);
+            Visibility.say({
+                icon: Audio.micMuted ? "mic_off" : "mic",
+                tone: Audio.micMuted ? "error" : "normal",
+                text: Audio.micMuted ? "Microphone muted" : "Microphone on"
+            }, Config.osd.hideDelay);
         root.lastMic = root.micState;
     }
     // A new track while playing shows the compact pill, unless a banner is up or a game is fullscreen.
@@ -87,18 +116,49 @@ Scope {
         target: Notifs
     }
 
+    // Every say() (here, from a service event, or `osd say` over IPC) becomes the message mode.
     Connections {
-        function onShotTaken(): void {
-            root.show("captured", Config.osd.hideDelay);
+        function onMessageRequestChanged(): void {
+            root.show("message", Visibility.messageDuration);
+        }
+
+        target: Visibility
+    }
+
+    Connections {
+        function onRecorded(path: string, seconds: int): void {
+            Visibility.say({
+                icon: "check_circle",
+                tone: "success",
+                text: "Recording saved",
+                subtitle: `${path.split("/").pop()} · ${root.clock(seconds)}`
+            }, Config.osd.hideDelay);
+        }
+
+        function onFailed(what: string, reason: string): void {
+            Visibility.say({
+                icon: "error",
+                tone: "error",
+                text: what === "recording" ? "Recording failed" : "Screenshot failed",
+                subtitle: reason
+            }, Config.osd.hideDelay);
+        }
+
+        function onShotTaken(path: string): void {
+            Visibility.say({
+                thumbnail: path,
+                text: "Screenshot",
+                subtitle: "Saved · Copied"
+            }, Config.osd.hideDelay);
         }
 
         // Selecting and starting stay up until they end; "recording" is said once, then the indicator stays.
+        // The source tag lets the end of a capture clear only its own message.
         function onPhaseChanged(): void {
-            if (Capture.phase === "selecting" || Capture.phase === "starting")
-                root.show("capturing", 0);
-            else if (Capture.phase === "recording")
-                root.show("capturing", Config.osd.hideDelay);
-            else if (Visibility.temporary === "capturing")
+            const phase = Capture.phase;
+            if (phase !== "")
+                Visibility.say(root.captureMessages[phase], phase === "recording" ? Config.osd.hideDelay : 0);
+            else if (Visibility.temporary === "message" && Visibility.message.source === "capture")
                 Visibility.temporary = "";
         }
 

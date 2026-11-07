@@ -34,8 +34,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F4 | Emoji, symbols and kaomoji (`:`) | S | done |
 | F5 | Polkit agent in the island | M | done |
 | F6 | Screenshots and screen recording | M | done |
-| F7 | Tasks IPC and generic OSD | S | next |
-| F8 | Quick utilities | S each | |
+| F7 | Generic OSD and capture feedback (tasks dropped) | S | done |
+| F8 | Quick utilities | S each | next |
 | F9 | Keybind cheat sheet and updates | S | |
 | F10 | Window switcher (Super+Tab) | M | |
 | F11 | Theme presets and matugen templates for other apps | M | |
@@ -180,14 +180,15 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 - **Later:** a native frozen-screen region picker (a full-screen Overlay window with `ScreencopyView { live: false }`) can replace `slurp`, like caelestia's `screenshotFreeze`.
 - **Binds:** recommended in HYPRLAND.md §8, not applied.
 
-## F7. Tasks IPC and generic OSD
+## F7. Generic OSD and capture feedback
 
-- **Tasks:** external scripts show progress in the island.
-  - IPC: `tasks add(id, title, subtitle)`, `update(id, percent)` (−1 for indeterminate), `finish(id)`, `fail(id, reason)`, `remove(id)`, `list`.
-  - Island: a small progress ring in Trailing while a task runs, then a short temporary mode with ✓ or ✗ and the title.
-  - Overview: a tasks card.
-  - Uses: `paru` updates, backups, long builds.
-- **Generic OSD:** `osd show(icon, text)`, so scripts can flash a short message in the island. `icon` is a Material Symbols name.
+**Done.** Renamed from "Tasks IPC and generic OSD": the user dropped tasks (no need for them) in favour of feedback for what the shell already does.
+
+- **One message mode** (`modules/island/MessageView.qml`, mode `message`): an icon with a tone (normal, primary, success, error) or a status dot (steady or pulsing), a first line, an optional second line, a small hint on the right, an optional thumbnail that pops in, and optional progress (a bar, or a pulsing one for -1). Sized by its content between `island.message.minWidth` and `maxWidth`, centered. Anything shows one with `Visibility.say(message, duration)`; `Transients` turns each `say()` into the mode and owns the hide timer.
+- **Moved onto it** (same look; their files and modes removed): mic mute (`MicView.qml`, mode `mic`), the screenshot thumbnail "Saved · Copied" (`CapturedView.qml`, `captured`), and "Drag to select" / "Starting recording…" / "Recording" (`CapturingView.qml`, `capturing`).
+- **New feedback:** "Recording saved" with the file name and length, "Recording failed" / "Screenshot failed" with the tool's reason, "No active window", and "Copied" with the text or the image thumbnail when Enter copies from clipboard history (`;`). `Capture` gained `recorded(path, seconds)` and `failed(what, reason)`.
+- **IPC for scripts:** `osd say(icon, text)` and `osd say2(icon, text, subtitle)`, shown for `Config.osd.hideDelay`. Not `show`: `qs ipc call osd show …` parses as `qs ipc show`. Examples in `docs/SCRIPTING.md`.
+- **Dropped at the user's request:** the `Tasks` service and its IPC (`add`, `update`, `finish`, `fail`, `remove`, `list`), the progress ring in the island, and the Overview tasks card. A long command reports its end with `osd say2` instead.
 
 ## F8. Quick utilities
 

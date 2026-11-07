@@ -37,6 +37,10 @@ Singleton {
     readonly property string editor: internal.editor
 
     signal shotTaken(string path)
+    // A finished recording and how long it captured, in seconds.
+    signal recorded(string path, int seconds)
+    // what: "screenshot" or "recording"; reason in the tool's own words.
+    signal failed(string what, string reason)
 
     function recordingPhase(): string {
         if (!root.recording)
@@ -193,6 +197,8 @@ Singleton {
         property string purpose: "shot"
         property string recordingFile: ""
         property bool capturing: false
+        // When the recorder started writing frames (Date.now()), for the recording's length.
+        property real capturedSince: 0
         property string lastRecorderLine: ""
         property var afterSettle: null
     }
@@ -266,7 +272,7 @@ Singleton {
             onStreamFinished: {
                 const window = root.windowBox(activeWindow.text);
                 if (!window)
-                    console.warn("[capture] no active window to capture");
+                    root.failed(internal.purpose === "record" ? "recording" : "screenshot", "No active window");
                 else if (internal.purpose === "record")
                     root.startRecording(["-w", `${window.w}x${window.h}+${window.x}+${window.y}`]);
                 else
@@ -288,17 +294,23 @@ Singleton {
         stderr: SplitParser {
             onRead: line => {
                 internal.lastRecorderLine = line;
-                if (!internal.capturing && /encoder|update fps/.test(line))
+                if (!internal.capturing && /encoder|update fps/.test(line)) {
                     internal.capturing = true;
+                    internal.capturedSince = Date.now();
+                }
             }
         }
         onStarted: internal.capturing = false
         onExited: code => {
             // 0 after stop()'s SIGINT; anything else is a failed start or a crash.
-            if (code === 0)
+            if (code === 0) {
+                const seconds = internal.capturing ? Math.round((Date.now() - internal.capturedSince) / 1000) : 0;
+                root.recorded(internal.recordingFile, seconds);
                 root.notify("Recording saved", internal.recordingFile, ["open", "folder"]);
-            else
+            } else {
                 console.warn(`[capture] recording failed (${code}): ${internal.lastRecorderLine}`);
+                root.failed("recording", internal.lastRecorderLine);
+            }
         }
     }
 
@@ -311,6 +323,7 @@ Singleton {
         onExited: code => {
             if (code !== 0) {
                 console.warn(`[capture] screenshot failed (${code}): ${shotErrors.text.trim()}`);
+                root.failed("screenshot", shotErrors.text.trim().split("\n").pop());
                 return;
             }
             internal.lastShot = internal.pending;

@@ -14,7 +14,7 @@ modules/island/
   ModeLayer.qml         one mode's content, with the fade-out / delayed fade-in
   Default.qml           resting island: Leading + center + Trailing (balance rule)
   OsdView.qml           volume / brightness mode
-  MicView.qml           mic mute mode
+  MessageView.qml       message mode: mic mute, capture feedback, "Copied", `osd say`
   NotificationView.qml  notification banner mode (frame 06)
   MusicView.qml         compact music mode on a track change (frame 03)
   Equalizer.qml         3-bar equalizer, used by Leading and MusicView
@@ -208,6 +208,10 @@ function close(): void                           // collapse, clear stack and dr
 bind = SUPER, A, exec, qs -c ezshell ipc call panels toggle overview
 bind = SUPER, W, exec, qs -c ezshell ipc call panels toggle wifi
 ```
+
+### Message mode
+
+One temporary mode, `message`, carries every short message: mic mute, capture feedback ("Drag to select", "Starting recording…", "Recording", "Saved · Copied", "Recording saved", failures), "Copied" from clipboard history, and `osd say` / `osd say2` from scripts. Code calls `Visibility.say(message, duration)` with the fields listed in `MessageView.qml`; `Transients` shows it for `duration` ms (0 = until replaced). The pill is as wide as the message, between `island.message.minWidth` and `maxWidth`, with the content centered. A message tagged `source: "capture"` is cleared when the capture ends, without touching other messages.
 
 ### Standalone sections
 

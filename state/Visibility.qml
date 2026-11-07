@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.config
 
 // What's open (docs/ISLAND.md, "State and IPC").
 // panel: an island section (tabs or detail sections) or the launcher, on `screen` only.
@@ -24,6 +25,11 @@ Singleton {
     // every call, so an open launcher retypes even the same text, or clears for "".
     property string launcherText: ""
     property int launcherRequest: 0
+    // The message mode's content (MessageView.qml lists the fields), set by say(). The island shows it for
+    // messageDuration ms (0 = until replaced); the request count changes on every say().
+    property var message: ({})
+    property int messageDuration: 0
+    property int messageRequest: 0
     readonly property list<string> tabs: ["overview", "media", "system", "calendar"]
     readonly property list<string> details: ["wifi", "bluetooth", "audio", "power"]
     // Sections opened on their own (keybind or IPC), not from the overview: back() collapses them.
@@ -85,6 +91,12 @@ Singleton {
         root.launcherText = "";
     }
 
+    function say(message: var, duration: int): void {
+        root.message = message;
+        root.messageDuration = duration;
+        root.messageRequest++;
+    }
+
     // Opens the launcher with `text` typed, or retypes it if the launcher is already open.
     function openLauncher(text: string): void {
         root.launcherText = text;
@@ -128,5 +140,26 @@ Singleton {
         }
 
         target: "launcher"
+    }
+
+    // Short messages in the island, for scripts. icon is a Material Symbols name. Not "show": `qs ipc call osd show`
+    // parses as `qs ipc show`.
+    IpcHandler {
+        function say(icon: string, text: string): void {
+            root.say({
+                icon: icon,
+                text: text
+            }, Config.osd.hideDelay);
+        }
+
+        function say2(icon: string, text: string, subtitle: string): void {
+            root.say({
+                icon: icon,
+                text: text,
+                subtitle: subtitle
+            }, Config.osd.hideDelay);
+        }
+
+        target: "osd"
     }
 }

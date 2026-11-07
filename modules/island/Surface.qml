@@ -63,18 +63,24 @@ StyledRect {
             return Qt.size(island.notification.width, layers.notificationHeight);
         case "launcher":
             return Qt.size(island.launcher.width, layers.launcherHeight + 2 * island.launcher.padding);
-        case "capturing":
-            return Qt.size(island.capture.statusWidth, island.osd.height);
-        case "captured":
-            return Qt.size(island.capture.width, island.capture.height);
+        case "message":
+            return root.messageSize();
         case "polkit":
             return Qt.size(island.polkit.width, layers.polkitHeight + 2 * island.polkit.padding);
         case "music":
             return Qt.size(island.music.width, island.music.height);
         default:
-            // volume, brightness, mic
+            // volume, brightness
             return Qt.size(island.osd.width, island.osd.height);
         }
+    }
+
+    // As wide as the message (within its bounds), and at least as tall as the OSD.
+    function messageSize(): size {
+        const message = Appearance.island.message;
+        const width = layers.messageWidth + 2 * message.padding;
+        const height = Math.max(Appearance.island.osd.height, layers.messageHeight + 2 * message.padding);
+        return Qt.size(Math.min(Math.max(width, message.minWidth), message.maxWidth), height);
     }
 
     // Detail sections and the capture section are narrow; tabs and wallpapers are dashboard-wide.

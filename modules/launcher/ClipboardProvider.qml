@@ -1,4 +1,5 @@
 import QtQuick
+import qs.config
 import qs.services
 import qs.state
 
@@ -22,9 +23,14 @@ Provider {
             id: entry.id,
             icon: entry.image ? "image" : "content_paste",
             title: entry.image ? "Image" : entry.preview,
-            subtitle: entry.image ? `${entry.format.toUpperCase()} · ${entry.width}×${entry.height} · ${entry.size}` : "",
+            subtitle: entry.image ? root.imageInfo(entry) : "",
             isImage: entry.image
         };
+    }
+
+    // "PNG · 1920×1080 · 254 KiB"
+    function imageInfo(entry: var): string {
+        return `${entry.format.toUpperCase()} · ${entry.width}×${entry.height} · ${entry.size}`;
     }
 
     function clearRow(): var {
@@ -72,11 +78,19 @@ Provider {
             root.armed = true;
             return;
         }
-        if (item.clear)
-            Clipboard.wipe();
-        else
-            Clipboard.copy(item.id);
         Visibility.close();
+        if (item.clear) {
+            Clipboard.wipe();
+            return;
+        }
+        Clipboard.copy(item.id);
+        // The launcher closes at once, so the island says what was copied.
+        Visibility.say({
+            icon: item.isImage ? "" : "content_paste",
+            thumbnail: item.isImage ? Clipboard.thumbs[item.id] ?? "" : "",
+            text: "Copied",
+            subtitle: item.isImage ? item.subtitle : item.title
+        }, Config.osd.hideDelay);
     }
     onRemoved: item => {
         if (!item.clear)
