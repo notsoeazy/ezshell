@@ -94,6 +94,11 @@ Singleton {
     component NightLightConfig: JsonObject {
         property bool enabled: false
         property int temperature: 4000
+        // "off", "fixed" (from start to end, local "HH:MM") or "sun" (sunset to sunrise at the weather
+        // location). A manual toggle holds until the next scheduled change.
+        property string schedule: "off"
+        property string start: "20:00"
+        property string end: "07:00"
     }
 
     // special: { name, icon, exec, kind }; kind is "app" (one floating app) or "workspace" (docs/ISLAND.md).

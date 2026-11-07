@@ -17,6 +17,10 @@ Singleton {
     readonly property string place: internal.place
     readonly property string error: internal.error
     readonly property string unit: Config.weather.units === "imperial" ? "°F" : "°C"
+    // Where the forecast is for, once found (Config.weather.location, the IP address, or Manila).
+    readonly property bool located: internal.located
+    readonly property real latitude: internal.latitude
+    readonly property real longitude: internal.longitude
     readonly property real temperature: internal.data?.current.temperature_2m ?? 0
     readonly property real feelsLike: internal.data?.current.apparent_temperature ?? 0
     readonly property int humidity: internal.data?.current.relative_humidity_2m ?? 0
@@ -88,6 +92,9 @@ Singleton {
         const fields = `current=${root.currentFields}&hourly=${root.hourlyFields}&daily=${root.dailyFields}`;
         const query = `latitude=${lat}&longitude=${lon}&${fields}&timezone=auto&forecast_days=2${unit}`;
         root.get(`${root.forecastUrl}?${query}`, json => {
+            internal.latitude = lat;
+            internal.longitude = lon;
+            internal.located = true;
             internal.place = place;
             internal.data = json;
             internal.fetchedAt = Date.now();
@@ -172,6 +179,9 @@ Singleton {
         property string error: ""
         property real fetchedAt: 0
         property real attemptedAt: 0
+        property bool located: false
+        property real latitude: 0
+        property real longitude: 0
     }
 
     Timer {
