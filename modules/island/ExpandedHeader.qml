@@ -34,7 +34,8 @@ Item {
     // A detail page's main switch, on the right of its header.
     readonly property var switches: ({
             "wifi": wifiSwitch,
-            "bluetooth": bluetoothSwitch
+            "bluetooth": bluetoothSwitch,
+            "display": displaySwitch
         })
 
     implicitHeight: Appearance.island.expanded.header
@@ -154,6 +155,15 @@ Item {
             enabled: Bt.available
             checked: Bt.enabled
             onToggled: enabled => Bt.setEnabled(enabled)
+        }
+    }
+
+    Component {
+        id: displaySwitch
+
+        StyledSwitch {
+            checked: NightLight.enabled
+            onToggled: enabled => NightLight.set(enabled)
         }
     }
 }

@@ -28,9 +28,11 @@ StyledRect {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
         onClicked: mouse => {
-            if (root.hasDetail)
+            if (mouse.button === Qt.RightButton)
                 root.opened();
-            else if (mouse.button === Qt.LeftButton && root.toggleable)
+            else if (root.hasDetail)
+                root.opened();
+            else if (root.toggleable)
                 root.toggled();
         }
     }
@@ -66,7 +68,7 @@ StyledRect {
                 onClicked: mouse => {
                     if (mouse.button === Qt.LeftButton && root.toggleable)
                         root.toggled();
-                    else if (root.hasDetail)
+                    else
                         root.opened();
                 }
             }

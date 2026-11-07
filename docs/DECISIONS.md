@@ -4,6 +4,9 @@ The user's calls and the reasons behind them, newest first. Read this before pla
 
 ## 2026-11-07
 
+- **Night light polish (`NightLight.qml`, `QuickToggles.qml`):**
+  - The Night Light tile in Control (`QuickToggles.qml`) is now a direct toggle (`hasDetail: false`) so left-clicking anywhere on it turns Night Light on/off instead of opening the Display detail section (right-clicking still opens Display).
+  - `services/NightLight.qml` now starts and supervises `hyprsunset --identity` itself, so Night Light works out of the box without needing an external daemon in `execs.lua`.
 - **Island customization & workspace paging:**
   - Skip F12 (desktop widgets) for now to focus on polishing and customizing the Dynamic Island.
   - **Workspace paging (caelestia style):** `Config.workspaces.shown` is configurable (`1..20`, presets `5`, `8`, `10`). Going past `shown` flips to the next page (`pageOffset = Math.floor((active - 1) / shown) * shown`); `Hypr` exposes `focusSlot`, `moveSlot`, `focusGroup`, `moveGroup`, and `cyclePage`, and `docs/HYPRLAND.md` records the `wsaction` Lua setup. Workspace numbers inside dots are strictly controlled by `Config.workspaces.showNumbers` (not forced on page 2+).

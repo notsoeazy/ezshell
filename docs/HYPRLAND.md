@@ -84,19 +84,7 @@ Super+V is `pkill fuzzel || caelestia clipboard` and Super+Period is `pkill fuzz
 
 ## 4. Night light
 
-ezshell drives hyprsunset; it isn't installed yet.
-
-```sh
-sudo pacman -S hyprsunset
-```
-
-Then start it with the session, in `execs.lua`:
-
-```lua
-hl.exec_cmd("hyprsunset")
-```
-
-Until then, the log shows `[nightlight] hyprctl hyprsunset exited with 3; is hyprsunset running?` once per change; it's harmless.
+`services/NightLight.qml` launches and supervises `hyprsunset --identity` automatically and drives it via `hyprctl hyprsunset`, so no `exec-once` entry in `execs.lua` is needed (only the `hyprsunset` package needs to be installed).
 
 ## 5. Special workspaces of kind "app"
 

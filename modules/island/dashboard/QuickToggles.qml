@@ -104,6 +104,7 @@ GridLayout {
         label: "Night light"
         status: NightLight.enabled ? `${NightLight.temperature} K` : "Off"
         active: NightLight.enabled
+        hasDetail: false
         onToggled: NightLight.toggle()
         onOpened: root.open("display")
     }

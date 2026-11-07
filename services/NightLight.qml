@@ -128,6 +128,8 @@ Singleton {
     }
 
     function apply(): void {
+        if (!daemon.running)
+            daemon.running = true;
         const args = root.enabled ? ["temperature", `${root.temperature}`] : ["identity"];
         hyprctl.exec(["hyprctl", "hyprsunset", ...args]);
     }
@@ -192,10 +194,31 @@ Singleton {
     }
 
     Process {
+        id: daemon
+
+        running: true
+        command: ["hyprsunset", "--identity"]
+        onStarted: retryTimer.restart()
+        onExited: code => {
+            if (code === 127)
+                console.warn("[nightlight] hyprsunset is not installed");
+        }
+    }
+
+    Timer {
+        id: retryTimer
+
+        interval: 150
+        onTriggered: root.apply()
+    }
+
+    Process {
         id: hyprctl
 
         onExited: code => {
-            if (code !== 0)
+            if (code === 3 && !retryTimer.running)
+                retryTimer.restart();
+            else if (code !== 0 && code !== 3)
                 console.warn(`[nightlight] hyprctl hyprsunset exited with ${code}; is hyprsunset running?`);
         }
     }
