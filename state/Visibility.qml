@@ -33,6 +33,8 @@ Singleton {
     property bool islandHidden: false
     property int messageDuration: 0
     property int messageRequest: 0
+    // Bumped by `osd nowPlaying`: the island shows the now-playing pill.
+    property int nowPlayingRequest: 0
     // Something inside the open tab to scroll to ("notifications": Control's notification center); the
     // request count changes on every ask, so asking again while it's open still scrolls.
     property string reveal: ""
@@ -211,6 +213,11 @@ Singleton {
                 text: text,
                 subtitle: subtitle
             }, Config.osd.hideDelay);
+        }
+
+        // The now-playing pill on demand (it shows on its own on a track change).
+        function nowPlaying(): void {
+            root.nowPlayingRequest++;
         }
 
         target: "osd"

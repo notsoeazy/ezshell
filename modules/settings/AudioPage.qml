@@ -78,12 +78,12 @@ ColumnLayout {
                 StyledButton {
                     icon: stream.muted ? "volume_off" : "volume_up"
                     checked: stream.muted
-                    onClicked: Audio.toggleStreamMute(stream.modelData.id)
+                    onClicked: Audio.toggleMuteOf(stream.modelData.id)
                 }
 
                 StyledSlider {
                     value: stream.modelData.audio?.volume ?? 0
-                    onMoved: volume => Audio.setStreamVolume(stream.modelData.id, volume)
+                    onMoved: volume => Audio.setVolumeOf(stream.modelData.id, volume)
                 }
             }
         }

@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import qs.components
 import qs.config
 import qs.services
-import qs.state
 import qs.themes
 
 RowLayout {
@@ -88,25 +87,6 @@ RowLayout {
                 }
             }
         }
-    }
-
-    Equalizer {
-        opacity: (Players.active !== null && Players.title !== "") ? 1 : 0
-        // Fades out before leaving the layout, so the balance-rule width change follows the fade.
-        visible: opacity > 0
-
-        Behavior on opacity {
-            Anim {}
-        }
-
-        TapHandler {
-            margin: Appearance.spacing.small
-            gesturePolicy: TapHandler.ReleaseWithinBounds
-            onTapped: Visibility.openByPointer("media", root.screenName)
-        }
-
-        playing: Players.playing
-        tint: Players.playing ? (Players.hasAccent ? Players.accent : Colors.primary) : Colors.surfaceVariantFg
     }
 
     TrayWidget {}

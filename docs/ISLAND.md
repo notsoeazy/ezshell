@@ -16,10 +16,10 @@ modules/island/
   OsdView.qml           volume / brightness mode
   MessageView.qml       message mode: mic mute, capture feedback, "Copied", `osd say`
   NotificationView.qml  notification banner mode (frame 06)
-  MusicView.qml         compact music mode on a track change (frame 03)
-  Equalizer.qml         3-bar equalizer, used by Leading and MusicView
-  Leading.qml           workspace indicator, special chip, music indicator
-  Trailing.qml          Indicators + status icons
+  MusicView.qml         now playing on a track change: island height, art + title/artist + equalizer
+  Equalizer.qml         3-bar equalizer, used by Trailing and MusicView
+  Leading.qml           workspace indicator, special chip, tray
+  Trailing.qml          music equalizer, Indicators, status icons
   Indicators.qml        recording, mic/camera, DND, unread badge (highest priority first)
   Workspaces.qml        dots and active pill
   PeekView.qml          hover peek's second line: focused app, media chip, notification status
@@ -29,8 +29,9 @@ modules/island/
     ControlTab.qml  MediaTab.qml  SystemTab.qml  WeatherTab.qml  CalendarTab.qml
     QuickToggles.qml    Control's tiles and round buttons
     Tile.qml            pill tile with a round icon, tile rule built in
-    ControlSlider.qml   Control's Sound and Display sliders
+    LevelChip.qml       Control's Volume, Microphone and Brightness chips (the chip is the slider)
     MediaRow.qml        Control's media row (only while a player is active)
+    MixerRow.qml        Media tab mixer line: a device or app stream with mute, default and volume
     NotificationCenter.qml  Control's notification list: dismiss, Clear all, empty state
     cards/              Card (shell), ClockCard, MonthGrid, MediaControls: only cards used by two or more tabs
   sections/
@@ -117,7 +118,7 @@ RowLayout {
 }
 ```
 
-- Never give the center `Layout.fillWidth`. Its width is its implicit width.
+- Never give the center `Layout.fillWidth`. Its width is its implicit width. The sides have `fillWidth` with equal stretch, so a pill wider than the content (peek) widens both equally.
 - The surface reads `Default.implicitWidth` as its target width in default mode; the morph animates to it.
 - Never center the island by summing children manually. Anchor `Surface` with `horizontalCenter` on the screen-wide window.
 
@@ -127,7 +128,7 @@ Indicators **add** small icons or dots to a side section; the sides then rebalan
 
 | # | Variation | Section | Content | Data |
 | --- | --- | --- | --- | --- |
-| 1 | Music playing | leading, after workspaces | 3-bar equalizer (or `music_note`) tinted with the album-art color; animates only while playing, static `onSurfaceVariant` when paused | `Players.active`, `trackArtUrl` → `ColorQuantizer` |
+| 1 | Music playing | trailing, first (next to the clock; the tray is on the left) | 3-bar equalizer (or `music_note`) tinted with the album-art color; animates only while playing, static `onSurfaceVariant` when paused | `Players.active`, `trackArtUrl` → `ColorQuantizer` |
 | 2 | Unread notifications | trailing, before status icons | `primaryContainer` count badge | `Notifs` unread count |
 | 3 | Special workspace | leading, **over** the workspace indicator | `tertiaryContainer` chip: config icon + name ("music"); covers the indicator in place with a crossfade/morph, never sits beside it; nothing at all when no special is active | `Hypr.activeSpecial` + `Config.workspaces.special` icon |
 | 4 | Recording / screen share | trailing | `error` dot + `screen_share`; no timer, workspaces stay | `Hypr.screenSharing` (Hyprland `screencast` event) |
@@ -252,7 +253,7 @@ Each icon in `Leading` and `Trailing` has its own `TapHandler` that calls `Visib
 Hovering the resting island for `peek.openDelay` (150 ms) grows it **taller** into `peek`; leaving it for `peek.closeDelay` (250 ms) returns it to rest. `Config.island.hoverPeek` turns it off. No keyboard focus, layer stays `Top`.
 
 - **Size:** `max(rest width + 2·padding, peek.width 600) × peek.height 88`, radius `peek.radius` 26.
-- **Line 1 is the rest layer itself**, anchored to the top and centred, so it is pixel-identical to rest and the clock never moves.
+- **Line 1 is the rest layer itself**, anchored to the top and centred, so the clock never moves. The layer is as wide as the pill's live width and both balance-rule sides share the extra space, so the workspaces (left edge) and status icons (right edge) slide outward with the morph and back on close.
 - **Line 2** (`PeekView.qml`): focused app icon + name (or "Desktop") on the left; a media chip (art, title / artist, play/pause) centred, hidden with no player; notification status on the right ("All caught up", "N new" in `primary`, or "Do not disturb").
 - Peek starts only from rest. Any panel, temporary mode or polkit prompt closes it at once, and opening a panel clears `peekScreen`.
 
@@ -322,12 +323,13 @@ The dashboard is the `control`, `media`, `system`, `weather` and `calendar` sect
   - Sound slider (output name; the icon mutes, the chevron opens `audio`) and Display slider (the chevron opens `display`); both drag and scroll;
   - a media row, only while a player is active; it opens `media`;
   - the notification center: count and "Clear all" (second click confirms), a "Do not disturb is on" line, newest first with app icon, "App · 2m", summary and two body lines, ✕ on hover (slides out, then collapses), and a centred "All caught up" when empty.
-- **Media:** the full media controls (frame 04).
+- **Media** (820): a pavucontrol-style mixer. The player card (art, title, seek, controls, player picker) sits on top while something plays; below it, Output and Input devices on the left (pick the default, volume, mute) and the Playback and Recording app streams on the right. Everything goes through `Audio` by node id (`setVolumeOf`, `toggleMuteOf`).
 - **System** (720): two columns of cards: Performance (CPU, RAM with sparklines), Network (rates with sparklines, SSID in the title), Storage (`/`, `/home`), Sensors (CPU, NVMe, Wi‑Fi, GPU or "Sleeping"), System (kernel, uptime, session).
 - **Weather** (560): now (icon, temperature, condition, place, feels like, humidity, wind), 12 hourly capsules (now on `primaryContainer`), 7 days with range bars on one shared week scale.
 - **Calendar:** clock card above the month grid.
 - One file per tab. Load the active tab with a `Loader`; inactive tabs are not instantiated.
 - The active tab is `Visibility.panel`, so `panels open system` deep-links to a tab too.
+- **Icons** (`MaterialIcon`) use `Text.NativeRendering`: the default distance-field glyph cache ignores variable-font axes, so a filled and an outlined copy of one icon corrupted each other.
 - **Sparklines** (`components/Sparkline.qml`) are a `Canvas`, never a `Shape`: `Shape` paths inside the morphing island froze the shell at ~94% CPU when switching tabs, with either renderer.
 
 | Card element | Value |
@@ -351,6 +353,7 @@ The dashboard is the `control`, `media`, `system`, `weather` and `calendar` sect
 - The island window is sized to the largest mode plus `Appearance.island.overshootMargin` (`overshootFraction` of the tallest mode, since the bounce scales with the size change), with `mask: Region { item: surface }`, so the morph never resizes a window. A separate 1px window holds the exclusive zone at the resting height.
 - **Layers and fullscreen.** The island window sits on `Top`, which is above every normal window, and moves to `Overlay` only over a true fullscreen window while something shows or the morph is still running (`Surface.elevated`). Hyprland hides `Top` surfaces under a true fullscreen window, so games keep direct scanout; any `Overlay` surface blocks it, so the island never stays there.
 - Under a true fullscreen window (`Hypr.fullscreen`, which ignores maximized windows), the rest mode is `hidden`: a narrow pill parked above the screen edge. Temporary modes drop in from the top and retract back up.
+- Now playing (`music`) shows on a track change and on `osd nowPlaying`: island height, as wide as art + title/artist + equalizer within `music.minWidth`–`maxWidth`.
 - Banners last `Config.notifications.timeout` (critical: until dismissed), are skipped under DND (except critical) and over fullscreen unless `Config.notifications.showInFullscreen`. The compact music pill is skipped over fullscreen and while a banner shows.
 - Hyprland's own layer animation must be off for the island window, or it fades the pill in after the morph has already run. Not applied yet; see `docs/HYPRLAND.md` §1.
 
@@ -363,7 +366,7 @@ The dashboard is the `control`, `media`, `system`, `weather` and `calendar` sect
 - [ ] No island state stored outside `Visibility`; no data logic outside services.
 - [ ] New sizes and colors added as `Appearance.island.*` / `Colors` tokens.
 - [ ] Dashboard tabs are lazy-loaded; `SysInfo` polls only while System is open, `Weather` fetches only while Weather is open.
-- [ ] Line 1 of the peek is pixel-identical to rest; peek never starts while anything else shows.
+- [ ] The clock is at the same pixels in rest and peek, and the sides follow the pill's edges; peek never starts while anything else shows.
 - [ ] Expanding never moves or resizes a window: the exclusion window's zone stays at the resting height, and the island window is never resized.
 - [ ] Clicks outside the visible shape reach the windows below.
 - [ ] Each status icon opens its own section; `panels open <section>` does the same from a terminal.

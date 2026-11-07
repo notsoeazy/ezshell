@@ -19,9 +19,11 @@ Singleton {
     readonly property bool micMuted: root.source?.audio?.muted ?? false
     readonly property list<PwNode> outputs: Pipewire.nodes.values.filter(n => n.audio && n.isSink && !n.isStream)
     readonly property list<PwNode> inputs: Pipewire.nodes.values.filter(n => n.audio && !n.isSink && !n.isStream)
-    // App playback streams: Quickshell reports them as isSink (verified with pw-play). Capture streams
-    // aren't controlled here. Their properties stay empty until the tracker below binds them.
+    // App playback streams: Quickshell reports them as isSink (verified with pw-play). Their properties
+    // stay empty until the tracker below binds them.
     readonly property list<PwNode> streams: Pipewire.nodes.values.filter(n => n.isStream && n.isSink)
+    // App capture streams (recording from a mic or a monitor); `audio` leaves out screencast video.
+    readonly property list<PwNode> recordings: Pipewire.nodes.values.filter(n => n.isStream && !n.isSink && n.audio)
     // Links from a microphone (an audio source device, not an output's monitor) into an app's stream.
     readonly property list<PwLinkGroup> micLinks: Pipewire.linkGroups.values.filter(root.isMicCapture)
     readonly property bool micCapturing: root.micLinks.length > 0
@@ -87,20 +89,24 @@ Singleton {
             Pipewire.preferredDefaultAudioSource = node;
     }
 
-    function setStreamVolume(id: int, volume: real): void {
-        const node = root.streams.find(n => n.id === id);
-        if (node?.audio)
-            node.audio.volume = Math.max(0, Math.min(1, volume));
+    // Any device or app stream by its PipeWire id: the mixer and the settings page. Setting a volume
+    // unmutes, like set().
+    function setVolumeOf(id: int, volume: real): void {
+        const node = Pipewire.nodes.values.find(n => n.id === id);
+        if (!node?.audio)
+            return;
+        node.audio.muted = false;
+        node.audio.volume = Math.round(Math.max(0, Math.min(1, volume)) * 100) / 100;
     }
 
-    function toggleStreamMute(id: int): void {
-        const node = root.streams.find(n => n.id === id);
+    function toggleMuteOf(id: int): void {
+        const node = Pipewire.nodes.values.find(n => n.id === id);
         if (node?.audio)
             node.audio.muted = !node.audio.muted;
     }
 
     function describe(nodes: list<PwNode>, current: PwNode): string {
-        return nodes.map(n => `${n === current ? "*" : " "} ${n.name}  (${root.label(n)})`).join("\n");
+        return nodes.map(n => `${n === current ? "*" : " "} ${root.describeStream(n)}  ${n.name}`).join("\n");
     }
 
     function describeStream(node: PwNode): string {
@@ -125,7 +131,7 @@ Singleton {
     }
 
     PwObjectTracker {
-        objects: root.streams
+        objects: [...root.streams, ...root.recordings, ...root.outputs, ...root.inputs]
     }
 
     Timer {
@@ -196,8 +202,17 @@ Singleton {
             root.setInput(name);
         }
 
-        function setStreamVolume(id: int, volume: real): void {
-            root.setStreamVolume(id, volume);
+        function recordings(): string {
+            return root.recordings.map(root.describeStream).join("\n");
+        }
+
+        // Any device or stream by the id that outputs, inputs, streams or recordings print.
+        function setVolumeOf(id: int, volume: real): void {
+            root.setVolumeOf(id, volume);
+        }
+
+        function toggleMuteOf(id: int): void {
+            root.toggleMuteOf(id);
         }
 
         target: "audio"

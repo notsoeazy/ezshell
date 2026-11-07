@@ -6,7 +6,8 @@ import qs.state
 import qs.themes
 import qs.utils
 
-// Indicators (Indicators.qml), then status icons in ISLAND.md order: wifi, bluetooth, volume, battery.
+// The music equalizer (next to the clock, balancing the tray on the left), indicators (Indicators.qml),
+// then status icons in ISLAND.md order: wifi, bluetooth, volume, battery.
 RowLayout {
     id: root
 
@@ -30,6 +31,25 @@ RowLayout {
     }
 
     spacing: Appearance.spacing.normal
+
+    Equalizer {
+        opacity: (Players.active !== null && Players.title !== "") ? 1 : 0
+        // Fades out before leaving the layout, so the balance-rule width change follows the fade.
+        visible: opacity > 0
+
+        Behavior on opacity {
+            Anim {}
+        }
+
+        TapHandler {
+            margin: Appearance.spacing.small
+            gesturePolicy: TapHandler.ReleaseWithinBounds
+            onTapped: root.open("media")
+        }
+
+        playing: Players.playing
+        tint: Players.playing ? (Players.hasAccent ? Players.accent : Colors.primary) : Colors.surfaceVariantFg
+    }
 
     Indicators {
         id: indicators

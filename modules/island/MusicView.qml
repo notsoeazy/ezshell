@@ -5,7 +5,8 @@ import qs.components
 import qs.services
 import qs.themes
 
-// Compact live activity on a track change (docs/design/03-compact-music.png): art, title, equalizer.
+// Now playing on a track change: the island widens to art, title and artist, with the equalizer on the
+// right where it sits at rest. The pill fits this row (Surface.musicWidth), so it stays centered.
 RowLayout {
     id: root
 
@@ -25,23 +26,38 @@ RowLayout {
             source: Players.artUrl
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
+            sourceSize.width: Appearance.island.music.art
+            sourceSize.height: Appearance.island.music.art
         }
 
         MaterialIcon {
             anchors.centerIn: parent
             visible: Players.artUrl === ""
             text: "music_note"
-            size: Appearance.font.size.large
             color: root.tint
         }
     }
 
-    StyledText {
+    ColumnLayout {
         Layout.fillWidth: true
-        horizontalAlignment: Text.AlignHCenter
-        text: Players.title
-        elide: Text.ElideRight
-        font.weight: Font.Medium
+        Layout.maximumWidth: Appearance.island.music.textMaxWidth
+        spacing: 0
+
+        StyledText {
+            Layout.fillWidth: true
+            text: Players.title
+            elide: Text.ElideRight
+            font.weight: Font.DemiBold
+        }
+
+        StyledText {
+            Layout.fillWidth: true
+            visible: text !== ""
+            text: Players.artist
+            elide: Text.ElideRight
+            color: Colors.surfaceVariantFg
+            font.pixelSize: Appearance.font.size.small
+        }
     }
 
     Equalizer {

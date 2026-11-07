@@ -6,13 +6,17 @@ import qs.state
 import qs.themes
 import qs.utils
 
-// Control tab (docs/ISLAND-R1.md), the island's first tab: tiles and round buttons, the Sound and
-// Display sliders, the media row while something plays, then the notification center. Taller than the
-// island allows, it scrolls; `panels open notifications` scrolls it to the notification center.
+// Control tab (docs/ISLAND-R1.md), the island's first tab: tiles and round buttons, the Volume, Microphone
+// and Brightness chips, the media row while something plays, then the notification center. Taller than
+// the island allows, it scrolls; `panels open notifications` scrolls it to the notification center.
 Flickable {
     id: root
 
     required property string screenName
+
+    function percent(value: real): string {
+        return `${Math.round(value * 100)}%`;
+    }
 
     function open(section: string): void {
         Visibility.openByPointer(section, root.screenName);
@@ -62,25 +66,45 @@ Flickable {
             screenName: root.screenName
         }
 
-        ControlSlider {
+        RowLayout {
             Layout.fillWidth: true
-            label: "Sound"
-            detail: Audio.label(Audio.sink)
-            icon: Icons.volume(Audio.volume, Audio.muted)
-            value: Audio.muted ? 0 : Audio.volume
-            onMoved: value => Audio.set(value)
-            onIconClicked: Audio.toggleMute()
-            onOpened: root.open("audio")
-        }
+            spacing: Appearance.island.control.gap
 
-        ControlSlider {
-            Layout.fillWidth: true
-            visible: Brightness.available
-            label: "Display"
-            icon: Icons.brightness(Brightness.level)
-            value: Brightness.level
-            onMoved: value => Brightness.set(value)
-            onOpened: root.open("display")
+            LevelChip {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                label: "Volume"
+                status: Audio.muted ? "Muted" : root.percent(Audio.volume)
+                icon: Icons.volume(Audio.volume, Audio.muted)
+                value: Audio.muted ? 0 : Audio.volume
+                onMoved: value => Audio.set(value)
+                onIconClicked: Audio.toggleMute()
+                onOpened: root.open("audio")
+            }
+
+            LevelChip {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                label: "Microphone"
+                status: Audio.micMuted ? "Muted" : root.percent(Audio.micVolume)
+                icon: Audio.micMuted || Audio.micVolume <= 0 ? "mic_off" : "mic"
+                value: Audio.micMuted ? 0 : Audio.micVolume
+                onMoved: value => Audio.setMicVolume(value)
+                onIconClicked: Audio.toggleMicMute()
+                onOpened: root.open("audio")
+            }
+
+            LevelChip {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                visible: Brightness.available
+                label: "Brightness"
+                status: root.percent(Brightness.level)
+                icon: Icons.brightness(Brightness.level)
+                value: Brightness.level
+                onMoved: value => Brightness.set(value)
+                onOpened: root.open("display")
+            }
         }
 
         MediaRow {

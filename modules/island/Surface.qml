@@ -75,11 +75,17 @@ StyledRect {
         case "polkit":
             return Qt.size(island.polkit.width, layers.polkitHeight + 2 * island.polkit.padding);
         case "music":
-            return Qt.size(island.music.width, island.music.height);
+            return Qt.size(root.musicWidth(), island.height);
         default:
             // volume, brightness
             return Qt.size(island.osd.width, island.osd.height);
         }
+    }
+
+    // As wide as the now-playing content, within its bounds.
+    function musicWidth(): real {
+        const music = Appearance.island.music;
+        return Math.min(Math.max(layers.musicWidth + 2 * Appearance.island.padding, music.minWidth), music.maxWidth);
     }
 
     // As wide as the message (within its bounds), and at least as tall as the OSD.

@@ -158,6 +158,11 @@ Scope {
             root.show("message", Visibility.messageDuration);
         }
 
+        function onNowPlayingRequestChanged(): void {
+            if (Players.active !== null)
+                root.show("music", Config.osd.hideDelay);
+        }
+
         target: Visibility
     }
 

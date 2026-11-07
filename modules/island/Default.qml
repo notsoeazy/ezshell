@@ -4,6 +4,7 @@ import qs.components
 import qs.themes
 
 // Balance rule (docs/ISLAND.md): equal-width sides keep the clock centered on the island and the screen.
+// Leading hugs the left edge and Trailing the right, so when the pill widens (peek) they move with it.
 RowLayout {
     id: root
 
@@ -30,8 +31,11 @@ RowLayout {
         Anim {}
     }
 
+    // Both sides share any width beyond the content equally (the peek), so the clock stays centered.
     Item {
         Layout.preferredWidth: root.animatedSideWidth
+        Layout.fillWidth: true
+        Layout.horizontalStretchFactor: 1
         Layout.fillHeight: true
 
         Leading {
@@ -50,6 +54,8 @@ RowLayout {
 
     Item {
         Layout.preferredWidth: root.animatedSideWidth
+        Layout.fillWidth: true
+        Layout.horizontalStretchFactor: 1
         Layout.fillHeight: true
 
         Trailing {

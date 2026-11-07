@@ -25,13 +25,17 @@ Item {
     readonly property real polkitHeight: polkitLayer.implicitHeight
     readonly property real messageWidth: messageLayer.implicitWidth
     readonly property real messageHeight: messageLayer.implicitHeight
+    readonly property real musicWidth: musicLayer.implicitWidth
 
-    // Pinned to the top 44 px, so the peek's first line is this same layer, unmoved (the clock never shifts).
+    // Pinned to the top 44 px, so the peek's first line is this same layer (the clock never shifts). As
+    // wide as the pill's live width, so while it grows into the peek the sides slide out with its edges;
+    // never narrower than its content, so a shrinking morph doesn't squeeze the sides into the clock.
     ModeLayer {
         id: restLayer
 
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.max(restLayer.implicitWidth, parent.width - 2 * Appearance.island.padding)
         height: Appearance.island.height
         shown: root.mode === "rest" || root.mode === "peek"
         persistent: true
@@ -70,9 +74,12 @@ Item {
     }
 
     ModeLayer {
+        id: musicLayer
+
         anchors.centerIn: parent
-        width: Appearance.island.music.width - 2 * Appearance.island.music.padding
-        height: Appearance.island.music.height
+        // The pill's size is the content's implicit size (Surface.sizeFor), so this doesn't loop.
+        width: Math.min(musicLayer.implicitWidth, Appearance.island.music.maxWidth - 2 * Appearance.island.padding)
+        height: Appearance.island.height
         shown: root.mode === "music"
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {

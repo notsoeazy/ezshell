@@ -7,7 +7,8 @@ import qs.state
 import qs.themes
 
 // Control tab media row (docs/ISLAND-R1.md): only while a player is active. The art or the text opens the
-// Media tab; the buttons only control playback.
+// Media tab; the buttons only control playback. The taps don't overlap: a row-wide TapHandler behind the
+// buttons competed with theirs, and the buttons stopped working.
 StyledRect {
     id: root
 
@@ -44,11 +45,19 @@ StyledRect {
                 text: "music_note"
                 color: Colors.surfaceVariantFg
             }
+
+            TapHandler {
+                onTapped: Visibility.openByPointer("media", root.screenName)
+            }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 0
+
+            TapHandler {
+                onTapped: Visibility.openByPointer("media", root.screenName)
+            }
 
             StyledText {
                 Layout.fillWidth: true
@@ -71,10 +80,8 @@ StyledRect {
             text: "skip_previous"
             fill: 1
 
-            // Exclusive grab on press, so the row's own TapHandler doesn't also fire.
             TapHandler {
                 margin: Appearance.spacing.small
-                gesturePolicy: TapHandler.ReleaseWithinBounds
                 onTapped: Players.previous()
             }
         }
@@ -83,10 +90,8 @@ StyledRect {
             text: Players.playing ? "pause" : "play_arrow"
             fill: 1
 
-            // Exclusive grab on press, so the row's own TapHandler doesn't also fire.
             TapHandler {
                 margin: Appearance.spacing.small
-                gesturePolicy: TapHandler.ReleaseWithinBounds
                 onTapped: Players.playPause()
             }
         }
@@ -95,17 +100,10 @@ StyledRect {
             text: "skip_next"
             fill: 1
 
-            // Exclusive grab on press, so the row's own TapHandler doesn't also fire.
             TapHandler {
                 margin: Appearance.spacing.small
-                gesturePolicy: TapHandler.ReleaseWithinBounds
                 onTapped: Players.next()
             }
         }
-    }
-
-    // Behind the buttons: the art and the text open the Media tab.
-    TapHandler {
-        onTapped: Visibility.openByPointer("media", root.screenName)
     }
 }

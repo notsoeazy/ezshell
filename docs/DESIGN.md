@@ -491,7 +491,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 
 | Target | Lives in | Functions |
 | --- | --- | --- |
-| `audio` | `services/Audio.qml` | `up`, `down`, `set(real)`, `toggleMute`, `toggleMicMute`, `status`, `outputs`, `inputs`, `streams`, `setOutput(name)`, `setInput(name)`, `setStreamVolume(id, real)`, `setMic(real)`, `mic` |
+| `audio` | `services/Audio.qml` | `up`, `down`, `set(real)`, `toggleMute`, `toggleMicMute`, `status`, `outputs`, `inputs`, `streams`, `setOutput(name)`, `setInput(name)`, `recordings`, `setVolumeOf(id, real)`, `toggleMuteOf(id)` (any device or stream id from those lists), `setMic(real)`, `mic` |
 | `brightness` | `services/Brightness.qml` | `up`, `down`, `set(real)` |
 | `nightlight` | `services/NightLight.qml` | `toggle`, `set(bool)`, `setTemperature(int)`, `setSchedule(off/fixed/sun)`, `setTimes(start, end)`, `status` |
 | `players` | `services/Players.qml` | `playPause`, `next`, `previous`, `status`, `list`, `select(identity)`, `seek(seconds)`, `position` |
@@ -513,7 +513,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `wallpaper` | `services/Wallpapers.qml` | `set(path)`, `get`, `random`, `next`, `previous`, `list`, `rescan` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `launcher` | `state/Visibility.qml` | `open(prefix)`: the launcher with a provider prefix typed, e.g. `>` for actions (F2) |
-| `osd` | `state/Visibility.qml` | `say(icon, text)`, `say2(icon, text, subtitle)`: a short message in the island (F7) |
+| `osd` | `state/Visibility.qml` | `say(icon, text)`, `say2(icon, text, subtitle)`: a short message in the island (F7); `nowPlaying`: the now-playing pill |
 | `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8), `peek(on\|off)` (R1) |
 | `color` | `services/Color.qml` | `pick`, `pickIn(ms)`, `last` |
 | `keyboard` | `services/Keyboard.qml` | `status` |

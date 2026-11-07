@@ -104,12 +104,15 @@ QtObject {
         readonly property int bodyLines: 2
     }
 
+    // Now playing on a track change: as tall as the resting island and with its padding, so it reads as
+    // the island widening, not a separate pill.
     component MusicTokens: QtObject {
-        readonly property int width: 300
-        readonly property int height: 34
-        readonly property int padding: 8
-        readonly property int art: 22
-        readonly property int artRadius: 6
+        // The pill fits its content between these, so short titles stay centered.
+        readonly property int minWidth: 260
+        readonly property int maxWidth: 420
+        readonly property int textMaxWidth: 260
+        readonly property int art: 28
+        readonly property int artRadius: 8
     }
 
     component EqualizerTokens: QtObject {
@@ -190,7 +193,7 @@ QtObject {
         readonly property int closeDelay: 250
     }
 
-    // The Control tab (docs/ISLAND-R1.md): pill tiles, round buttons, slider cards, the media row.
+    // The Control tab (docs/ISLAND-R1.md): pill tiles, round buttons, level chips, the media row.
     component ControlTokens: QtObject {
         readonly property int gap: 8
         readonly property int tile: 44
@@ -199,7 +202,8 @@ QtObject {
         readonly property int cardRadius: 16
         readonly property int cardPadding: 8
         readonly property int cardSidePadding: 12
-        readonly property int track: 20
+        // Volume / Microphone / Brightness level chips.
+        readonly property int chip: 52
         readonly property int art: 36
         readonly property int artRadius: 9
         readonly property int title: 13
@@ -211,7 +215,7 @@ QtObject {
 
     component DashboardTokens: QtObject {
         // Each tab's width; the island morphs between them. Detail sections use expanded.sectionWidth.
-        readonly property int controlWidth: 440
+        readonly property int controlWidth: 560
         // System tab sparklines; weather tab icons and capsules.
         readonly property int sparkline: 36
         readonly property real sparklineStroke: 1.5
@@ -227,7 +231,9 @@ QtObject {
         readonly property int calendarWidth: 440
         readonly property int heroClock: 46
         readonly property int headerIcon: 16
-        readonly property int mediaArt: 112
+        readonly property int mediaArt: 80
+        // The mixer's level column ("100%", "Muted").
+        readonly property int mixerPercent: 48
         readonly property int artRadius: 12
         readonly property int playButton: 44
         readonly property int dayCell: 26
