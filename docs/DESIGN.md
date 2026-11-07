@@ -495,7 +495,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `brightness` | `services/Brightness.qml` | `up`, `down`, `set(real)` |
 | `nightlight` | `services/NightLight.qml` | `toggle`, `set(bool)`, `setTemperature(int)`, `setSchedule(off/fixed/sun)`, `setTimes(start, end)`, `status` |
 | `players` | `services/Players.qml` | `playPause`, `next`, `previous`, `status`, `list`, `select(identity)`, `seek(seconds)`, `position` |
-| `hypr` | `services/Hypr.qml` | `toggleSpecial(string)`, `focus(int)`, `cycle(int)`, `screencast`, `simulateScreencast(bool)` |
+| `hypr` | `services/Hypr.qml` | `toggleSpecial(string)`, `focus(int)`, `cycle(int)`, `screencast`, `simulateScreencast(bool)`, `recent`, `focusWindow(address)` (F10) |
 | `notifs` | `services/Notifs.qml` | `clear`, `toggleDnd`, `setDnd(bool)`, `status`, `list` |
 | `wifi` | `services/Wifi.qml` | `toggle`, `setEnabled(bool)`, `scan(bool)`, `connect(name, password)`, `disconnect`, `forget(name)`, `status`, `list`, `saved`, `refreshSaved`, `forgetSaved(uuid)`, `connectHidden(ssid, password)` |
 | `bt` | `services/Bt.qml` | `toggle`, `setEnabled(bool)`, `scan(bool)`, `connect(addr)`, `disconnect(addr)`, `forget(addr)`, `status`, `list`, `paired` |
@@ -518,6 +518,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `color` | `services/Color.qml` | `pick`, `pickIn(ms)`, `last` |
 | `keyboard` | `services/Keyboard.qml` | `status` |
 | `keybinds` | `services/Keybinds.qml` | `list`, `status`, `refresh` (F9) |
+| `switcher` | `state/Visibility.qml` | `next`, `prev`, `commit`, `cancel`, `status`: the window switcher (F10) |
 | `gamemode` | `services/GameMode.qml` | `on`, `off`, `toggle`, `status` |
 | `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md). Since R1 the tabs are `control`, `media`, `system`, `weather`, `calendar`; `overview` and `notifications` are aliases for `control` |
 | `lock` | `modules/lockscreen/Lockscreen.qml` | `lock` |

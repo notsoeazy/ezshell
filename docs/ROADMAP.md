@@ -38,8 +38,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | R1 | [Island redesign: hover peek and Control tab](ISLAND-R1.md) | L | done |
 | F8 | Quick utilities (external brightness skipped) | S each | done |
 | F9 | Keybind cheat sheet (updates skipped) | S | done |
-| F10 | Window switcher (Super+Tab) | M | next |
-| F11 | Theme presets and matugen templates for other apps | M | |
+| F10 | Window switcher (Super+Tab) | M | done |
+| F11 | Theme presets and matugen templates for other apps | M | next |
 | F12 | Desktop widgets (optional) | L | |
 
 ---
@@ -236,6 +236,7 @@ Spec and design record: [`docs/ISLAND-R1.md`](ISLAND-R1.md); the final rules are
   - Super+Tab opens on the previous window. Tab moves forward, Super+Shift+Tab moves back.
   - Releasing Super focuses the selection, through `GlobalShortcut` press/release or a Hyprland release bind.
 - **UI:** the island expands to a row of app icons with the focused title below. Live previews with `ScreencopyView` are optional, later.
+- **Done:** all windows on regular workspaces (special workspaces left out), most recent first (`Hypr.recent`: `activewindowv2` events, then Hyprland's `focusHistoryID`). Keys are caught by an always-visible item in `ModeLayers`, so a quick Super release isn't lost while the view fades in. Binds in HYPRLAND.md §11. Live previews not done.
 
 ## F11. Theme presets and other apps
 

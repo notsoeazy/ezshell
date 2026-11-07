@@ -23,6 +23,7 @@ modules/island/
   Indicators.qml        recording, mic/camera, DND, unread badge (highest priority first)
   Workspaces.qml        dots and active pill
   PeekView.qml          hover peek's second line: focused app, media chip, notification status
+  SwitcherView.qml      window switcher: recent windows as app tiles, the selection's title and workspace
   Expanded.qml          expanded island: header (tabs or back chevron) + Loader for Visibility.panel
   ExpandedHeader.qml    tab row, or back chevron + title + main switch
   dashboard/
@@ -231,6 +232,14 @@ One temporary mode, `message`, carries every short message: mic mute, capture fe
 - **`capture`** (`panels open capture`): Screenshot and Record × Region / Window / Screen as cards, and a sound switch; arrows and Enter. Picking collapses the island and the capture waits for it (`Capture.settle`). Temporary modes around a capture: `capturing` ("Drag to select", "Starting recording…", "Recording") and `captured` (thumbnail, "Saved · Copied"). The recording indicator also follows `Capture.recording`, and a click on it stops the recording.
 
 - **`keybinds`** (`panels toggle keybinds`, Super+/): the cheat sheet. A search field over the binds from `Keybinds`, grouped by the description's prefix ("Media: Play or pause" → Media), then "Other", then "No description". Two columns of rows with key caps; ↑/↓ and Page Up/Down scroll; the search field takes Exclusive focus like the wallpapers search.
+
+### Window switcher
+
+Mode `switcher` (`Visibility.panel`, not a section: no header). Super+Tab (`switcher next`) opens it on the previous window; each further step moves the selection (`Visibility.switcherStep`, wrapped onto `Hypr.recent` by `Hypr.recentIndex`). The pill is a row of app tiles (up to `switcher.maxRow`, then it scrolls) over the selection's title and "App · Workspace N", at a fixed width so it doesn't jump between titles.
+
+- **Keys** are caught by an always-visible item in `ModeLayers`, not by the view: the view fades in partway through the morph and can't hold focus while invisible. Releasing Super commits; Tab/→ and Shift+Tab/← move; Enter commits; Esc cancels. The island has Exclusive keyboard focus (a typing mode), and clicking outside closes it.
+- **Commit** (`switcher commit`, Super release, Enter or a click on a tile) bumps `switcherCommitRequest`; `Island.qml` focuses the window through `Hypr.focusWindow` and collapses.
+- `Hypr.recent` holds windows on regular workspaces only, most recent first; the client list is re-read each time the switcher opens.
 
 ### What a click opens (deep links)
 

@@ -29,9 +29,61 @@ Singleton {
     // slice(8) strips the "special:" prefix.
     readonly property list<int> occupied: root.withWindows().filter(w => w.id > 0).map(w => w.id)
     readonly property list<string> occupiedSpecial: root.withWindows().filter(w => w.id < 0).map(w => w.name.slice(8))
+    // Windows on regular workspaces, most recently focused first (the window switcher). Focus changes
+    // since start come from activewindowv2 events; older windows fall back to Hyprland's own focus
+    // history from when its client list was last read.
+    readonly property list<HyprlandToplevel> recent: root.byRecency()
 
     function withWindows(): list<HyprlandWorkspace> {
         return Hyprland.workspaces.values.filter(w => w.toplevels.values.length > 0);
+    }
+
+    function byRecency(): list<HyprlandToplevel> {
+        const regular = Hyprland.toplevels.values.filter(t => (t.workspace?.id ?? 0) > 0);
+        return regular.sort((a, b) => root.recency(a) - root.recency(b));
+    }
+
+    function recency(toplevel: HyprlandToplevel): int {
+        const index = internal.order.indexOf(toplevel.address);
+        return index >= 0 ? index : internal.order.length + (toplevel.lastIpcObject.focusHistoryID ?? 1000);
+    }
+
+    // activewindowv2 data: the address without "0x", as HyprlandToplevel.address has it; empty when focus
+    // leaves every window.
+    function onActiveWindow(address: string): void {
+        if (address !== "")
+            internal.order = [address, ...internal.order.filter(a => a !== address)];
+    }
+
+    // A switcher step onto the recent list, wrapping at both ends; -1 when there are no windows.
+    function recentIndex(step: int): int {
+        const count = root.recent.length;
+        return count > 0 ? ((step % count) + count) % count : -1;
+    }
+
+    function recentAt(step: int): HyprlandToplevel {
+        const index = root.recentIndex(step);
+        return index >= 0 ? root.recent[index] : null;
+    }
+
+    // Titles and classes only live in lastIpcObject, which events don't update.
+    function refreshWindows(): void {
+        Hyprland.refreshToplevels();
+    }
+
+    // address as HyprlandToplevel has it, without "0x".
+    function focusWindow(address: string): void {
+        const target = `address:0x${address}`;
+        root.dispatch(`hl.dsp.focus({ window = "${target}" })`, `focuswindow ${target}`);
+    }
+
+    function describeWindow(toplevel: HyprlandToplevel): string {
+        const app = toplevel.lastIpcObject.class ?? "";
+        return `${toplevel.address}  ${toplevel.workspace?.id}  ${app}  ${toplevel.title}`;
+    }
+
+    function describeRecent(): string {
+        return root.recent.map(root.describeWindow).join("\n");
     }
 
     function monitor(screenName: string): HyprlandMonitor {
@@ -99,6 +151,8 @@ Singleton {
         }
     }
 
+    // Windows opened before the shell have no workspace or focus history until the client list is read.
+    Component.onCompleted: Hyprland.refreshToplevels()
     onScreencastingChanged: {
         if (!root.screencasting)
             shareDelay.passed = false;
@@ -119,6 +173,8 @@ Singleton {
 
         property int screencasts: 0
         property string screencastKind: ""
+        // Addresses (no "0x") in focus order since start, newest first.
+        property list<string> order: []
     }
 
     Connections {
@@ -130,6 +186,8 @@ Singleton {
                 Hyprland.refreshToplevels();
             else if (event.name === "screencast")
                 root.onScreencast(event.data);
+            else if (event.name === "activewindowv2")
+                root.onActiveWindow(event.data);
         }
 
         target: Hyprland
@@ -146,6 +204,14 @@ Singleton {
 
         function cycle(step: int): void {
             root.cycle(Hyprland.focusedMonitor?.name ?? "", step);
+        }
+
+        function recent(): string {
+            return root.describeRecent();
+        }
+
+        function focusWindow(address: string): void {
+            root.focusWindow(address);
         }
 
         function screencast(): string {

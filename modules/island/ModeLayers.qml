@@ -26,6 +26,8 @@ Item {
     readonly property real messageWidth: messageLayer.implicitWidth
     readonly property real messageHeight: messageLayer.implicitHeight
     readonly property real musicWidth: musicLayer.implicitWidth
+    readonly property real switcherWidth: switcherLayer.implicitWidth
+    readonly property real switcherHeight: switcherLayer.implicitHeight
 
     // Pinned to the top 44 px, so the peek's first line is this same layer (the clock never shifts). As
     // wide as the pill's live width, so while it grows into the peek the sides slide out with its edges;
@@ -84,6 +86,53 @@ Item {
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
             MusicView {}
+        }
+    }
+
+    ModeLayer {
+        id: switcherLayer
+
+        anchors.centerIn: parent
+        shown: root.mode === "switcher"
+        fadeInDelay: root.fadeInDelay
+        sourceComponent: Component {
+            SwitcherView {}
+        }
+    }
+
+    // The switcher's keys. Not in SwitcherView: that fades in partway through the morph and can't hold
+    // focus while invisible, so a quick Super release would be lost. Releasing Super (the Super+Tab bind's
+    // modifier) commits.
+    Item {
+        id: switcherKeys
+
+        readonly property bool active: root.mode === "switcher"
+
+        focus: switcherKeys.active
+        onActiveChanged: {
+            if (switcherKeys.active)
+                switcherKeys.forceActiveFocus();
+        }
+        Keys.onReleased: event => {
+            if (event.key === Qt.Key_Super_L || event.key === Qt.Key_Super_R || event.key === Qt.Key_Meta)
+                Visibility.commitSwitch();
+        }
+        Keys.onPressed: event => {
+            const steps = {
+                [Qt.Key_Tab]: 1,
+                [Qt.Key_Right]: 1,
+                [Qt.Key_Backtab]: -1,
+                [Qt.Key_Left]: -1
+            };
+            if (steps[event.key] !== undefined)
+                Visibility.switchWindows(steps[event.key]);
+            else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+                Visibility.commitSwitch();
+            else if (event.key === Qt.Key_Escape)
+                Visibility.close();
+            else
+                return;
+            event.accepted = true;
         }
     }
 

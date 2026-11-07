@@ -25,7 +25,7 @@ StyledRect {
     readonly property bool fullscreen: Hypr.fullscreen(root.screenName)
     readonly property string restMode: root.fullscreen || Visibility.islandHidden ? "hidden" : "rest"
     // Panels (island sections and the launcher) win over temporary modes, on their own screen only.
-    readonly property bool knownPanel: Visibility.expanded || Visibility.panel === "launcher"
+    readonly property bool knownPanel: Visibility.expanded || ["launcher", "switcher"].includes(Visibility.panel)
     readonly property bool panelHere: root.knownPanel && Visibility.screen === root.screenName
     // The hover peek (docs/ISLAND-R1.md) only replaces the plain resting pill: not under a fullscreen
     // window or while hidden, and anything else showing wins over it.
@@ -76,10 +76,16 @@ StyledRect {
             return Qt.size(island.polkit.width, layers.polkitHeight + 2 * island.polkit.padding);
         case "music":
             return Qt.size(root.musicWidth(), island.height);
+        case "switcher":
+            return root.padded(layers.switcherWidth, layers.switcherHeight, island.switcher.padding);
         default:
             // volume, brightness
             return Qt.size(island.osd.width, island.osd.height);
         }
+    }
+
+    function padded(width: real, height: real, padding: real): size {
+        return Qt.size(width + 2 * padding, height + 2 * padding);
     }
 
     // As wide as the now-playing content, within its bounds.

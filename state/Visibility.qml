@@ -42,6 +42,10 @@ Singleton {
     // keyboard, and anything else showing wins over it.
     property string peekScreen: ""
     property int revealRequest: 0
+    // Window switcher (panel "switcher"): steps taken since it opened; the island maps it onto the
+    // recent-window list (Hypr.recent), wrapping at both ends. commitRequest changes on every commit.
+    property int switcherStep: 0
+    property int switcherCommitRequest: 0
     readonly property list<string> tabs: ["control", "media", "system", "weather", "calendar"]
     readonly property list<string> details: ["wifi", "bluetooth", "audio", "power", "display"]
     // Old names that still open their replacement, so existing binds keep working.
@@ -119,6 +123,28 @@ Singleton {
         root.stack = [];
         root.openedByPointer = false;
         root.launcherText = "";
+    }
+
+    // Super+Tab: opens on the previous window (step 1), or moves the selection while open.
+    function switchWindows(step: int): void {
+        if (root.panel === "switcher") {
+            root.switcherStep += step;
+            return;
+        }
+        root.open("switcher", "");
+        root.switcherStep = step > 0 ? 1 : -1;
+    }
+
+    // A click on a window in the switcher: select it and commit.
+    function pickWindow(index: int): void {
+        root.switcherStep = index;
+        root.commitSwitch();
+    }
+
+    // Focuses the selection; the island does the focusing and collapses.
+    function commitSwitch(): void {
+        if (root.panel === "switcher")
+            root.switcherCommitRequest++;
     }
 
     function say(message: var, duration: int): void {
@@ -221,5 +247,31 @@ Singleton {
         }
 
         target: "osd"
+    }
+
+    // Window switcher, for Super+Tab binds: next/prev open it or move the selection.
+    IpcHandler {
+        function next(): void {
+            root.switchWindows(1);
+        }
+
+        function prev(): void {
+            root.switchWindows(-1);
+        }
+
+        function commit(): void {
+            root.commitSwitch();
+        }
+
+        function cancel(): void {
+            if (root.panel === "switcher")
+                root.close();
+        }
+
+        function status(): string {
+            return root.panel === "switcher" ? `open, step ${root.switcherStep}` : "closed";
+        }
+
+        target: "switcher"
     }
 }

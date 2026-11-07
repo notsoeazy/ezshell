@@ -170,6 +170,15 @@ hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(qs .. "players playPause"), { locked = 
 
 The list refreshes on every config reload. `qs -c ezshell ipc call keybinds status` shows how many binds have a description.
 
+## 11. Window switcher (recommended, not applied)
+
+Super+Tab opens the island's switcher on the previous window; Tab again moves on, Super+Shift+Tab moves back, and releasing Super focuses the selection. Both keys are free in `keybinds.lua` (ALT + TAB cycles window groups).
+
+```lua
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd(qs .. "switcher next"), { description = "Windows: Next window" })
+hl.bind("SUPER + SHIFT + TAB", hl.dsp.exec_cmd(qs .. "switcher prev"), { description = "Windows: Previous window" })
+```
+
 ## 6. Already in place
 
 - `misc.allow_session_lock_restore = true` (`hyprland/misc.lua`): if the shell dies while locked, restarting it takes the lock back instead of leaving you on Hyprland's red "lockscreen died" screen. Keep it.

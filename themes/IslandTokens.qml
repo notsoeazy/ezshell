@@ -41,6 +41,7 @@ QtObject {
     readonly property PolkitTokens polkit: PolkitTokens {}
     readonly property CaptureTokens capture: CaptureTokens {}
     readonly property KeybindTokens keybinds: KeybindTokens {}
+    readonly property SwitcherTokens switcher: SwitcherTokens {}
     readonly property MessageTokens message: MessageTokens {}
     // The island window: tallest mode plus margin and overshoot room, so the morph never resizes it.
     readonly property int panelHeight: Math.max(island.launcher.maxHeight, island.expanded.maxHeight)
@@ -212,6 +213,17 @@ QtObject {
         readonly property int notifIconRadius: 8
         // The notification center's empty state ("All caught up").
         readonly property int emptyHeight: 72
+    }
+
+    // The window switcher: a row of app tiles over the selected window's title.
+    component SwitcherTokens: QtObject {
+        readonly property int padding: 16
+        readonly property int tile: 64
+        readonly property int tileRadius: 18
+        readonly property int icon: 40
+        // Widest row of tiles before it scrolls; narrowest title line.
+        readonly property int maxRow: 640
+        readonly property int minText: 260
     }
 
     // The keybind cheat sheet: rows with key caps.

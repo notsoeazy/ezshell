@@ -20,6 +20,9 @@ Scope {
     // already gives the island focus, and Exclusive would lock the keyboard for nothing.
     readonly property bool grabKeys: Visibility.stack.includes("password") && !Visibility.openedByPointer
 
+    // Modes that take the keyboard exclusively while they show.
+    readonly property list<string> typingModes: ["launcher", "wallpapers", "polkit", "capture", "keybinds", "switcher"]
+
     // The monitor focused when a polkit request arrives shows the prompt, until polkit has none left.
     property string authScreen: ""
 
@@ -30,6 +33,23 @@ Scope {
     }
 
     Transients {}
+
+    // Window switcher: a commit focuses the selected window; the island collapses.
+    Connections {
+        function onSwitcherCommitRequestChanged(): void {
+            const window = Hypr.recentAt(Visibility.switcherStep);
+            Visibility.close();
+            if (window)
+                Hypr.focusWindow(window.address);
+        }
+
+        function onPanelChanged(): void {
+            if (Visibility.panel === "switcher")
+                Hypr.refreshWindows();
+        }
+
+        target: Visibility
+    }
 
     Connections {
         function onActiveChanged(): void {
@@ -92,7 +112,7 @@ Scope {
             PanelWindow {
                 id: overlay
 
-                readonly property bool typing: ["launcher", "wallpapers", "polkit", "capture", "keybinds"].includes(surface.mode)
+                readonly property bool typing: root.typingModes.includes(surface.mode)
                 readonly property bool expanded: Visibility.isSection(surface.mode)
                 readonly property int typingFocus: WlrKeyboardFocus.Exclusive
                 readonly property int expandedFocus: root.grabKeys ? overlay.typingFocus : WlrKeyboardFocus.OnDemand
