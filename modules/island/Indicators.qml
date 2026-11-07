@@ -187,7 +187,7 @@ RowLayout {
         TapHandler {
             margin: Appearance.spacing.small
             gesturePolicy: TapHandler.ReleaseWithinBounds
-            onTapped: Visibility.openByPointer("overview", root.screenName)
+            onTapped: Visibility.openByPointer("notifications", root.screenName)
         }
     }
 }

@@ -24,6 +24,7 @@ Singleton {
     readonly property alias animations: adapter.animations
     readonly property alias theme: adapter.theme
     readonly property alias capture: adapter.capture
+    readonly property alias island: adapter.island
 
     FileView {
         id: fileView
@@ -59,6 +60,7 @@ Singleton {
             property AnimationsConfig animations: AnimationsConfig {}
             property ThemeConfig theme: ThemeConfig {}
             property CaptureConfig capture: CaptureConfig {}
+            property IslandConfig island: IslandConfig {}
         }
     }
 
@@ -174,6 +176,11 @@ Singleton {
     component AnimationsConfig: JsonObject {
         // Multiplier for every animation: 0.25 shows them four times slower, 0 turns them off.
         property real speed: 1.0
+    }
+
+    component IslandConfig: JsonObject {
+        // Hovering the resting island shows a second line (app, media, notifications); off = hover does nothing.
+        property bool hoverPeek: true
     }
 
     component CaptureConfig: JsonObject {

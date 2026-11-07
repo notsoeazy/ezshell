@@ -514,11 +514,11 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `launcher` | `state/Visibility.qml` | `open(prefix)`: the launcher with a provider prefix typed, e.g. `>` for actions (F2) |
 | `osd` | `state/Visibility.qml` | `say(icon, text)`, `say2(icon, text, subtitle)`: a short message in the island (F7) |
-| `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8) |
+| `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8), `peek(on\|off)` (R1) |
 | `color` | `services/Color.qml` | `pick`, `pickIn(ms)`, `last` |
 | `keyboard` | `services/Keyboard.qml` | `status` |
 | `gamemode` | `services/GameMode.qml` | `on`, `off`, `toggle`, `status` |
-| `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md) |
+| `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md). Since R1 the tabs are `control`, `media`, `system`, `weather`, `calendar`; `overview` and `notifications` are aliases for `control` |
 | `lock` | `modules/lockscreen/Lockscreen.qml` | `lock` |
 
 **Rules**
@@ -708,7 +708,7 @@ The work runs in six phases, each ending with something usable, followed by an e
 | 6 Launcher, wallpaper, lockscreen, idle | done |
 | E1 Settings app | done |
 | E2 Expandable island | done |
-| E3 Dashboard tabs | done (calendar events not yet: month grid only) |
+| E3 Dashboard tabs | done (calendar events not yet: month grid only; Overview replaced by Control in R1, see ISLAND-R1.md) |
 | E4 Remaining island indicators | done |
 | E5 Motion polish | done |
 | E6 Theming | done (no templates for other apps yet) |

@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Wayland
 import qs.config
 
 Singleton {
@@ -12,6 +13,9 @@ Singleton {
     // Hyprland's Lua config takes Lua expressions over IPC instead of classic dispatcher strings.
     readonly property bool usingLua: Hyprland.usingLua
     readonly property string focusedScreen: Hyprland.focusedMonitor?.name ?? ""
+    // The focused window's app id ("firefox"), "" when nothing is focused (an empty workspace).
+    readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
+    readonly property string activeAppId: root.activeWindow?.activated ? root.activeWindow.appId : ""
     readonly property int focusedWorkspace: Hyprland.focusedWorkspace?.id ?? 0
     // Screen capture served by Hyprland (portal shares, wf-recorder, OBS via the portal): counted from
     // `screencast` events. Recorders that read the GPU directly (gpu-screen-recorder -w screen) bypass it.

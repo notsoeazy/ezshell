@@ -40,6 +40,20 @@ Singleton {
         notification?.dismiss();
     }
 
+    // "now", "5m", "2h", "3d"; "" for one that arrived before a shell restart. `now` is passed in, so
+    // a binding on it (Time.date) keeps the age current without a timer here.
+    function age(notification: Notification, now: date): string {
+        const at = internal.arrived[notification?.id];
+        if (at === undefined)
+            return "";
+        const minutes = Math.floor((now.getTime() - at) / 60000);
+        if (minutes < 1)
+            return "now";
+        if (minutes < 60)
+            return `${minutes}m`;
+        return minutes < 1440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1440)}d`;
+    }
+
     function status(): string {
         return `${root.count} notifications, dnd ${root.dnd ? "on" : "off"}`;
     }
@@ -52,6 +66,8 @@ Singleton {
         id: internal
 
         property Notification latest: null
+        // Notification id → when it arrived (ms); Quickshell's Notification has no time of its own.
+        property var arrived: ({})
     }
 
     NotificationServer {
@@ -65,6 +81,9 @@ Singleton {
         onNotification: notification => {
             // Untracked notifications are dropped by Quickshell right after this handler.
             notification.tracked = true;
+            internal.arrived = Object.assign({}, internal.arrived, {
+                [notification.id]: Date.now()
+            });
             internal.latest = notification;
             root.received(notification);
         }

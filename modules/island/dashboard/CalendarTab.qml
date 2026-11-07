@@ -6,7 +6,7 @@ import qs.services
 import qs.themes
 import qs.utils
 
-// Calendar tab: month grid with today highlighted and month navigation. No events yet.
+// Calendar tab: the clock card, then the month grid with today highlighted and month navigation. No events yet.
 ColumnLayout {
     id: root
 
@@ -14,6 +14,10 @@ ColumnLayout {
     property int offset: 0
 
     spacing: Appearance.island.expanded.gap
+
+    ClockCard {
+        Layout.fillWidth: true
+    }
 
     RowLayout {
         Layout.fillWidth: true

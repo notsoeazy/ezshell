@@ -33,8 +33,20 @@ Singleton {
     property bool islandHidden: false
     property int messageDuration: 0
     property int messageRequest: 0
-    readonly property list<string> tabs: ["overview", "media", "system", "calendar"]
-    readonly property list<string> details: ["wifi", "bluetooth", "audio", "power"]
+    // Something inside the open tab to scroll to ("notifications": Control's notification center); the
+    // request count changes on every ask, so asking again while it's open still scrolls.
+    property string reveal: ""
+    // The screen whose resting island is peeking (hover), "" when none. Not a panel: it never takes the
+    // keyboard, and anything else showing wins over it.
+    property string peekScreen: ""
+    property int revealRequest: 0
+    readonly property list<string> tabs: ["control", "media", "system", "weather", "calendar"]
+    readonly property list<string> details: ["wifi", "bluetooth", "audio", "power", "display"]
+    // Old names that still open their replacement, so existing binds keep working.
+    readonly property var aliases: ({
+            overview: "control",
+            notifications: "control"
+        })
     // Sections opened on their own (keybind or IPC), not from the overview: back() collapses them.
     readonly property list<string> standalone: ["wallpapers", "capture"]
     readonly property bool expanded: root.isSection(root.panel)
@@ -43,8 +55,13 @@ Singleton {
         return root.tabs.includes(name) || root.details.includes(name) || root.standalone.includes(name);
     }
 
+    function canonical(name: string): string {
+        return root.aliases[name] ?? name;
+    }
+
     // mon "" = the focused monitor. For "settings", the second argument is the page instead.
-    function open(name: string, mon: string): void {
+    function open(given: string, mon: string): void {
+        const name = root.canonical(given);
         if (name === "settings") {
             root.settingsPage = mon !== "" ? mon : root.lastSettingsPage;
             root.lastSettingsPage = root.settingsPage;
@@ -53,9 +70,12 @@ Singleton {
             return;
         }
         root.screen = mon !== "" ? mon : Hyprland.focusedMonitor?.name ?? "";
+        root.peekScreen = "";
         root.stack = [];
         root.openedByPointer = false;
         root.panel = name;
+        root.reveal = given === "notifications" ? "notifications" : "";
+        root.revealRequest++;
     }
 
     function openByPointer(name: string, mon: string): void {
@@ -64,25 +84,30 @@ Singleton {
     }
 
     // Collapses only if that exact section is open (and not a sub-page of it); otherwise switches to it.
-    function toggle(name: string): void {
+    function toggle(given: string): void {
+        const name = root.canonical(given);
         if (name === "settings")
             root.settingsPage = root.settingsPage !== "" ? "" : root.lastSettingsPage;
         else if (root.panel === name && root.stack.length === 0)
             root.close();
         else
-            root.open(name, "");
+            root.open(given, "");
     }
 
+    // The old notifications sub-page is now Control's notification center.
     function push(page: string): void {
-        root.stack = [...root.stack, page];
+        if (page === "notifications")
+            root.open("notifications", root.screen);
+        else
+            root.stack = [...root.stack, page];
     }
 
-    // Sub-page → detail section → overview → collapsed. Tabs and standalone sections collapse.
+    // Sub-page → detail section → Control → collapsed. Tabs and standalone sections collapse.
     function back(): void {
         if (root.stack.length > 0)
             root.stack = root.stack.slice(0, -1);
         else if (root.details.includes(root.panel))
-            root.panel = "overview";
+            root.panel = "control";
         else
             root.close();
     }
@@ -124,7 +149,7 @@ Singleton {
             root.back();
         }
 
-        // Opens a sub-page of the open section, e.g. `push notifications` on the overview.
+        // Opens a sub-page of the open section, e.g. `push password` on Wi‑Fi.
         function push(page: string): void {
             root.push(page);
         }
@@ -160,6 +185,11 @@ Singleton {
 
         function status(): string {
             return root.islandHidden ? "hidden" : "shown";
+        }
+
+        // "on" peeks on the focused screen, "off" closes it; for testing without a mouse.
+        function peek(state: string): void {
+            root.peekScreen = state === "on" ? Hyprland.focusedMonitor?.name ?? "" : "";
         }
 
         target: "island"

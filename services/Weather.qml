@@ -28,16 +28,22 @@ Singleton {
     readonly property bool isDay: (internal.data?.current.is_day ?? 1) === 1
     readonly property real high: internal.data?.daily.temperature_2m_max[0] ?? 0
     readonly property real low: internal.data?.daily.temperature_2m_min[0] ?? 0
+    // km/h (mph with imperial units).
+    readonly property real wind: internal.data?.current.wind_speed_10m ?? 0
+    readonly property string windUnit: Config.weather.units === "imperial" ? "mph" : "km/h"
+    // The next 7 days as [{ day: Date, low, high, code }], today first.
+    readonly property var daily: root.days(internal.data)
     readonly property string condition: root.describe(root.code)
     // Next hours as [{ time: "14:00", temperature, code }], starting with the current hour.
-    readonly property var hourly: root.nextHours(internal.data, 6)
+    readonly property var hourly: root.nextHours(internal.data, 12)
     readonly property string geocodeUrl: "https://geocoding-api.open-meteo.com/v1/search"
     readonly property string forecastUrl: "https://api.open-meteo.com/v1/forecast"
     // Open-Meteo variable names for the current conditions.
-    readonly property string currentFields: root.currentTemperatures + ",relative_humidity_2m,weather_code,is_day"
+    readonly property string currentFields: `${root.currentTemperatures},${root.currentConditions}`
+    readonly property string currentConditions: "relative_humidity_2m,weather_code,is_day,wind_speed_10m"
     readonly property string currentTemperatures: "temperature_2m,apparent_temperature"
     readonly property string hourlyFields: "temperature_2m,weather_code"
-    readonly property string dailyFields: "temperature_2m_max,temperature_2m_min"
+    readonly property string dailyFields: "temperature_2m_max,temperature_2m_min,weather_code"
     // Milliseconds before retrying after an attempt (Open-Meteo answers 503 when overloaded).
     readonly property int retryDelay: 60000
     // Used when the IP lookup fails.
@@ -88,9 +94,9 @@ Singleton {
     }
 
     function fetch(place: string, lat: real, lon: real): void {
-        const unit = Config.weather.units === "imperial" ? "&temperature_unit=fahrenheit" : "";
+        const unit = Config.weather.units === "imperial" ? "&temperature_unit=fahrenheit&wind_speed_unit=mph" : "";
         const fields = `current=${root.currentFields}&hourly=${root.hourlyFields}&daily=${root.dailyFields}`;
-        const query = `latitude=${lat}&longitude=${lon}&${fields}&timezone=auto&forecast_days=2${unit}`;
+        const query = `latitude=${lat}&longitude=${lon}&${fields}&timezone=auto&forecast_days=7${unit}`;
         root.get(`${root.forecastUrl}?${query}`, json => {
             internal.latitude = lat;
             internal.longitude = lon;
@@ -133,6 +139,17 @@ Singleton {
         return Array.from({
             length: Math.min(count, data.hourly.time.length - start)
         }, (_, i) => hour(start + i));
+    }
+
+    function days(data: var): var {
+        if (!data?.daily)
+            return [];
+        return data.daily.time.map((day, i) => ({
+                    day: new Date(`${day}T12:00`),
+                    low: data.daily.temperature_2m_min[i],
+                    high: data.daily.temperature_2m_max[i],
+                    code: data.daily.weather_code?.[i] ?? 0
+                }));
     }
 
     function describeHour(hour: var): string {

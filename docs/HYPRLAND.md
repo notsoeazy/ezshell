@@ -59,9 +59,9 @@ hl.bind("XF86AudioNext", hl.dsp.exec_cmd(qs .. "players next"), { locked = true 
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd(qs .. "players previous"), { locked = true })
 
 -- Island, launcher, settings, lock
-hl.bind("SUPER + A", hl.dsp.exec_cmd(qs .. "panels toggle overview"))
+hl.bind("SUPER + A", hl.dsp.exec_cmd(qs .. "panels toggle control"))
 hl.bind("SUPER + W", hl.dsp.exec_cmd(qs .. "panels toggle wifi"))
-hl.bind("SUPER + N", hl.dsp.exec_cmd(qs .. "panels open overview ''; " .. qs .. "panels push notifications"))
+hl.bind("SUPER + N", hl.dsp.exec_cmd(qs .. "panels toggle notifications"))  -- Control at the notification center; SUPER + N is caelestia's kbShowSidebar today
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qs .. "panels toggle launcher"), { release = true })
 hl.bind("SUPER + PERIOD", hl.dsp.exec_cmd(qs .. "launcher open ':'"))     -- emoji and symbols (replaces caelestia's)
 hl.bind("SUPER + V", hl.dsp.exec_cmd(qs .. "launcher open ';'"))          -- clipboard history (replaces caelestia's)

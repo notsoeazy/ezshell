@@ -36,6 +36,11 @@ Singleton {
         return kept.slice(0, limit).map(m => m.entry);
     }
 
+    // The desktop entry for a window's app id, or null (Quickshell's heuristic also matches StartupWMClass).
+    function entryFor(appId: string): DesktopEntry {
+        return appId !== "" ? DesktopEntries.heuristicLookup(appId) : null;
+    }
+
     function launch(entry: DesktopEntry): void {
         entry?.execute();
     }

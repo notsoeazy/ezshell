@@ -3,9 +3,9 @@ import QtQuick.Layouts
 import qs.components
 import qs.themes
 
-// Quick-toggle tile (frame 07). Tile rule (docs/ISLAND.md): the icon toggles; the body, the chevron
-// or a right-click opens the detail section. Without `toggleable`, every click opens.
-// `compact` (the Overview bento, frame 14): icon only; a left click toggles, a right click opens.
+// Control-tab pill tile (docs/ISLAND-R1.md): a round icon, a title and a status line. Tile rule
+// (docs/ISLAND.md): the round icon toggles; the body, the chevron or a right-click opens the detail
+// section. Without `toggleable` every click opens; without `hasDetail` every click toggles.
 StyledRect {
     id: root
 
@@ -15,58 +15,56 @@ StyledRect {
     property bool active: false
     property bool toggleable: true
     property bool hasDetail: true
-    property bool compact: false
-    readonly property color foreground: root.active ? Colors.primaryContainerFg : Colors.surfaceFg
 
     signal toggled
     signal opened
 
-    implicitHeight: root.compact ? Appearance.island.dashboard.compactTile : Appearance.island.expanded.tile
-    radius: Appearance.island.expanded.tileRadius
-    color: root.active ? Colors.primaryContainer : Colors.surfaceContainerHighest
+    implicitHeight: Appearance.island.control.tile
+    radius: height / 2
+    color: Colors.surfaceContainerHigh
 
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
         onClicked: mouse => {
-            const left = mouse.button === Qt.LeftButton;
-            if (root.compact && left && root.toggleable)
-                root.toggled();
-            else if (root.hasDetail)
+            if (root.hasDetail)
                 root.opened();
-            else if (left)
+            else if (mouse.button === Qt.LeftButton && root.toggleable)
                 root.toggled();
         }
     }
 
-    MaterialIcon {
-        anchors.centerIn: parent
-        visible: root.compact
-        text: root.icon
-        fill: root.active ? 1 : 0
-        color: root.foreground
-    }
-
     RowLayout {
         anchors.fill: parent
-        visible: !root.compact
-        anchors.leftMargin: Appearance.spacing.large
+        anchors.leftMargin: (Appearance.island.control.tile - Appearance.island.control.tileIcon) / 2
         anchors.rightMargin: Appearance.spacing.normal
-        spacing: Appearance.island.expanded.gap
+        spacing: Appearance.spacing.normal
 
-        MaterialIcon {
-            text: root.icon
-            fill: root.active ? 1 : 0
-            color: root.foreground
+        StyledRect {
+            implicitWidth: Appearance.island.control.tileIcon
+            implicitHeight: Appearance.island.control.tileIcon
+            radius: height / 2
+            color: root.active ? Colors.primary : Colors.surfaceContainerHighest
+
+            Behavior on color {
+                CAnim {}
+            }
+
+            MaterialIcon {
+                anchors.centerIn: parent
+                text: root.icon
+                fill: root.active ? 1 : 0
+                size: Appearance.font.size.large
+                color: root.active ? Colors.primaryFg : Colors.surfaceFg
+            }
 
             MouseArea {
                 anchors.fill: parent
-                anchors.margins: -Appearance.spacing.normal
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.PointingHandCursor
                 onClicked: mouse => {
-                    if (root.toggleable && mouse.button === Qt.LeftButton)
+                    if (mouse.button === Qt.LeftButton && root.toggleable)
                         root.toggled();
                     else if (root.hasDetail)
                         root.opened();
@@ -82,7 +80,7 @@ StyledRect {
                 Layout.fillWidth: true
                 text: root.label
                 elide: Text.ElideRight
-                color: root.foreground
+                font.pixelSize: Appearance.island.control.title
                 font.weight: Font.Medium
             }
 
@@ -90,8 +88,7 @@ StyledRect {
                 Layout.fillWidth: true
                 text: root.status
                 elide: Text.ElideRight
-                color: root.foreground
-                opacity: Appearance.island.expanded.secondaryOpacity
+                color: Colors.surfaceVariantFg
                 font.pixelSize: Appearance.font.size.small
             }
         }
@@ -99,7 +96,7 @@ StyledRect {
         MaterialIcon {
             visible: root.hasDetail
             text: "chevron_right"
-            color: root.foreground
+            color: Colors.surfaceVariantFg
         }
     }
 }

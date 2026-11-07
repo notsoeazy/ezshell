@@ -17,7 +17,8 @@ Item {
     required property string page
     required property bool onTab
     readonly property var titles: ({
-            "overview": "Overview",
+            "control": "Control",
+            "weather": "Weather",
             "media": "Media",
             "system": "System",
             "calendar": "Calendar",
@@ -25,13 +26,12 @@ Item {
             "bluetooth": "Bluetooth",
             "audio": "Audio",
             "power": "Power",
+            "display": "Display",
             "wallpapers": "Wallpapers",
-            "capture": "Capture",
-            "notifications": "Notifications"
+            "capture": "Capture"
         })
     // A detail page's main switch, on the right of its header.
     readonly property var switches: ({
-            "notifications": dndSwitch,
             "wifi": wifiSwitch,
             "bluetooth": bluetoothSwitch
         })
@@ -134,15 +134,6 @@ Item {
 
         Loader {
             sourceComponent: root.switches[root.page] ?? null
-        }
-    }
-
-    Component {
-        id: dndSwitch
-
-        StyledSwitch {
-            checked: Notifs.dnd
-            onToggled: enabled => Notifs.setDnd(enabled)
         }
     }
 

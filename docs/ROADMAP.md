@@ -35,6 +35,7 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F5 | Polkit agent in the island | M | done |
 | F6 | Screenshots and screen recording | M | done |
 | F7 | Generic OSD and capture feedback (tasks dropped) | S | done |
+| R1 | [Island redesign: hover peek and Control tab](ISLAND-R1.md) | L | done |
 | F8 | Quick utilities (external brightness skipped) | S each | done |
 | F9 | Keybind cheat sheet and updates | S | next |
 | F10 | Window switcher (Super+Tab) | M | |
@@ -189,6 +190,16 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 - **New feedback:** "Recording saved" with the file name and length, "Recording failed" / "Screenshot failed" with the tool's reason, "No active window", and "Copied" with the text or the image thumbnail when Enter copies from clipboard history (`;`). `Capture` gained `recorded(path, seconds)` and `failed(what, reason)`.
 - **IPC for scripts:** `osd say(icon, text)` and `osd say2(icon, text, subtitle)`, shown for `Config.osd.hideDelay`. Not `show`: `qs ipc call osd show …` parses as `qs ipc show`. Examples in `docs/SCRIPTING.md`.
 - **Dropped at the user's request:** the `Tasks` service and its IPC (`add`, `update`, `finish`, `fail`, `remove`, `list`), the progress ring in the island, and the Overview tasks card. A long command reports its end with `osd say2` instead.
+
+## R1. Island redesign: hover peek and Control tab
+
+Spec and design record: [`docs/ISLAND-R1.md`](ISLAND-R1.md); the final rules are in `docs/ISLAND.md`. Done, with these differences from the spec:
+
+- Sparklines are a `Canvas` (`components/Sparkline.qml`), not a `Shape`: `Shape` paths inside the morphing island froze the shell at ~94% CPU when switching to or from System, with either renderer.
+- A new `display` detail section (brightness, night light, warmth, schedule), opened from the Display slider's chevron and the night light tile.
+- No Power tile: power stays on the header's power button.
+- The header's tab gap dropped from 28 to 14 so five tabs, battery and power fit in Control's 440.
+- Built in four steps but committed once.
 
 ## F8. Quick utilities
 

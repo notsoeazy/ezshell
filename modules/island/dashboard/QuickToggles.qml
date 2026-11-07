@@ -3,15 +3,13 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.components
-import qs.modules.island.dashboard.cards
 import qs.services
 import qs.state
 import qs.themes
 import qs.utils
 
-// The E2 quick toggles, icon-only in the bento (frame 14), with the notifications summary under them.
-// Tiles keep the tile rule: left click toggles, right click opens the detail section.
-Card {
+// Control tab tiles (docs/ISLAND-R1.md): two columns of pill tiles and a column of round buttons.
+GridLayout {
     id: root
 
     required property string screenName
@@ -28,159 +26,116 @@ Card {
         Visibility.openByPointer(section, root.screenName);
     }
 
-    // "Discord, Firefox": the apps behind the unread notifications, newest first, without repeats.
-    function senders(): string {
-        const apps = [...Notifs.list].reverse().map(n => n.appName).filter(a => a !== "");
-        return [...new Set(apps)].join(", ");
-    }
+    columns: 3
+    rowSpacing: Appearance.island.control.gap
+    columnSpacing: Appearance.island.control.gap
 
-    icon: "tune"
-    title: "Quick toggles"
+    // A 44 px round button, filled primary while its state is on.
+    component Round: StyledRect {
+        id: round
 
-    GridLayout {
-        Layout.fillWidth: true
-        // Two rows of four.
-        columns: 4
-        rowSpacing: Appearance.spacing.normal
-        columnSpacing: Appearance.spacing.normal
+        property string icon: ""
+        property bool active: false
 
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: Icons.wifi(Wifi.enabled, Wifi.connected, Wifi.strength)
-            label: "Wi‑Fi"
-            status: root.wifiStatus()
-            active: Wifi.enabled
-            onToggled: Wifi.toggle()
-            onOpened: root.open("wifi")
-        }
+        signal clicked
 
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: Icons.bluetooth(Bt.enabled, Bt.connected.length > 0)
-            label: "Bluetooth"
-            status: Bt.enabled ? (Bt.connectedName !== "" ? Bt.connectedName : "On") : "Off"
-            active: Bt.enabled
-            onToggled: Bt.toggle()
-            onOpened: root.open("bluetooth")
-        }
+        implicitWidth: Appearance.island.control.round
+        implicitHeight: Appearance.island.control.round
+        radius: height / 2
+        color: round.active ? Colors.primary : Colors.surfaceContainerHigh
 
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: "nightlight"
-            label: "Night light"
-            status: NightLight.enabled ? `${NightLight.temperature} K` : "Off"
-            active: NightLight.enabled
-            hasDetail: false
-            onToggled: NightLight.toggle()
-        }
-
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: "do_not_disturb_on"
-            label: "Do not disturb"
-            status: Notifs.dnd ? "On" : "Off"
-            active: Notifs.dnd
-            hasDetail: false
-            onToggled: Notifs.toggleDnd()
-        }
-
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: Audio.micMuted ? "mic_off" : "mic"
-            label: "Microphone"
-            status: Audio.micMuted ? "Muted" : "On"
-            active: !Audio.micMuted
-            onToggled: Audio.toggleMicMute()
-            onOpened: root.open("audio")
-        }
-
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: "coffee"
-            label: "Keep awake"
-            status: Idle.inhibited ? "On" : "Off"
-            active: Idle.inhibited
-            hasDetail: false
-            onToggled: Idle.toggleInhibit()
-        }
-
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: "sports_esports"
-            label: "Game mode"
-            status: GameMode.active ? "On" : "Off"
-            active: GameMode.active
-            hasDetail: false
-            onToggled: GameMode.toggle()
-        }
-
-        Tile {
-            Layout.fillWidth: true
-            compact: true
-            icon: "bolt"
-            label: "Power"
-            status: Battery.profileLabel(Battery.profile)
-            toggleable: false
-            onOpened: root.open("power")
-        }
-    }
-
-    StyledRect {
-        Layout.fillWidth: true
-        implicitHeight: Appearance.control.borderWidth
-        color: Colors.outlineVariant
-    }
-
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: Appearance.island.expanded.gap
-
-        StyledRect {
-            implicitWidth: Appearance.island.expanded.iconBox
-            implicitHeight: Appearance.island.expanded.iconBox
-            radius: height / 2
-            color: Colors.tertiaryContainer
-
-            MaterialIcon {
-                anchors.centerIn: parent
-                text: Notifs.dnd ? "notifications_off" : "notifications"
-                color: Colors.tertiaryContainerFg
-            }
-        }
-
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 0
-
-            StyledText {
-                text: Notifs.count > 0 ? `${Notifs.count} new` : "No notifications"
-                font.weight: Font.Medium
-            }
-
-            StyledText {
-                Layout.fillWidth: true
-                visible: text !== ""
-                text: root.senders()
-                elide: Text.ElideRight
-                color: Colors.surfaceVariantFg
-                font.pixelSize: Appearance.font.size.small
-            }
+        Behavior on color {
+            CAnim {}
         }
 
         MaterialIcon {
-            text: "chevron_right"
-            color: Colors.surfaceVariantFg
+            anchors.centerIn: parent
+            text: round.icon
+            fill: round.active ? 1 : 0
+            color: round.active ? Colors.primaryFg : Colors.surfaceFg
         }
 
         TapHandler {
-            onTapped: Visibility.push("notifications")
+            onTapped: round.clicked()
         }
+    }
+
+    Tile {
+        Layout.fillWidth: true
+        icon: Icons.wifi(Wifi.enabled, Wifi.connected, Wifi.strength)
+        label: "Wi‑Fi"
+        status: root.wifiStatus()
+        active: Wifi.enabled
+        onToggled: Wifi.toggle()
+        onOpened: root.open("wifi")
+    }
+
+    Tile {
+        Layout.fillWidth: true
+        icon: "do_not_disturb_on"
+        label: "Focus"
+        status: Notifs.dnd ? "Do not disturb" : "Off"
+        active: Notifs.dnd
+        hasDetail: false
+        onToggled: Notifs.toggleDnd()
+    }
+
+    Round {
+        icon: "lock"
+        onClicked: {
+            Visibility.close();
+            Session.lock();
+        }
+    }
+
+    Tile {
+        Layout.fillWidth: true
+        icon: Icons.bluetooth(Bt.enabled, Bt.connected.length > 0)
+        label: "Bluetooth"
+        status: Bt.enabled ? (Bt.connectedName !== "" ? Bt.connectedName : "On") : "Off"
+        active: Bt.enabled
+        onToggled: Bt.toggle()
+        onOpened: root.open("bluetooth")
+    }
+
+    Tile {
+        Layout.fillWidth: true
+        icon: "nightlight"
+        label: "Night light"
+        status: NightLight.enabled ? `${NightLight.temperature} K` : "Off"
+        active: NightLight.enabled
+        onToggled: NightLight.toggle()
+        onOpened: root.open("display")
+    }
+
+    Round {
+        icon: "settings"
+        onClicked: Visibility.open("settings", "")
+    }
+
+    Tile {
+        Layout.fillWidth: true
+        icon: "sports_esports"
+        label: "Game mode"
+        status: GameMode.active ? "On" : "Off"
+        active: GameMode.active
+        hasDetail: false
+        onToggled: GameMode.toggle()
+    }
+
+    Tile {
+        Layout.fillWidth: true
+        icon: "coffee"
+        label: "Keep awake"
+        status: Idle.inhibited ? "On" : "Off"
+        active: Idle.inhibited
+        hasDetail: false
+        onToggled: Idle.toggleInhibit()
+    }
+
+    Round {
+        icon: Audio.micMuted ? "mic_off" : "mic"
+        active: Audio.micMuted
+        onClicked: Audio.toggleMicMute()
     }
 }

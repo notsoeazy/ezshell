@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import qs.components
+import qs.config
 import qs.services
 import qs.state
 import qs.themes
@@ -26,7 +27,11 @@ StyledRect {
     // Panels (island sections and the launcher) win over temporary modes, on their own screen only.
     readonly property bool knownPanel: Visibility.expanded || Visibility.panel === "launcher"
     readonly property bool panelHere: root.knownPanel && Visibility.screen === root.screenName
-    readonly property string temporaryOrRest: Visibility.temporary !== "" ? Visibility.temporary : root.restMode
+    // The hover peek (docs/ISLAND-R1.md) only replaces the plain resting pill: not under a fullscreen
+    // window or while hidden, and anything else showing wins over it.
+    readonly property bool peekHere: Visibility.peekScreen === root.screenName && root.restMode === "rest"
+    readonly property string idleMode: root.peekHere ? "peek" : root.restMode
+    readonly property string temporaryOrRest: Visibility.temporary !== "" ? Visibility.temporary : root.idleMode
     readonly property string underlying: root.panelHere ? Visibility.panel : root.temporaryOrRest
     // Polkit outranks everything, panels included. Visibility isn't touched, so when the prompt ends the
     // island goes back to whatever was open underneath.
@@ -63,6 +68,8 @@ StyledRect {
             return Qt.size(island.notification.width, layers.notificationHeight);
         case "launcher":
             return Qt.size(island.launcher.width, layers.launcherHeight + 2 * island.launcher.padding);
+        case "peek":
+            return Qt.size(Math.max(layers.restWidth + 2 * island.padding, island.peek.width), island.peek.height);
         case "message":
             return root.messageSize();
         case "polkit":
@@ -83,8 +90,19 @@ StyledRect {
         return Qt.size(Math.min(Math.max(width, message.minWidth), message.maxWidth), height);
     }
 
-    // Detail sections and the capture section are narrow; tabs and wallpapers are dashboard-wide.
+    // Each tab has its own width (docs/ISLAND-R1.md); detail sections and capture are narrow; wallpapers
+    // is dashboard-wide.
     function sectionWidth(mode: string): real {
+        const dashboard = Appearance.island.dashboard;
+        const tabs = {
+            control: dashboard.controlWidth,
+            media: dashboard.mediaWidth,
+            system: dashboard.systemWidth,
+            weather: dashboard.weatherWidth,
+            calendar: dashboard.calendarWidth
+        };
+        if (tabs[mode] !== undefined)
+            return tabs[mode];
         const expanded = Appearance.island.expanded;
         return Visibility.details.includes(mode) || mode === "capture" ? expanded.sectionWidth : expanded.tabWidth;
     }
@@ -119,17 +137,58 @@ StyledRect {
     width: root.fromWidth + (root.target.width - root.fromWidth) * root.progress
     height: root.fromHeight + (root.target.height - root.fromHeight) * root.progress
     y: root.fromY + (root.targetY - root.fromY) * root.progress
-    radius: Math.min(height / 2, Appearance.island.cornerRadius)
+    radius: Math.min(height / 2, root.peekHere ? Appearance.island.peek.radius : Appearance.island.cornerRadius)
     color: Colors.island
     border.width: Appearance.island.outlineWidth
     border.color: Battery.low ? root.alertOutline : root.normalOutline
     clip: true
     onModeChanged: root.retarget()
 
-    // Background, clock or date open the overview; icons with their own TapHandler take the click first.
+    // Background, clock or date open Control; icons with their own TapHandler take the click first.
     TapHandler {
-        enabled: root.mode === "rest"
-        onTapped: Visibility.openByPointer("overview", root.screenName)
+        id: tap
+
+        enabled: root.mode === "rest" || root.mode === "peek"
+        onTapped: Visibility.openByPointer("control", root.screenName)
+    }
+
+    // Hover peek: opens after a short hover on the resting pill, closes a little after the pointer leaves
+    // (re-entering cancels that). Not while a button is held, and never over another mode. UI-only timers.
+    HoverHandler {
+        id: hover
+
+        enabled: Config.island.hoverPeek
+        onHoveredChanged: {
+            if (hover.hovered) {
+                closePeek.stop();
+                if (root.mode === "rest" && !tap.pressed)
+                    openPeek.restart();
+            } else {
+                openPeek.stop();
+                if (Visibility.peekScreen === root.screenName)
+                    closePeek.restart();
+            }
+        }
+    }
+
+    Timer {
+        id: openPeek
+
+        interval: Appearance.island.peek.openDelay
+        onTriggered: {
+            if (hover.hovered && root.mode === "rest" && !tap.pressed)
+                Visibility.peekScreen = root.screenName;
+        }
+    }
+
+    Timer {
+        id: closePeek
+
+        interval: Appearance.island.peek.closeDelay
+        onTriggered: {
+            if (Visibility.peekScreen === root.screenName)
+                Visibility.peekScreen = "";
+        }
     }
 
     // Two animations, one per curve: setting easing.bezierCurve switches an easing to BezierSpline, so a

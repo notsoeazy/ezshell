@@ -1,4 +1,5 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
@@ -29,6 +30,24 @@ Singleton {
     readonly property real gpu: internal.gpu
     // Disk usage changes slowly, so df runs on every Nth sample only.
     readonly property int diskEvery: 10
+    // The last `historyLength` samples, oldest first, for the System tab's sparklines (0-1, and bytes/s).
+    readonly property int historyLength: 60
+    readonly property string csv: "--format=csv,noheader,nounits"
+    readonly property list<real> cpuHistory: internal.cpuHistory
+    readonly property list<real> memHistory: internal.memHistory
+    readonly property list<real> downHistory: internal.downHistory
+    readonly property list<real> upHistory: internal.upHistory
+    // Mounted filesystems worth showing: [{ mount, used, size }], root first (home too when separate).
+    readonly property var disks: internal.disks
+    // [{ label, celsius }] from hwmon: the CPU, each NVMe drive, Wi‑Fi when it reports one; plus the GPU
+    // while it's awake.
+    readonly property var sensors: root.sensorList(internal.sensorReadings, internal.gpuTemperature)
+    readonly property string kernel: kernelFile.text().trim()
+    // Seconds since boot, read on every sample.
+    readonly property real uptime: internal.uptime
+    // "Hyprland · wayland"
+    readonly property string session: `${Quickshell.env("XDG_CURRENT_DESKTOP")} · ${root.sessionType}`
+    readonly property string sessionType: Quickshell.env("XDG_SESSION_TYPE") ?? ""
 
     function setActive(active: bool): void {
         root.active = active;
@@ -38,13 +57,53 @@ Singleton {
         cpuFile.reload();
         memFile.reload();
         netFile.reload();
+        uptimeFile.reload();
+        for (let i = 0; i < sensorFiles.count; i++)
+            (sensorFiles.objectAt(i) as FileView)?.reload();
         if (internal.tempPath !== "")
             tempFile.reload();
         if (internal.gpuPath !== "")
             gpuPower.reload();
         if (internal.samples % root.diskEvery === 0)
-            disk.exec(["df", "--block-size=1", "--output=used,size", "/"]);
+            disk.exec(["df", "--block-size=1", "--output=target,used,size", "/", "/home"]);
         internal.samples++;
+        root.record();
+    }
+
+    // Appends the latest readings to the histories, dropping the oldest past historyLength.
+    function record(): void {
+        const push = (list, value) => [...list, value].slice(-root.historyLength);
+        internal.cpuHistory = push(internal.cpuHistory, internal.cpu);
+        internal.memHistory = push(internal.memHistory, root.mem);
+        internal.downHistory = push(internal.downHistory, internal.netDown);
+        internal.upHistory = push(internal.upHistory, internal.netUp);
+    }
+
+    function sensorList(readings: var, gpu: real): var {
+        const list = internal.sensorPaths.map(s => ({
+                    label: s.label,
+                    celsius: readings[s.path] ?? -1
+                })).filter(s => s.celsius >= 0);
+        if (gpu >= 0)
+            list.splice(1, 0, {
+                label: "GPU",
+                celsius: gpu
+            });
+        return list;
+    }
+
+    // df rows: "<mount> <used> <size>"; the same filesystem twice (home on root) shows once.
+    function parseDisks(text: string): void {
+        const rows = text.trim().split("\n").slice(1).map(l => l.trim().split(/\s+/));
+        const disks = rows.map(r => ({
+                    mount: r[0],
+                    used: Number(r[1]),
+                    size: Number(r[2])
+                }));
+        internal.disks = disks.filter((d, i) => disks.findIndex(o => o.used === d.used && o.size === d.size) === i);
+        const root_ = internal.disks.find(d => d.mount === "/");
+        internal.diskUsed = root_?.used ?? 0;
+        internal.diskTotal = root_?.size ?? 0;
     }
 
     function parseCpu(text: string): void {
@@ -81,12 +140,28 @@ Singleton {
         });
     }
 
-    // Prefers the CPU package sensor; acpitz is a last resort.
+    // Prefers the CPU package sensor; acpitz is a last resort. The sensors list adds each NVMe drive and
+    // the Wi‑Fi card when they have a hwmon.
     function parsePaths(text: string): void {
         const lines = text.trim().split("\n").map(l => l.split(" "));
         const hwmon = name => lines.find(l => l[0] === "hwmon" && l[2] === name)?.[1];
         const sensor = ["coretemp", "k10temp", "zenpower", "acpitz"].map(hwmon).find(path => path !== undefined);
         internal.tempPath = sensor ?? "";
+        const nvme = lines.filter(l => l[0] === "hwmon" && l[2] === "nvme").map((l, i, all) => ({
+                    label: all.length > 1 ? `NVMe ${i + 1}` : "NVMe",
+                    path: l[1]
+                }));
+        const wifi = lines.filter(l => l[0] === "hwmon" && /^iwlwifi|^ath|^mt7/.test(l[2])).map(l => ({
+                    label: "Wi‑Fi",
+                    path: l[1]
+                }));
+        const cpu = sensor ? [
+            {
+                label: "CPU",
+                path: sensor
+            }
+        ] : [];
+        internal.sensorPaths = [...cpu, ...nvme, ...wifi];
         internal.gpuPath = lines.find(l => l[0] === "gpu")?.[1] ?? "";
     }
 
@@ -125,6 +200,16 @@ Singleton {
         property real netUp: 0
         property real temperature: -1
         property real gpu: 0
+        property real gpuTemperature: -1
+        property real uptime: 0
+        property list<real> cpuHistory: []
+        property list<real> memHistory: []
+        property list<real> downHistory: []
+        property list<real> upHistory: []
+        property var disks: []
+        // [{ label, path }] of hwmon directories, and path → °C from their temp1_input.
+        property var sensorPaths: []
+        property var sensorReadings: ({})
     }
 
     Timer {
@@ -183,7 +268,41 @@ Singleton {
         onLoaded: {
             internal.gpuAwake = text().trim() === "active";
             if (internal.gpuAwake)
-                gpuQuery.exec(["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"]);
+                gpuQuery.exec(["nvidia-smi", "--query-gpu=utilization.gpu,temperature.gpu", root.csv]);
+            else
+                internal.gpuTemperature = -1;
+        }
+    }
+
+    FileView {
+        id: uptimeFile
+
+        path: "/proc/uptime"
+        onLoaded: internal.uptime = Number(text().split(" ")[0])
+    }
+
+    FileView {
+        id: kernelFile
+
+        path: "/proc/sys/kernel/osrelease"
+    }
+
+    // One reader per sensor; sample() reloads them all.
+    Instantiator {
+        id: sensorFiles
+
+        model: internal.sensorPaths
+
+        FileView {
+            id: sensorFile
+
+            required property var modelData
+
+            // Millidegrees Celsius.
+            path: `${sensorFile.modelData.path}/temp1_input`
+            onLoaded: internal.sensorReadings = Object.assign({}, internal.sensorReadings, {
+                [sensorFile.modelData.path]: Math.round(Number(sensorFile.text()) / 1000)
+            })
         }
     }
 
@@ -191,7 +310,11 @@ Singleton {
         id: gpuQuery
 
         stdout: StdioCollector {
-            onStreamFinished: internal.gpu = Number(text.trim()) / 100 || 0
+            onStreamFinished: {
+                const [load, celsius] = text.trim().split(",").map(v => Number(v.trim()));
+                internal.gpu = load / 100 || 0;
+                internal.gpuTemperature = Number.isFinite(celsius) ? celsius : -1;
+            }
         }
     }
 
@@ -199,11 +322,7 @@ Singleton {
         id: disk
 
         stdout: StdioCollector {
-            onStreamFinished: {
-                const [used, size] = text.trim().split("\n")[1]?.trim().split(/\s+/).map(Number) ?? [0, 0];
-                internal.diskUsed = used;
-                internal.diskTotal = size;
-            }
+            onStreamFinished: root.parseDisks(text)
         }
     }
 

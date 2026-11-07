@@ -35,6 +35,8 @@ QtObject {
     readonly property LauncherTokens launcher: LauncherTokens {}
     readonly property ExpandedTokens expanded: ExpandedTokens {}
     readonly property DashboardTokens dashboard: DashboardTokens {}
+    readonly property ControlTokens control: ControlTokens {}
+    readonly property PeekTokens peek: PeekTokens {}
     readonly property WallpaperTokens wallpapers: WallpaperTokens {}
     readonly property PolkitTokens polkit: PolkitTokens {}
     readonly property CaptureTokens capture: CaptureTokens {}
@@ -144,20 +146,22 @@ QtObject {
 
     // Expanded island: sections and dashboard tabs (docs/ISLAND.md, "Expanding the island").
     component ExpandedTokens: QtObject {
+        id: expanded
+
         // Dashboard tabs (ISLAND.md: 820 wide) and the narrower detail sections.
         readonly property int tabWidth: 820
         readonly property int sectionWidth: 560
         // Tallest section; the island window is sized from it, so sections must stay under it.
         readonly property int maxHeight: 560
         readonly property int padding: 24
-        readonly property int tabGap: 28
+        // The tallest a page under the header can be; taller content (Control) scrolls inside it.
+        readonly property int pageMaxHeight: expanded.maxHeight - 2 * expanded.padding - expanded.header - expanded.gap
+        readonly property int tabGap: 14
         readonly property int gap: 12
         readonly property int header: 40
         readonly property int tabIndicator: 3
         readonly property int cardRadius: 16
         readonly property int cardPadding: 16
-        readonly property int tile: 56
-        readonly property int tileRadius: 16
         // Secondary text (a tile's state line) is the foreground color at this opacity.
         readonly property real secondaryOpacity: 0.7
         readonly property int row: 52
@@ -168,22 +172,65 @@ QtObject {
     }
 
     // Dashboard cards (docs/ISLAND.md "Dashboard tabs" card table, frames 04, 14, 15).
+    // Hover peek (docs/ISLAND-R1.md): the resting line unchanged on top, a second line under it.
+    component PeekTokens: QtObject {
+        readonly property int width: 600
+        readonly property int height: 88
+        readonly property int radius: 26
+        readonly property int bottomPadding: 12
+        readonly property int appIcon: 16
+        readonly property int appMaxWidth: 160
+        readonly property int text: 12
+        readonly property int chipArt: 26
+        readonly property int chipArtRadius: 7
+        readonly property int chipRadius: 12
+        readonly property int chipPadding: 4
+        // ms: hover this long before it opens; leave this long before it closes.
+        readonly property int openDelay: 150
+        readonly property int closeDelay: 250
+    }
+
+    // The Control tab (docs/ISLAND-R1.md): pill tiles, round buttons, slider cards, the media row.
+    component ControlTokens: QtObject {
+        readonly property int gap: 8
+        readonly property int tile: 44
+        readonly property int tileIcon: 30
+        readonly property int round: 44
+        readonly property int cardRadius: 16
+        readonly property int cardPadding: 8
+        readonly property int cardSidePadding: 12
+        readonly property int track: 20
+        readonly property int art: 36
+        readonly property int artRadius: 9
+        readonly property int title: 13
+        readonly property int notifIcon: 28
+        readonly property int notifIconRadius: 8
+        // The notification center's empty state ("All caught up").
+        readonly property int emptyHeight: 72
+    }
+
     component DashboardTokens: QtObject {
+        // Each tab's width; the island morphs between them. Detail sections use expanded.sectionWidth.
+        readonly property int controlWidth: 440
+        // System tab sparklines; weather tab icons and capsules.
+        readonly property int sparkline: 36
+        readonly property real sparklineStroke: 1.5
+        readonly property real sparklineFill: 0.18
+        readonly property int weatherIcon: 40
+        readonly property int weatherHero: 40
+        readonly property int hourCapsule: 38
+        readonly property int rangeBar: 6
+        readonly property int dayLabel: 56
+        readonly property int mediaWidth: 820
+        readonly property int systemWidth: 720
+        readonly property int weatherWidth: 560
+        readonly property int calendarWidth: 440
         readonly property int heroClock: 46
         readonly property int headerIcon: 16
-        readonly property int topRow: 128
-        readonly property int statTile: 96
-        readonly property int cardArt: 64
         readonly property int mediaArt: 112
         readonly property int artRadius: 12
         readonly property int playButton: 44
-        readonly property int compactTile: 44
         readonly property int dayCell: 26
         readonly property int bigDayCell: 40
-        readonly property int notificationRow: 64
-        // Width shares of the bento rows (frame 14) and of the System tab (clock card : tiles).
-        readonly property list<real> topShares: [2, 3, 4]
-        readonly property list<real> bottomShares: [4, 3, 3]
-        readonly property list<real> systemShares: [1, 2]
     }
 }

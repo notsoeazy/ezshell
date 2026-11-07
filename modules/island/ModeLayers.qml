@@ -26,12 +26,14 @@ Item {
     readonly property real messageWidth: messageLayer.implicitWidth
     readonly property real messageHeight: messageLayer.implicitHeight
 
+    // Pinned to the top 44 px, so the peek's first line is this same layer, unmoved (the clock never shifts).
     ModeLayer {
         id: restLayer
 
-        anchors.centerIn: parent
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
         height: Appearance.island.height
-        shown: root.mode === "rest"
+        shown: root.mode === "rest" || root.mode === "peek"
         persistent: true
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
@@ -138,6 +140,23 @@ Item {
         fadeInDelay: root.fadeInDelay
         sourceComponent: Component {
             MessageView {}
+        }
+    }
+
+    // The peek's second line, right under the first.
+    ModeLayer {
+        anchors.top: parent.top
+        anchors.topMargin: Appearance.island.height
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: Appearance.island.padding
+        anchors.rightMargin: Appearance.island.padding
+        shown: root.mode === "peek"
+        fadeInDelay: root.fadeInDelay
+        sourceComponent: Component {
+            PeekView {
+                screenName: root.screenName
+            }
         }
     }
 }

@@ -46,7 +46,7 @@ Provider {
                     run: run,
                     confirm: confirm
                 });
-        const list = [open("overview", "Overview", "dashboard"), open("media", "Media", "music_note")];
+        const list = [open("control", "Control", "tune"), open("media", "Media", "music_note")];
         list.push(open("system", "System", "monitoring"), open("calendar", "Calendar", "calendar_month"));
         list.push(open("wifi", "Wi‑Fi", "wifi"), open("bluetooth", "Bluetooth", "bluetooth"));
         list.push(open("audio", "Audio", "volume_up"), open("power", "Power", "battery_full"));
@@ -57,7 +57,7 @@ Provider {
             icon: "notifications",
             group: "Island",
             run: () => {
-                Visibility.open("overview", "");
+                Visibility.open("control", "");
                 Visibility.push("notifications");
             }
         });

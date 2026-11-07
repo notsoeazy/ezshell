@@ -22,33 +22,36 @@ modules/island/
   Trailing.qml          Indicators + status icons
   Indicators.qml        recording, mic/camera, DND, unread badge (highest priority first)
   Workspaces.qml        dots and active pill
+  PeekView.qml          hover peek's second line: focused app, media chip, notification status
   Expanded.qml          expanded island: header (tabs or back chevron) + Loader for Visibility.panel
   ExpandedHeader.qml    tab row, or back chevron + title + main switch
   dashboard/
-    OverviewTab.qml  MediaTab.qml  SystemTab.qml  CalendarTab.qml
-    WeatherCard.qml  MediaCard.qml  SystemCard.qml  QuickToggles.qml   Overview-only cards
-    NotificationList.qml   sub-page pushed from the Overview notifications summary
-    Tile.qml            quick-toggle tile (frame 07), tile rule built in; `compact` = icon only (bento)
-    cards/              Card (shell), ClockCard, MonthGrid, MediaControls: used by two or more tabs
-    cards/              only cards used by two or more tabs
+    ControlTab.qml  MediaTab.qml  SystemTab.qml  WeatherTab.qml  CalendarTab.qml
+    QuickToggles.qml    Control's tiles and round buttons
+    Tile.qml            pill tile with a round icon, tile rule built in
+    ControlSlider.qml   Control's Sound and Display sliders
+    MediaRow.qml        Control's media row (only while a player is active)
+    NotificationCenter.qml  Control's notification list: dismiss, Clear all, empty state
+    cards/              Card (shell), ClockCard, MonthGrid, MediaControls: only cards used by two or more tabs
   sections/
-    WifiSection.qml  BluetoothSection.qml  AudioSection.qml  PowerSection.qml
+    WifiSection.qml  BluetoothSection.qml  AudioSection.qml  PowerSection.qml  DisplaySection.qml
     WifiPassword.qml    sub-page pushed from WifiSection
     ListRow.qml         list row (frame 08 style), shared by the sections
     SettingsLink.qml    "… settings" link at the end of each section
 ```
 
 - Island mode lives in `Visibility`:
-  - **`panel`** is the expanded section opened on purpose: a tab (`overview`, `media`, `system`, `calendar`) or a detail section (`wifi`, `bluetooth`, `audio`, `power`).
+  - **`panel`** is the expanded section opened on purpose: a tab (`control`, `media`, `system`, `weather`, `calendar`) or a detail section (`wifi`, `bluetooth`, `audio`, `power`, `display`). `overview` and `notifications` are aliases for `control` (`Visibility.canonical`); `notifications` also scrolls Control to the notification center.
+  - **`peekScreen`** is the screen whose island is peeking, set by hover or `island peek on|off`.
   - **`stack`** holds sub-pages inside a section, e.g. `["password"]`.
   - **`temporary`** holds short modes: `volume`, `brightness`, `mic`, `notification`, `music`. (`transient` is a reserved word in QML, hence `temporary`.)
   - The launcher uses the same `panel` property. The island ignores names it doesn't know.
   - The settings app is the exception: its own `settingsPage` (E1), so the window stays open while the island changes. `open("settings", page)` takes a page as the second argument, and collapses the island.
-- **Priority:** expanded (`panel` is an island section) > temporary > rest. Rest is `hidden` under a true fullscreen window.
+- **Priority:** polkit > expanded (`panel` is an island section) > temporary > peek > rest. Rest is `hidden` under a true fullscreen window.
   - While expanded, temporary modes don't take over; the open section already shows live values.
   - Banners that arrive while expanded are skipped. They still land in the notification list.
 - The island never stores its own open state.
-- New data goes in services: `Weather` (new) and `SysInfo` (new, CPU/RAM/GPU/disk/net/temp), built as DESIGN.md "What every service looks like". Each gets an `IpcHandler` and no UI knowledge. `SysInfo` runs its `Timer` only while the dashboard is open, driven by a property the module sets (`SysInfo.active`).
+- New data goes in services: `Weather` (new) and `SysInfo` (new, CPU/RAM/GPU/disk/net/temp), built as DESIGN.md "What every service looks like". Each gets an `IpcHandler` and no UI knowledge. `SysInfo` runs its `Timer` only while the System tab is open, and `Weather` fetches only while the Weather tab is open, each driven by a property the module sets (`SysInfo.active`, `Weather.active`).
 - Add every new size as an `Appearance.island.*` token and every new color as a `Colors` role. No literals in island files.
 
 ## Shell of the island
@@ -65,7 +68,7 @@ modules/island/
 | Status icon size | 18 | `Appearance.font.size.icon` |
 | Clock | `HH:mm`, 15px SemiBold, `onSurface` | `Appearance.font.size.clock` |
 | Date | `ddd d MMM` ("Thu 5 Nov"), 13px Medium, `onSurfaceVariant` | `Appearance.font.size.normal` |
-| Dashboard | 820 wide, radius 28, height from Figma | `Appearance.island.dashboard.*` |
+| Dashboard | width per tab (control 440 … media 820), radius 28 | `Appearance.island.dashboard.*` |
 | Compact music, media expanded, OSD, notification banner, quick settings, launcher | sizes from Figma frames | `Appearance.island.<mode>.*` |
 
 Text uses `Appearance.font.family` (Google Sans Flex). Icons use `MaterialIcon` only.
@@ -168,7 +171,7 @@ Each entry in `Config.workspaces.special` gets a `kind` field. Default is `"work
 
 ## Expanding the island
 
-Clicking the island expands it **in place**: the same surface morphs from the pill into the expanded island. There is no separate popup and no hover-to-open. Quick controls (Wi‑Fi, Bluetooth, audio, power) live inside the expanded island; deeper settings live in the settings app.
+Clicking the island expands it **in place**: the same surface morphs from the pill into the expanded island. There is no separate popup. Hovering only peeks (below); it never opens a panel. Quick controls (Wi‑Fi, Bluetooth, audio, power) live inside the expanded island; deeper settings live in the settings app.
 
 ### Windows never move
 
@@ -186,13 +189,13 @@ The expanded island floats over windows, tiled or floating. The reserved gap at 
 ### State and IPC (`state/Visibility.qml`)
 
 ```qml
-property string panel: ""            // "" = collapsed; or overview | media | system | calendar | wifi | bluetooth | audio | power | wallpapers | launcher | settings
+property string panel: ""            // "" = collapsed; or control | media | system | weather | calendar | wifi | bluetooth | audio | power | display | wallpapers | capture | launcher | settings
 property list<string> stack: []      // sub-pages inside the section
 property string screen: ""           // monitor the panel is open on
 
 function open(name: string, mon: string): void   // expand straight to a section; mon "" = focused monitor
 function toggle(name: string): void              // close only if that exact section is open, else switch to it
-function back(): void                            // pop sub-page → detail section → overview → collapse
+function back(): void                            // pop sub-page → detail section → control → collapse
 function close(): void                           // collapse, clear stack and drafts
 ```
 
@@ -206,9 +209,10 @@ function close(): void                           // collapse, clear stack and dr
 | `toggle(name)` | expand, switch, or collapse if already on it (existing function, now section-aware) |
 | `back` | one level back |
 | `close` | collapse |
+| `island peek on\|off` | show or close the hover peek on the focused monitor (for testing) |
 
 ```
-bind = SUPER, A, exec, qs -c ezshell ipc call panels toggle overview
+bind = SUPER, A, exec, qs -c ezshell ipc call panels toggle control
 bind = SUPER, W, exec, qs -c ezshell ipc call panels toggle wifi
 ```
 
@@ -218,7 +222,7 @@ One temporary mode, `message`, carries every short message: mic mute, capture fe
 
 ### Standalone sections
 
-`Visibility.standalone` holds sections opened only by keybind or IPC, never from the overview; `back()` and Esc collapse them.
+`Visibility.standalone` holds sections opened only by keybind or IPC, never from Control; `back()` and Esc collapse them.
 
 - **`wallpapers`** (`panels toggle wallpapers`, Super+K): a search field over a single row of thumbnails (`components/WallpaperGrid.qml` with `strip: true`). The selection stays centered and the row slides under it; ←/→, the wheel or a touchpad swipe move it, and dragging the row works too. Clicking a side thumbnail centers it; Enter or a click on the centered one applies it and collapses. The wallpaper in use has a check; the footer shows the selected file's path relative to the folder. The search field takes Exclusive keyboard focus, like the launcher.
 
@@ -228,7 +232,7 @@ One temporary mode, `message`, carries every short message: mic mute, capture fe
 
 | Click target on the resting island | Result |
 | --- | --- |
-| Background, clock or date | `overview` |
+| Background, clock or date (rest or peek) | `control` |
 | Workspace dots | switch workspace, no expand |
 | Special chip | toggle that special workspace, no expand |
 | Music indicator | `media` |
@@ -236,25 +240,38 @@ One temporary mode, `message`, carries every short message: mic mute, capture fe
 | Bluetooth icon | `bluetooth` |
 | Volume icon | `audio`; scrolling on it changes volume without expanding |
 | Battery icon | `power` |
-| Notification badge | `overview` (notifications card) |
+| Notification badge | `notifications` (Control, scrolled to the notification center) |
+| Peek: app name | `control` |
+| Peek: media chip | `media`; its play/pause button only plays or pauses |
+| Peek: notification status | `notifications` |
 
-Each icon in `Leading` and `Trailing` has its own `TapHandler` that calls `Visibility.open(name, <this screen>)`. The background handler fires only when no icon took the click.
+Each icon in `Leading` and `Trailing` has its own `TapHandler` that calls `Visibility.open(name, <this screen>)`. The background handler fires only when no icon took the click. Nested `TapHandler`s that must win over the background use `gesturePolicy: TapHandler.ReleaseWithinBounds`, which grabs on press.
+
+### Hover peek
+
+Hovering the resting island for `peek.openDelay` (150 ms) grows it **taller** into `peek`; leaving it for `peek.closeDelay` (250 ms) returns it to rest. `Config.island.hoverPeek` turns it off. No keyboard focus, layer stays `Top`.
+
+- **Size:** `max(rest width + 2·padding, peek.width 600) × peek.height 88`, radius `peek.radius` 26.
+- **Line 1 is the rest layer itself**, anchored to the top and centred, so it is pixel-identical to rest and the clock never moves.
+- **Line 2** (`PeekView.qml`): focused app icon + name (or "Desktop") on the left; a media chip (art, title / artist, play/pause) centred, hidden with no player; notification status on the right ("All caught up", "N new" in `primary`, or "Do not disturb").
+- Peek starts only from rest. Any panel, temporary mode or polkit prompt closes it at once, and opening a panel clears `peekScreen`.
 
 ### Expanded layout and navigation
 
-- **Header on a tab** (`overview`, `media`, `system`, `calendar`): the tab row, with battery % and a power button on the right.
-- **Header on a detail section** (`wifi`, `bluetooth`, `audio`, `power`): a back chevron, the section title, and the section's main switch on the right (e.g. Wi‑Fi on/off).
-- **Esc goes back one level:** password → `wifi` → `overview` → collapsed. Clicking outside always collapses.
+- **Header on a tab** (`control`, `media`, `system`, `weather`, `calendar`): the tab row, with battery % and a power button on the right.
+- **Header on a detail section** (`wifi`, `bluetooth`, `audio`, `power`, `display`): a back chevron, the section title, and the section's main switch on the right (e.g. Wi‑Fi on/off).
+- **Esc goes back one level:** password → `wifi` → `control` → collapsed.
+- **Width per page** (`Surface.sectionWidth`, tokens in `IslandTokens.dashboard`): control 440, media 820, system 720, weather 560, calendar 440; detail sections and `capture` use `sectionWidth`, `wallpapers` the dashboard width. Every page is capped at `expanded.pageMaxHeight` and scrolls inside it. Clicking outside always collapses.
 - Content cross-fades on a section change (out ~80 ms, swap, in) while the size morphs.
 
 ### Quick controls vs the settings app
 
-**Tile rule (Overview quick toggles), used everywhere:**
+**Tile rule (Control tiles), used everywhere:**
 - the **icon** toggles;
 - the **body or chevron** opens its detail section;
 - right-click on a tile also opens detail.
 
-Tiles without an on/off state (power) open their section directly.
+Tiles without a detail (`hasDetail: false`: Focus, Game mode, Keep awake) toggle from anywhere on the tile. Power is reached from the header's power button, not a tile.
 
 | Section | In the island | Handed to the settings app |
 | --- | --- | --- |
@@ -262,6 +279,7 @@ Tiles without an on/off state (power) open their section directly.
 | Bluetooth | on/off, discover, device list with battery, connect, disconnect, pairing that needs no code | pairing that needs a PIN or passkey (Quickshell has no agent), trusted/blocked devices |
 | Audio | output and input volume, mute, default device | per-app routing, profiles |
 | Power | battery %, time left, power profile, lock, suspend, log out, reboot, power off | power and idle timeouts |
+| Display | brightness, night light on/off, warmth, schedule (off / sunset / fixed) | theme, scale, fixed schedule times |
 
 - Every detail section ends with a "… settings" link. It opens the settings app on the matching page, then collapses the island.
 - Sections call the existing `Wifi`, `Bt`, `Audio` and `Battery` services; no new data paths.
@@ -296,14 +314,21 @@ A polkit request outranks everything: `Surface.mode` is `polkit` on the monitor 
 
 ## Dashboard tabs
 
-The dashboard is the `overview`, `media`, `system` and `calendar` sections of the expanded island. A background click opens `overview`.
+The dashboard is the `control`, `media`, `system`, `weather` and `calendar` sections of the expanded island. A background click opens `control`. The design record is `docs/ISLAND-R1.md`.
 
-- **Header:** tabs Overview | Media | System | Calendar. Active tab = `primary` text + 3px `primary` indicator. Right side: battery % and a power button.
-- **Overview** (bento): top row clock card, weather card, media card (`primaryContainer`). Bottom row system card (CPU/RAM/temp/battery bars), calendar mini-month (today highlighted, event dots), quick toggles 3x2 + notifications summary.
-- **Media / System / Calendar:** expanded single-topic views. System shows CPU, RAM, GPU, disk, network and temp tiles.
+- **Header:** tabs Control | Media | System | Weather | Calendar. Active tab = `primary` text + 3px `primary` indicator. Right side: battery % and a power button.
+- **Control** (440 wide, scrolls):
+  - tiles in three columns: Wi‑Fi | Focus | Lock, Bluetooth | Night light | Settings, Game mode | Keep awake | Mic mute. Pill tiles (44 high, 30 px round icon, `primary` when on) in two columns, 44 px round buttons in the third;
+  - Sound slider (output name; the icon mutes, the chevron opens `audio`) and Display slider (the chevron opens `display`); both drag and scroll;
+  - a media row, only while a player is active; it opens `media`;
+  - the notification center: count and "Clear all" (second click confirms), a "Do not disturb is on" line, newest first with app icon, "App · 2m", summary and two body lines, ✕ on hover (slides out, then collapses), and a centred "All caught up" when empty.
+- **Media:** the full media controls (frame 04).
+- **System** (720): two columns of cards: Performance (CPU, RAM with sparklines), Network (rates with sparklines, SSID in the title), Storage (`/`, `/home`), Sensors (CPU, NVMe, Wi‑Fi, GPU or "Sleeping"), System (kernel, uptime, session).
+- **Weather** (560): now (icon, temperature, condition, place, feels like, humidity, wind), 12 hourly capsules (now on `primaryContainer`), 7 days with range bars on one shared week scale.
+- **Calendar:** clock card above the month grid.
 - One file per tab. Load the active tab with a `Loader`; inactive tabs are not instantiated.
 - The active tab is `Visibility.panel`, so `panels open system` deep-links to a tab too.
-- The full media controls (frame 04) live in the Media tab. The notification list lives in the Overview's notifications card (and later its own view).
+- **Sparklines** (`components/Sparkline.qml`) are a `Canvas`, never a `Shape`: `Shape` paths inside the morphing island froze the shell at ~94% CPU when switching tabs, with either renderer.
 
 | Card element | Value |
 | --- | --- |
@@ -337,11 +362,12 @@ The dashboard is the `overview`, `media`, `system` and `calendar` sections of th
 - [ ] Workspace indicator and date are never removed by an indicator. The special chip covers the indicator in place.
 - [ ] No island state stored outside `Visibility`; no data logic outside services.
 - [ ] New sizes and colors added as `Appearance.island.*` / `Colors` tokens.
-- [ ] Dashboard tabs are lazy-loaded; `SysInfo` polls only while the dashboard is open.
+- [ ] Dashboard tabs are lazy-loaded; `SysInfo` polls only while System is open, `Weather` fetches only while Weather is open.
+- [ ] Line 1 of the peek is pixel-identical to rest; peek never starts while anything else shows.
 - [ ] Expanding never moves or resizes a window: the exclusion window's zone stays at the resting height, and the island window is never resized.
 - [ ] Clicks outside the visible shape reach the windows below.
 - [ ] Each status icon opens its own section; `panels open <section>` does the same from a terminal.
 - [ ] Esc goes back one level; clicking outside collapses; typing a password never gets interrupted by a collapse.
-- [ ] Rapid toggling (`panels toggle overview` spam) never leaves the island at a wrong size.
+- [ ] Rapid toggling (`panels toggle control` spam) never leaves the island at a wrong size.
 - [ ] Matches the Figma frame for the state you changed.
 - [ ] DESIGN.md checklist passes.
