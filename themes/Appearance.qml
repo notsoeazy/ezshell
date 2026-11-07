@@ -21,9 +21,17 @@ Singleton {
     }
 
     component RoundingTokens: QtObject {
-        readonly property int small: 8
-        readonly property int normal: 16
+        id: rounding
+
+        // Bound from Config.theme.radiusScale in Island.qml (0.5 = sharp, 1 = normal, 1.5 = round).
+        property real scale: 1
+        readonly property int small: rounding.scaled(8)
+        readonly property int normal: rounding.scaled(16)
         readonly property int full: 1000
+
+        function scaled(px: real): int {
+            return Math.max(0, Math.round(px * rounding.scale));
+        }
     }
 
     component FontSizeTokens: QtObject {
@@ -93,6 +101,7 @@ Singleton {
         readonly property int previewHeight: 180
         readonly property int thumbWidth: 152
         readonly property int thumbHeight: 86
+        readonly property int gridRows: 2
         readonly property int swatch: 44
         readonly property int selectedBorder: 2
     }

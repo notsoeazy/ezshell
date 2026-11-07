@@ -5,23 +5,14 @@ import qs.config
 import qs.services
 import qs.themes
 
-// Wallpaper and colors. Picking a wallpaper or a scheme only previews; Apply sets the wallpaper and
-// turns wallpaper colors on, and the Theme service regenerates theme.json.
+// Wallpaper and colors. Picking a wallpaper sets it immediately and previews its matugen colors;
+// Apply in Colors also enables dynamic colors from the wallpaper.
 ColumnLayout {
     id: root
 
-    // The image being previewed (not applied yet), and the scheme chosen for it.
+    // The image being previewed, and the scheme chosen for it.
     property string candidate: Config.wallpaper.path
     property string scheme: Config.theme.scheme
-
-    function nextChangeText(): string {
-        if (NightLight.schedule === "off")
-            return "Off: only manual changes";
-        const next = NightLight.nextChange;
-        if (!next)
-            return NightLight.schedule === "sun" ? "Waiting for the weather location" : "Check the times";
-        return `Next change at ${Qt.formatTime(next, "HH:mm")}${NightLight.enabled ? " (off)" : " (on)"}`;
-    }
 
     function previewNow(): void {
         if (root.candidate !== "")
@@ -35,9 +26,18 @@ ColumnLayout {
         Wallpapers.rescan();
     }
 
+    Connections {
+        function onPathChanged(): void {
+            if (Config.wallpaper.path !== "")
+                root.candidate = Config.wallpaper.path;
+        }
+
+        target: Config.wallpaper
+    }
+
     Section {
         title: "Wallpaper"
-        description: "Leave the path empty to keep another tool's wallpaper."
+        description: "Click a wallpaper to apply it. Leave the path empty to keep another tool's wallpaper."
 
         SettingRow {
             label: "Folder"
@@ -58,10 +58,14 @@ ColumnLayout {
         WallpaperGrid {
             Layout.fillWidth: true
             paths: Wallpapers.files
+            thumbs: Wallpapers.thumbs
             folder: Wallpapers.folder
             selected: root.candidate
+            checked: Wallpapers.current
+            onVisibleSliceChanged: items => Wallpapers.ensureThumbs(items)
             onPicked: path => {
                 root.candidate = path;
+                Wallpapers.set(path);
                 root.previewNow();
             }
         }
@@ -69,6 +73,13 @@ ColumnLayout {
         SettingRow {
             label: "Current"
             sublabel: Config.wallpaper.path !== "" ? Config.wallpaper.path : "None"
+
+            StyledButton {
+                text: "Random"
+                icon: "shuffle"
+                enabled: Wallpapers.files.length > 0
+                onClicked: Wallpapers.random()
+            }
 
             StyledButton {
                 text: "Clear"
@@ -129,8 +140,8 @@ ColumnLayout {
     }
 
     Section {
-        title: "Colors"
-        description: "Generated from the wallpaper with matugen, always the dark variant (the island is black)."
+        title: "Colors & Style"
+        description: "Generated from the wallpaper with matugen, or from a built-in dark preset (the island is black)."
 
         ThemePreview {
             Layout.fillWidth: true
@@ -144,62 +155,6 @@ ColumnLayout {
                 Theme.setScheme(root.scheme);
                 Theme.setWallpaper(root.candidate);
                 Theme.setFromWallpaper(true);
-            }
-        }
-    }
-
-    Section {
-        title: "Night light"
-        description: "Warms the screen through hyprsunset. A manual change holds until the next scheduled one."
-
-        SettingRow {
-            label: "Night light"
-            sublabel: NightLight.enabled ? `On, ${NightLight.temperature} K` : "Off"
-
-            StyledSwitch {
-                checked: NightLight.enabled
-                onToggled: checked => NightLight.set(checked)
-            }
-        }
-
-        SettingRow {
-            label: "Schedule"
-            sublabel: root.nextChangeText()
-
-            Repeater {
-                model: [["off", "Off"], ["fixed", "Fixed times"], ["sun", "Sunset to sunrise"]]
-
-                StyledButton {
-                    required property var modelData
-
-                    text: modelData[1]
-                    checked: NightLight.schedule === modelData[0]
-                    onClicked: NightLight.setSchedule(modelData[0])
-                }
-            }
-        }
-
-        SettingRow {
-            visible: NightLight.schedule === "fixed"
-            label: "From and to"
-            sublabel: "24-hour, e.g. 20:00 and 07:00"
-
-            StyledTextField {
-                id: start
-
-                implicitWidth: Appearance.control.numberWidth
-                text: Config.nightLight.start
-                placeholder: "20:00"
-                onEditingFinished: NightLight.setTimes(start.text, end.text)
-            }
-
-            StyledTextField {
-                id: end
-
-                implicitWidth: Appearance.control.numberWidth
-                text: Config.nightLight.end
-                placeholder: "07:00"
-                onEditingFinished: NightLight.setTimes(start.text, end.text)
             }
         }
     }

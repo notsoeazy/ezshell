@@ -3,8 +3,9 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-// What the Theme service needs to know about matugen: its scheme names, how its roles map to ours, and
-// which pairs must stay readable. Pure data and functions; the Theme service runs matugen.
+// What the Theme service needs to know about matugen: its scheme names, how its roles map to ours,
+// which pairs must stay readable, and its config file for external app templates. Pure data and
+// functions; the Theme service runs matugen.
 Singleton {
     id: root
 
@@ -65,5 +66,18 @@ Singleton {
                 palette[to] = value;
         }
         return palette;
+    }
+
+    // Builds `~/.local/state/ezshell/matugen.toml` for the opt-in app templates.
+    function configToml(stateDir: string, kitty: bool): string {
+        const lines = ["[config]"];
+        if (kitty) {
+            const input = JSON.stringify(Quickshell.shellPath("assets/matugen/kitty.conf"));
+            const output = JSON.stringify(`${stateDir}/kitty-theme.conf`);
+            lines.push("", "[templates.kitty]");
+            lines.push(`input_path = ${input}`, `output_path = ${output}`);
+            lines.push('post_hook = "pkill -USR1 -x kitty || true"');
+        }
+        return `${lines.join("\n")}\n`;
     }
 }

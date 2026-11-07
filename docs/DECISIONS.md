@@ -4,6 +4,11 @@ The user's calls and the reasons behind them, newest first. Read this before pla
 
 ## 2026-11-07
 
+- **Theme presets & app templates (F11):**
+  - Built-in dark colour presets (`nord`, `catppuccin`, `gruvbox`, `rose-pine`, `tokyo-night`) when wallpaper theming is off.
+  - Never touch the island background colour: it stays pure opaque `#000000` (no blur on the island); `cardOpacity` only adjusts inner card containers (`surfaceContainer*`) in the expanded island and settings, and `radiusScale` scales non-pill corner radii.
+  - Kitty is the proof-of-concept matugen template (`assets/matugen/kitty.conf` → `~/.local/state/ezshell/kitty-theme.conf`, live-reloaded with `SIGUSR1`).
+  - Settings wallpaper picker uses 2-row responsive pagination and a disk thumbnail cache (`~/.cache/ezshell/wallpapers`), and Night Light moved to its own Display tab in Settings.
 - **Window switcher (F10):** lists every window on every regular workspace, most recently used first; special workspaces (music app, scratch) are left out because they have their own toggles. Super+Tab / Super+Shift+Tab, releasing Super focuses. Live previews later, if ever.
 - **Updates (F9) skipped:** "not necessary for the shell at this time". The keybind cheat sheet shipped alone.
 - **Keybind cheat sheet groups** come from the bind description's prefix ("Media: Play or pause"). The user adds descriptions in their own Hyprland config; the shell never edits it.

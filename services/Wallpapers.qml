@@ -7,19 +7,27 @@ import qs.config
 
 // The wallpaper and the images it can be picked from; modules/wallpaper draws it. Qt's FolderListModel
 // reads one level only, so the folder and its subfolders are listed by one `find`, on start, when the
-// folder changes and when a picker opens (no watching, no polling).
+// folder changes and when a picker opens (no watching, no polling). `scripts/wallpaper-thumbs.sh`
+// builds 448x252 JPEG thumbnails in ~/.cache/ezshell/wallpapers so the pickers never decode 20 MB PNGs.
 Singleton {
     id: root
 
     readonly property string current: Config.wallpaper.path
     readonly property string folder: Paths.expand(Config.wallpaper.folder)
+    readonly property string thumbDir: `${Paths.cache}/wallpapers`
     // Every image under the folder, sorted by path.
     readonly property list<string> files: internal.files
+    // Source path → cached thumbnail JPEG path.
+    readonly property var thumbs: internal.thumbs
     readonly property bool scanning: scanner.running
     readonly property int index: root.files.indexOf(root.current)
 
     function set(path: string): void {
         Config.wallpaper.path = Paths.expand(path);
+    }
+
+    function thumbFor(path: string): string {
+        return root.thumbs[path] ?? path;
     }
 
     function rescan(): void {
@@ -28,6 +36,24 @@ Singleton {
         // -L follows symlinked folders; hidden files and folders (.git) are pruned below the top level.
         const hidden = ["-mindepth", "1", "-name", ".*", "-prune", "-o"];
         scanner.exec(["find", "-L", root.folder, ...hidden, "-type", "f", ...images, "-print"]);
+    }
+
+    // Prioritises the requested paths (e.g. the current page) at the front of the thumbnail queue.
+    function ensureThumbs(paths: list<string>): void {
+        const missing = paths.filter(p => p !== "" && !root.thumbs[p]);
+        if (missing.length === 0)
+            return;
+        const rest = internal.queue.filter(p => !missing.includes(p));
+        internal.queue = [...missing, ...rest];
+        root.thumbNext();
+    }
+
+    function thumbNext(): void {
+        if (thumber.running || internal.queue.length === 0)
+            return;
+        const batch = internal.queue.slice(0, 24);
+        internal.queue = internal.queue.slice(24);
+        thumber.exec(["sh", Quickshell.shellPath("scripts/wallpaper-thumbs.sh"), root.thumbDir, ...batch]);
     }
 
     // Any image but the current one.
@@ -74,13 +100,19 @@ Singleton {
         id: internal
 
         property list<string> files: []
+        property var thumbs: ({})
+        property list<string> queue: []
     }
 
     Process {
         id: scanner
 
         stdout: StdioCollector {
-            onStreamFinished: internal.files = text.split("\n").filter(line => line !== "").sort()
+            onStreamFinished: {
+                const found = text.split("\n").filter(line => line !== "").sort();
+                internal.files = found;
+                root.ensureThumbs(found);
+            }
         }
         stderr: StdioCollector {
             onStreamFinished: {
@@ -90,6 +122,25 @@ Singleton {
                     console.warn(`[wallpapers] find: ${first}`);
             }
         }
+    }
+
+    Process {
+        id: thumber
+
+        stdout: SplitParser {
+            onRead: line => {
+                const tab = line.indexOf("\t");
+                if (tab <= 0)
+                    return;
+                const src = line.slice(0, tab);
+                const out = line.slice(tab + 1).trim();
+                if (out !== "")
+                    internal.thumbs = Object.assign({}, internal.thumbs, {
+                        [src]: out
+                    });
+            }
+        }
+        onExited: root.thumbNext()
     }
 
     // Runs only while a slideshow is set and there's something to change to.

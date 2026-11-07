@@ -7,8 +7,8 @@ import qs.config
 import qs.services
 import qs.themes
 
-// Colors section: from-wallpaper switch, scheme, and a preview of the main roles from a matugen dry run
-// (Theme.preview) before anything is applied. The live theme only changes on Apply.
+// Colors and style section: built-in presets, wallpaper colors (with a matugen dry-run preview before
+// Apply), corner-radius scale, card opacity, and opt-in app templates.
 ColumnLayout {
     id: root
 
@@ -30,8 +30,25 @@ ColumnLayout {
     spacing: Appearance.settings.gap
 
     SettingRow {
+        label: "Preset palette"
+        sublabel: Config.theme.fromWallpaper ? "Picking one turns wallpaper colors off." : `Active: ${Config.theme.preset}`
+
+        Repeater {
+            model: Theme.presets
+
+            StyledButton {
+                required property string modelData
+
+                text: modelData
+                checked: !Config.theme.fromWallpaper && Config.theme.preset === modelData
+                onClicked: Theme.setPreset(modelData)
+            }
+        }
+    }
+
+    SettingRow {
         label: "Colors from the wallpaper"
-        sublabel: Config.theme.fromWallpaper ? Config.theme.scheme : "Built-in palette (black with Nord blue)"
+        sublabel: Config.theme.fromWallpaper ? Config.theme.scheme : `Built-in preset (${Config.theme.preset})`
 
         StyledSwitch {
             checked: Config.theme.fromWallpaper
@@ -115,6 +132,50 @@ ColumnLayout {
             filled: true
             enabled: root.candidate !== ""
             onClicked: root.applied()
+        }
+    }
+
+    SettingRow {
+        label: "Corner radius"
+        sublabel: "Scales card and panel corners; pills stay round."
+
+        Repeater {
+            model: [[0.5, "Sharp"], [1, "Normal"], [1.5, "Round"]]
+
+            StyledButton {
+                required property var modelData
+
+                text: modelData[1]
+                checked: Math.abs(Config.theme.radiusScale - modelData[0]) < 0.05
+                onClicked: Theme.setRadiusScale(modelData[0])
+            }
+        }
+    }
+
+    SettingRow {
+        label: "Card opacity"
+        sublabel: "Inner cards only; the island and window backgrounds stay pure black."
+
+        Repeater {
+            model: [[0.6, "60%"], [0.8, "80%"], [1, "100%"]]
+
+            StyledButton {
+                required property var modelData
+
+                text: modelData[1]
+                checked: Math.abs(Config.theme.cardOpacity - modelData[0]) < 0.05
+                onClicked: Theme.setCardOpacity(modelData[0])
+            }
+        }
+    }
+
+    SettingRow {
+        label: "Kitty terminal"
+        sublabel: "Writes ~/.local/state/ezshell/kitty-theme.conf and reloads kitty."
+
+        StyledSwitch {
+            checked: Config.theme.kitty
+            onToggled: enabled => Theme.setKitty(enabled)
         }
     }
 }

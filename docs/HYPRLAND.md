@@ -179,6 +179,14 @@ hl.bind("SUPER + TAB", hl.dsp.exec_cmd(qs .. "switcher next"), { description = "
 hl.bind("SUPER + SHIFT + TAB", hl.dsp.exec_cmd(qs .. "switcher prev"), { description = "Windows: Previous window" })
 ```
 
+## 12. Kitty theme template (opt-in)
+
+When `Config.theme.kitty` is on (`qs -c ezshell ipc call theme setKitty true`, or Settings → Appearance), `Theme` runs `matugen` with `assets/matugen/kitty.conf` to generate `~/.local/state/ezshell/kitty-theme.conf` and reloads running kitty windows with `SIGUSR1`. Add this line to `~/.config/kitty/kitty.conf`:
+
+```conf
+include ~/.local/state/ezshell/kitty-theme.conf
+```
+
 ## 6. Already in place
 
 - `misc.allow_session_lock_restore = true` (`hyprland/misc.lua`): if the shell dies while locked, restarting it takes the lock back instead of leaving you on Hyprland's red "lockscreen died" screen. Keep it.

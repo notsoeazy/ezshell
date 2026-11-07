@@ -118,7 +118,7 @@ ColumnLayout {
     }
 
     SettingsLink {
-        page: "appearance"
-        label: "Night light settings"
+        page: "display"
+        label: "Display settings"
     }
 }

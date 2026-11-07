@@ -509,7 +509,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `emoji` | `services/Emoji.qml` | `search(text)`, `copy(char)`, `recents` |
 | `polkit` | `services/Polkit.qml` | `status`, `cancel` (never a submit) |
 | `capture` | `services/Capture.qml` | `screenshot(mode)`, `screenshotIn(mode, ms)`, `record(mode)`, `recordIn(mode, ms)`, `stop`, `toggle(mode)`, `setAudio(bool)`, `status` |
-| `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setFromWallpaper(bool)`, `regenerate`, `status` |
+| `theme` | `services/Theme.qml` | `setWallpaper(path)`, `setScheme(string)`, `setPreset(string)`, `setFromWallpaper(bool)`, `setRadiusScale(real)`, `setCardOpacity(real)`, `setKitty(bool)`, `presets`, `regenerate`, `status` |
 | `wallpaper` | `services/Wallpapers.qml` | `set(path)`, `get`, `random`, `next`, `previous`, `list`, `rescan` |
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `launcher` | `state/Visibility.qml` | `open(prefix)`: the launcher with a provider prefix typed, e.g. `>` for actions (F2) |

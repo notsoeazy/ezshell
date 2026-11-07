@@ -55,6 +55,7 @@ ColumnLayout {
 
         Layout.fillWidth: true
         paths: Wallpapers.files
+        thumbs: Wallpapers.thumbs
         folder: Wallpapers.folder
         filter: search.text
         selected: grid.currentPath

@@ -67,11 +67,23 @@ Scope {
         value: Appearance.anim.scaled(Appearance.anim.islandCollapse + Appearance.anim.islandFadeOut)
     }
 
-    // Themes can't read config, so the user's animation speed is pushed into the tokens here.
+    // Themes can't read config, so the user's animation speed, corner scale and card opacity are pushed here.
     Binding {
         target: Appearance.anim
         property: "speed"
         value: Config.animations.speed
+    }
+
+    Binding {
+        target: Appearance.rounding
+        property: "scale"
+        value: Config.theme.radiusScale
+    }
+
+    Binding {
+        target: Colors
+        property: "cardOpacity"
+        value: Config.theme.cardOpacity
     }
 
     Connections {

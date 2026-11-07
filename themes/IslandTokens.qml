@@ -1,4 +1,7 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
+import qs.themes
 
 // The island's tokens, reached as Appearance.island.
 QtObject {
@@ -25,7 +28,7 @@ QtObject {
     readonly property real overshootFraction: 0.07
     readonly property OsdTokens osd: OsdTokens {}
     // Corner radius cap: short modes stay pills (height / 2), tall ones like the banner get this.
-    readonly property int cornerRadius: 28
+    readonly property int cornerRadius: island.scaled(28)
     readonly property int badge: 20
     // Status dot before a privacy or recording indicator (ISLAND.md: 6px).
     readonly property int indicatorDot: 6
@@ -48,6 +51,10 @@ QtObject {
     readonly property int tallestMode: Math.max(island.notification.maxHeight, island.panelHeight)
     readonly property int overshootMargin: Math.ceil(island.tallestMode * island.overshootFraction)
     readonly property int windowHeight: island.margin + island.tallestMode + island.overshootMargin
+
+    function scaled(px: real): int {
+        return Appearance.rounding.scaled(px);
+    }
 
     // Wallpapers section: one row in the dashboard-wide island, the selection centered with one full
     // neighbour and part of the next on each side; 16:9 like the screen.
@@ -102,7 +109,7 @@ QtObject {
         readonly property int padding: 16
         readonly property int gap: 12
         readonly property int icon: 40
-        readonly property int iconRadius: 12
+        readonly property int iconRadius: island.scaled(12)
         readonly property int bodyLines: 2
     }
 
@@ -114,7 +121,7 @@ QtObject {
         readonly property int maxWidth: 420
         readonly property int textMaxWidth: 260
         readonly property int art: 28
-        readonly property int artRadius: 8
+        readonly property int artRadius: island.scaled(8)
     }
 
     component EqualizerTokens: QtObject {
@@ -135,7 +142,7 @@ QtObject {
         readonly property int search: 48
         readonly property int row: 54
         readonly property int icon: 36
-        readonly property int iconRadius: 10
+        readonly property int iconRadius: island.scaled(10)
         readonly property int maxResults: 5
         readonly property int footer: 28
         readonly property int rowGap: 4
@@ -165,13 +172,13 @@ QtObject {
         readonly property int gap: 12
         readonly property int header: 40
         readonly property int tabIndicator: 3
-        readonly property int cardRadius: 16
+        readonly property int cardRadius: island.scaled(16)
         readonly property int cardPadding: 16
         // Secondary text (a tile's state line) is the foreground color at this opacity.
         readonly property real secondaryOpacity: 0.7
         readonly property int row: 52
         readonly property int iconBox: 36
-        readonly property int iconBoxRadius: 10
+        readonly property int iconBoxRadius: island.scaled(10)
         // Lists scroll past this, so a section stays under maxHeight.
         readonly property int listMaxHeight: 312
     }
@@ -181,14 +188,14 @@ QtObject {
     component PeekTokens: QtObject {
         readonly property int width: 600
         readonly property int height: 88
-        readonly property int radius: 26
+        readonly property int radius: island.scaled(26)
         readonly property int bottomPadding: 12
         readonly property int appIcon: 16
         readonly property int appMaxWidth: 160
         readonly property int text: 12
         readonly property int chipArt: 26
-        readonly property int chipArtRadius: 7
-        readonly property int chipRadius: 12
+        readonly property int chipArtRadius: island.scaled(7)
+        readonly property int chipRadius: island.scaled(12)
         readonly property int chipPadding: 4
         // ms: hover this long before it opens; leave this long before it closes.
         readonly property int openDelay: 150
@@ -201,16 +208,16 @@ QtObject {
         readonly property int tile: 44
         readonly property int tileIcon: 30
         readonly property int round: 44
-        readonly property int cardRadius: 16
+        readonly property int cardRadius: island.scaled(16)
         readonly property int cardPadding: 8
         readonly property int cardSidePadding: 12
         // Volume / Microphone / Brightness level chips.
         readonly property int chip: 52
         readonly property int art: 36
-        readonly property int artRadius: 9
+        readonly property int artRadius: island.scaled(9)
         readonly property int title: 13
         readonly property int notifIcon: 28
-        readonly property int notifIconRadius: 8
+        readonly property int notifIconRadius: island.scaled(8)
         // The notification center's empty state ("All caught up").
         readonly property int emptyHeight: 72
     }
@@ -219,7 +226,7 @@ QtObject {
     component SwitcherTokens: QtObject {
         readonly property int padding: 16
         readonly property int tile: 64
-        readonly property int tileRadius: 18
+        readonly property int tileRadius: island.scaled(18)
         readonly property int icon: 40
         // Widest row of tiles before it scrolls; narrowest title line.
         readonly property int maxRow: 640
@@ -229,10 +236,10 @@ QtObject {
     // The keybind cheat sheet: rows with key caps.
     component KeybindTokens: QtObject {
         readonly property int row: 36
-        readonly property int rowRadius: 10
+        readonly property int rowRadius: island.scaled(10)
         readonly property int cap: 22
         readonly property int capPadding: 6
-        readonly property int capRadius: 6
+        readonly property int capRadius: island.scaled(6)
         readonly property int capGap: 7
     }
 
@@ -257,7 +264,7 @@ QtObject {
         readonly property int mediaArt: 80
         // The mixer's level column ("100%", "Muted").
         readonly property int mixerPercent: 48
-        readonly property int artRadius: 12
+        readonly property int artRadius: island.scaled(12)
         readonly property int playButton: 44
         readonly property int dayCell: 26
         readonly property int bigDayCell: 40

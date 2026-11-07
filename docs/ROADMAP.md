@@ -40,8 +40,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F8 | Quick utilities (external brightness skipped) | S each | done |
 | F9 | Keybind cheat sheet (updates skipped) | S | done |
 | F10 | Window switcher (Super+Tab) | M | done |
-| F11 | Theme presets and matugen templates for other apps | M | next |
-| F12 | Desktop widgets (optional) | L | |
+| F11 | Theme presets and matugen templates for other apps | M | done |
+| F12 | Desktop widgets (optional) | L | next |
 
 ---
 
@@ -243,6 +243,11 @@ Spec and design record: [`docs/ISLAND-R1.md`](ISLAND-R1.md); the final rules are
 
 - Settings presets: corner-radius scale, surface opacity, blur on/off.
 - Optional matugen templates for other apps, one at a time and each opt-in: kitty, GTK (adw-gtk3), Qt (qt6ct or Kvantum), hyprlock, Hyprland borders.
+- **Done:**
+  - Built-in dark colour presets (`nord`, `catppuccin`, `gruvbox`, `rose-pine`, `tokyo-night`) in `utils/Palettes.qml` (`Config.theme.preset`, IPC `theme setPreset/presets`), all keeping `surface` and the island pure black (`#000000`).
+  - Style presets: corner-radius scale (`Config.theme.radiusScale`, `Appearance.rounding.scale` — sharp `0.5`, normal `1.0`, round `1.5`, pills stay round) and inner card opacity (`Config.theme.cardOpacity`, `Colors.cardOpacity` — `0.6`, `0.8`, `1.0`, keeping the island and window backgrounds opaque black; no blur on the island).
+  - Opt-in kitty matugen template (`Config.theme.kitty`, `assets/matugen/kitty.conf` → `~/.local/state/ezshell/kitty-theme.conf` via `~/.local/state/ezshell/matugen.toml`, reloading kitty with `SIGUSR1`; works for both wallpaper themes and built-in presets). Other app templates (GTK, Qt, hyprlock, Hyprland borders) deferred until wanted.
+  - Wallpaper picker improvements: disk thumbnail cache in `~/.cache/ezshell/wallpapers` (`scripts/wallpaper-thumbs.sh` via `vipsthumbnail`/`ffmpeg`), `QT_IMAGEIO_MAXALLOC=1024` for 8K/12K images, responsive 2-row pagination in Settings, and a dedicated Display page (`modules/settings/DisplayPage.qml`) for brightness and night light.
 
 ## F12. Desktop widgets (optional)
 

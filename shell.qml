@@ -1,3 +1,5 @@
+//@ pragma Env QT_IMAGEIO_MAXALLOC=1024
+
 import QtQuick
 import Quickshell
 import qs.modules.island

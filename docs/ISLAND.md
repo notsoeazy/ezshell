@@ -292,7 +292,7 @@ Tiles without a detail (`hasDetail: false`: Focus, Game mode, Keep awake) toggle
 | Bluetooth | on/off, discover, device list with battery, connect, disconnect, pairing that needs no code | pairing that needs a PIN or passkey (Quickshell has no agent), trusted/blocked devices |
 | Audio | output and input volume, mute, default device | per-app routing, profiles |
 | Power | battery %, time left, power profile, lock, suspend, log out, reboot, power off | power and idle timeouts |
-| Display | brightness, night light on/off, warmth, schedule (off / sunset / fixed) | theme, scale, fixed schedule times |
+| Display | brightness, night light on/off, warmth, schedule (off / sunset / fixed) | fixed schedule times (`display`), theme, scale (`appearance`) |
 
 - Every detail section ends with a "… settings" link. It opens the settings app on the matching page, then collapses the island.
 - Sections call the existing `Wifi`, `Bt`, `Audio` and `Battery` services; no new data paths.

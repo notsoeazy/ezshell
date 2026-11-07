@@ -39,6 +39,11 @@ Scope {
             icon: "space_dashboard"
         },
         {
+            name: "display",
+            label: "Display",
+            icon: "brightness_6"
+        },
+        {
             name: "appearance",
             label: "Appearance",
             icon: "palette"
@@ -58,6 +63,8 @@ Scope {
             return powerPage;
         case "workspaces":
             return workspacesPage;
+        case "display":
+            return displayPage;
         case "appearance":
             return appearancePage;
         default:
@@ -134,6 +141,12 @@ Scope {
         id: workspacesPage
 
         WorkspacesPage {}
+    }
+
+    Component {
+        id: displayPage
+
+        DisplayPage {}
     }
 
     Component {

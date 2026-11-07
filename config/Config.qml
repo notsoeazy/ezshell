@@ -192,10 +192,19 @@ Singleton {
     }
 
     component ThemeConfig: JsonObject {
-        // Colors from the wallpaper (matugen); off = the built-in palette (black with Nord blue).
+        // Colors from the wallpaper (matugen); off = the built-in palette preset below.
         property bool fromWallpaper: false
+        // Built-in palette preset when fromWallpaper is off: "nord", "catppuccin", "gruvbox",
+        // "rose-pine" or "tokyo-night".
+        property string preset: "nord"
         // matugen scheme type: scheme-tonal-spot, scheme-content, scheme-expressive, scheme-fidelity,
         // scheme-fruit-salad, scheme-monochrome, scheme-neutral, scheme-rainbow, scheme-vibrant.
         property string scheme: "scheme-tonal-spot"
+        // Multiplier for non-pill corner radii (0.5 = sharp, 1 = normal, 1.5 = round).
+        property real radiusScale: 1.0
+        // Opacity of inner card surfaces (0.4 to 1.0); the island and window backgrounds stay pure black.
+        property real cardOpacity: 1.0
+        // Generate ~/.local/state/ezshell/kitty-theme.conf and reload running kitty instances.
+        property bool kitty: false
     }
 }

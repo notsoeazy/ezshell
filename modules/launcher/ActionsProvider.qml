@@ -120,7 +120,7 @@ Provider {
         }
         list.push(page("wifi", "Wi‑Fi", "wifi"), page("bluetooth", "Bluetooth", "bluetooth"));
         list.push(page("audio", "Audio", "volume_up"), page("power", "Power", "battery_full"));
-        list.push(page("workspaces", "Workspaces", "grid_view"), page("appearance", "Appearance", "palette"));
+        list.push(page("workspaces", "Workspaces", "grid_view"), page("display", "Display", "brightness_6"), page("appearance", "Appearance", "palette"));
         list.push(toggle("wifi", "Wi‑Fi", "wifi", Wifi.enabled, () => Wifi.toggle()));
         list.push(toggle("bluetooth", "Bluetooth", "bluetooth", Bt.enabled, () => Bt.toggle()));
         list.push(toggle("dnd", "do not disturb", "do_not_disturb_on", Notifs.dnd, () => Notifs.toggleDnd()));

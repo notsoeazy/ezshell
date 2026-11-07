@@ -2,13 +2,13 @@
 
 State that a new agent needs and the code doesn't show: open items, what the user has confirmed, what is untested. Keep it current: remove items when they're done, and move settled questions to `docs/DECISIONS.md`.
 
-Last updated 2026-11-07, after F10.
+Last updated 2026-11-07, after F11.
 
 ## Where things stand
 
-- Roadmap F0–F10 and R1 are done (`docs/ROADMAP.md`). Next is F11 (theme presets and matugen templates for other apps); F12 (desktop widgets) is optional.
+- Roadmap F0–F11 and R1 are done (`docs/ROADMAP.md`). F12 (desktop widgets) is the only remaining roadmap item and is marked optional.
 - The user's real shell runs as `qs -c ezshell`; caelestia's shell also still runs (it owns the notification server and its launcher sits on a bare Super release).
-- The user tested and confirmed: the window switcher with Super+Tab, the Control tab, the media mixer, the peek, the icon fill fix.
+- The user tested and confirmed: F11 theme presets, kitty matugen template, paginated responsive wallpaper grid with disk thumbnail cache, Display settings tab, the window switcher with Super+Tab, the Control tab, the media mixer, the peek, the icon fill fix.
 
 ## Open items (ask before acting on any)
 

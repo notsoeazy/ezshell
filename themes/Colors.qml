@@ -1,4 +1,5 @@
 pragma Singleton
+
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -10,14 +11,19 @@ Singleton {
     // Not themeable, so these live outside the adapter. The island stays black in every theme.
     readonly property color transparent: "transparent"
     readonly property color island: "#000000"
+    // Bound from Config.theme.cardOpacity in Island.qml; tints inner card containers while keeping surface pure black.
+    property real cardOpacity: 1.0
+    readonly property alias baseContainer: adapter.surfaceContainer
+    readonly property alias baseContainerHigh: adapter.surfaceContainerHigh
+    readonly property alias baseContainerHighest: adapter.surfaceContainerHighest
 
     // M3 "onX" roles are named "xFg": QML rejects declared properties that start with "on" + a capital.
     readonly property alias surface: adapter.surface
     readonly property alias surfaceFg: adapter.surfaceFg
     readonly property alias surfaceVariantFg: adapter.surfaceVariantFg
-    readonly property alias surfaceContainer: adapter.surfaceContainer
-    readonly property alias surfaceContainerHigh: adapter.surfaceContainerHigh
-    readonly property alias surfaceContainerHighest: adapter.surfaceContainerHighest
+    readonly property color surfaceContainer: Qt.alpha(root.baseContainer, root.cardOpacity)
+    readonly property color surfaceContainerHigh: Qt.alpha(root.baseContainerHigh, root.cardOpacity)
+    readonly property color surfaceContainerHighest: Qt.alpha(root.baseContainerHighest, root.cardOpacity)
     readonly property alias primary: adapter.primary
     readonly property alias primaryFg: adapter.primaryFg
     readonly property alias primaryContainer: adapter.primaryContainer
