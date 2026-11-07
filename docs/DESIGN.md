@@ -696,6 +696,32 @@ Write the least QML that works. Use bindings over imperative code, tokens over n
 - [ ] Comments explain *why* only.
 - [ ] `qmlformat` shows no diff, `qmllint` shows no new warnings, and the `qs` log is clean.
 
+## Quickshell, Qt and tool gotchas
+
+Learned the hard way on Quickshell 0.3.1 / Qt 6.11; check before assuming they still hold.
+
+- **QML JavaScript** has no `??=` (logical assignment): the file fails to load with "Unexpected token `=`".
+- **Name clashes:** a singleton named `Keys` is shadowed by QtQuick's `Keys` attached property (hence `utils/KeyCombo.qml`). Never reuse Quickshell singleton names either (AGENTS.md "Services").
+- **IPC:** a function named `show` can't be called (`qs ipc call x show` parses as `qs ipc show`).
+- **Typed list parameters:** passing an ObjectModel's `.values` to a `list<T>` function parameter arrives empty; read the model inside the function instead (`Hypr.byRecency()`).
+- **Hyprland toplevels:** `HyprlandToplevel.address` has no `0x` (dispatchers need it added). Windows that existed before the shell started have no `workspace` and an empty `lastIpcObject` until `Hyprland.refreshToplevels()`. qmllint can't resolve the type of `.wayland`; use `lastIpcObject.class` for the app id.
+- **Lua config:** options go through `hyprctl eval 'hl.config({…})'`; `hyprctl keyword` is rejected. Dispatch `hl.dsp.*` expressions through `Hypr.dispatch(lua, classic)`. Lua binds report `dispatcher: "__lua"` in `hyprctl binds`, so only their `description` says what they do.
+- **Text rendering:** `MaterialIcon` uses `Text.NativeRendering`; the default distance-field glyph cache ignores variable-font axes, so filled and outlined copies of one icon corrupted each other.
+- **Shapes:** `Shape` paths inside the morphing island froze the shell (~94% CPU) when switching tabs; sparklines are a `Canvas`.
+- **Nested taps:** a parent-wide `TapHandler` behind buttons competes with theirs; give the parent's tap to a sibling area instead. Children that must win over the island's background tap use `gesturePolicy: TapHandler.ReleaseWithinBounds`.
+- **Invisible items can't hold keyboard focus:** a `ModeLayer` is invisible during its fade-in delay, so keys a mode must never miss (the switcher's Super release) are caught by an always-visible item in `ModeLayers`.
+- **qmlformat 6.11:** joins a string split with `+` back into one long line; shorten the text or move parts into properties. `SemicolonRule` and `MaxColumnWidth` break files (AGENTS.md "Run and test").
+- **Polkit:** Quickshell 0.3.1 has a request-queue bug, worked around in `Polkit.qml`. Cancelling a prompt after a password was asked counts as a failed login; faillock locks the account for 10 minutes after three.
+- **gpu-screen-recorder:** not reported as a Hyprland screencast; SIGINT finalises the file; use `-w WxH+X+Y`, not the deprecated `-region`.
+- **Wi‑Fi:** on the user's laptop `Quickshell.Networking` misses the connection active at shell start (likely duplicate NetworkManager profiles, "covid" / "covid 1"). `Wifi` falls back to `device.connected` with `ssid` ""; the UI shows "Connected" for an empty SSID.
+
+### Harmless log lines
+
+- `quickshell.service.polkit … An authentication agent already exists`: polkit-gnome (or the user's main shell) holds the agent.
+- `[nightlight] hyprctl hyprsunset exited with 3; is hyprsunset running?`: hyprsunset isn't started.
+- `quickshell.service.notifications … Could not register notification server`: caelestia owns it.
+- `quickshell.colorquantizer … Failed to load image from "https://…"` and `QFSFileEngine::open: No file name specified`: Spotify's cover art is a web URL, which `ColorQuantizer` can't read; the equalizer falls back to `primary`.
+
 ## Build plan
 
 The work runs in six phases, each ending with something usable, followed by an enhancement stage. Phases 1 to 6 produce a fully functional shell. The enhancements add the expandable island, the dashboard, the settings app, polish and theming, all on top of the same services.

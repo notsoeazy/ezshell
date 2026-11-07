@@ -6,7 +6,7 @@ The research behind these choices comes from hyprism (commit a545398), caelestia
 
 ## How to work on a roadmap feature
 
-1. **Read before planning:** this feature's section, `CLAUDE.md`, the relevant parts of `docs/DESIGN.md` and `docs/ISLAND.md`, and the code the feature touches.
+1. **Read before planning:** this feature's section, `AGENTS.md`, `docs/DECISIONS.md`, `docs/MEMORY.md`, the relevant parts of `docs/DESIGN.md` and `docs/ISLAND.md`, and the code the feature touches.
 2. **Plan, then wait.** Post a short plan (files to add or change, one line each) and wait for the user's OK.
 3. **Service and IPC before UI.** Give the user the terminal commands to test the service, and wait for confirmation before building UI on it.
 4. **Native first.** No Python, no daemons of our own, and no third-party wallpaper tools. An external CLI tool runs only through one `Process` owned by one service, and only when Quickshell or Qt can't do the job.
@@ -18,7 +18,8 @@ The research behind these choices comes from hyprism (commit a545398), caelestia
 8. **Finish:**
    - qmlformat and qmllint, and a clean `qs` log;
    - mark the feature done in the table below, and note anything left undone in its section;
-   - update `CLAUDE.md` if the feature adds a service, a shell-out or a rule;
+   - update `AGENTS.md` if the feature adds a service, a shell-out or a rule;
+   - record the user's decisions in `docs/DECISIONS.md` and update `docs/MEMORY.md` (open items, untested);
    - commit.
 
 Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.folder`). Use them for every wallpaper and theming test.
@@ -266,5 +267,6 @@ F1 adds none. F5 landed: stop starting `polkit-gnome` (HYPRLAND.md §7).
 - Whether the Arch `quickshell` package includes polkit support (F5).
 - Which of the user's password managers set the KDE password-manager hint (F3).
 - Noto Color Emoji coverage of the newest emoji (F4).
-- Whether Lua-config binds expose descriptions (F9).
+- Lua-config binds do expose descriptions (`hl.bind` option `description`), checked for F9; the user's binds have none yet.
+- Wi‑Fi SSID missing at shell start (DESIGN.md gotchas): a one-time reconnect, or removing the duplicate NetworkManager profile, would show whether it is the cause. Ask first; both touch the user's network.
 - A second monitor has never been tested. Check F1 (per-screen wallpaper) and F10 on one when possible.
