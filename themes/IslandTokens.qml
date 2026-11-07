@@ -68,6 +68,8 @@ QtObject {
         readonly property int thumbHeight: 44
         // How far the thumbnail starts scaled down before it pops in.
         readonly property real popFrom: 0.8
+        // A picked color's chip.
+        readonly property int swatch: 28
     }
 
     // Polkit password prompt (above every other mode).

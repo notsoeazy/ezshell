@@ -73,6 +73,13 @@ Provider {
         list.push(switchTo(";", "Clipboard history", "content_paste"), switchTo(":", "Emoji & symbols", "mood"));
         // Taken once the launcher has collapsed, so it isn't in the picture.
         const settle = Appearance.anim.scaled(Appearance.anim.islandCollapse + Appearance.anim.islandFadeOut);
+        list.push({
+            key: "color-pick",
+            title: "Pick a color",
+            icon: "colorize",
+            group: "Tools",
+            run: () => Color.pickIn(settle)
+        });
         const shot = (mode, title, icon) => ({
                     key: `screenshot-${mode}`,
                     title: title,

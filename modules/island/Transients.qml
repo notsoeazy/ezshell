@@ -116,6 +116,18 @@ Scope {
         target: Notifs
     }
 
+    Connections {
+        function onPicked(hex: string): void {
+            Visibility.say({
+                swatch: hex,
+                text: hex,
+                subtitle: "Copied"
+            }, Config.osd.hideDelay);
+        }
+
+        target: Color
+    }
+
     // Every say() (here, from a service event, or `osd say` over IPC) becomes the message mode.
     Connections {
         function onMessageRequestChanged(): void {

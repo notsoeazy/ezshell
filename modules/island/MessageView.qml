@@ -12,7 +12,7 @@ import qs.themes
 //   icon       Material Symbols name;  tone: normal | primary | success | error (icon and dot color)
 //   dot        "pulse" or "steady": a status dot instead of the icon
 //   text       first line;  subtitle: second line;  hint: small text on the right
-//   thumbnail  image file, shown on the left (it pops in)
+//   thumbnail  image file, shown on the left (it pops in);  swatch: a color, shown as a round chip on the left
 //   progress   0-1 for a bar under the text, -1 for a pulsing one
 RowLayout {
     id: root
@@ -61,6 +61,16 @@ RowLayout {
     }
 
     StyledRect {
+        visible: root.message.swatch !== undefined
+        implicitWidth: Appearance.island.message.swatch
+        implicitHeight: Appearance.island.message.swatch
+        radius: height / 2
+        color: root.message.swatch ?? Colors.transparent
+        border.width: Appearance.island.outlineWidth
+        border.color: Colors.outlineVariant
+    }
+
+    StyledRect {
         visible: root.message.dot !== undefined
         implicitWidth: Appearance.island.indicatorDot
         implicitHeight: Appearance.island.indicatorDot
@@ -85,7 +95,7 @@ RowLayout {
     }
 
     MaterialIcon {
-        visible: (root.message.icon ?? "") !== "" && root.message.dot === undefined
+        visible: (root.message.icon ?? "") !== "" && root.message.dot === undefined && root.message.swatch === undefined
         text: root.message.icon ?? ""
         size: Appearance.island.osd.icon
         color: root.toneColor

@@ -140,6 +140,15 @@ hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd(qs .. "capture toggle region"
 
 caelestia's `SUPER + SHIFT + ALT + S` (live region picker) and `SUPER + ALT + R` (record with sound) have no direct replacement: the region screenshot above covers the first, and for the second turn on "Record sound" (`capture setAudio true`) and use the toggle. Other calls: `capture screenshot window|full`, `capture record <mode>`, `capture stop`, `capture status`.
 
+## 9. Quick utilities (recommended, not applied)
+
+Every utility is an IPC call. Suggested binds, checked against `keybinds.lua` and `variables.lua`:
+
+```lua
+-- Color picker: click a pixel; the hex is copied and shown in the island
+hl.bind("SUPER + CTRL + P", hl.dsp.exec_cmd(qs .. "color pick"))
+```
+
 ## 6. Already in place
 
 - `misc.allow_session_lock_restore = true` (`hyprland/misc.lua`): if the shell dies while locked, restarting it takes the lock back instead of leaving you on Hyprland's red "lockscreen died" screen. Keep it.
