@@ -35,8 +35,8 @@ Test wallpapers live in `~/Pictures/Wallpapers/` (the default `Config.wallpaper.
 | F5 | Polkit agent in the island | M | done |
 | F6 | Screenshots and screen recording | M | done |
 | F7 | Generic OSD and capture feedback (tasks dropped) | S | done |
-| F8 | Quick utilities | S each | next |
-| F9 | Keybind cheat sheet and updates | S | |
+| F8 | Quick utilities (external brightness skipped) | S each | done |
+| F9 | Keybind cheat sheet and updates | S | next |
 | F10 | Window switcher (Super+Tab) | M | |
 | F11 | Theme presets and matugen templates for other apps | M | |
 | F12 | Desktop widgets (optional) | L | |
@@ -192,18 +192,18 @@ Wallpapers are drawn by the shell itself. No swww, awww, hyprpaper or imagemagic
 
 ## F8. Quick utilities
 
-Build them one at a time, committing each.
+**Done** (one commit per row; external-monitor brightness skipped). Binds in HYPRLAND.md §9.
 
-| Utility | How | Where it shows |
+| Utility | Status | What it is |
 | --- | --- | --- |
-| Color picker | `hyprpicker -a -f hex` | temporary mode with swatch + hex; Super+Ctrl+P |
-| Caffeine | `IdleInhibitor { window: <island window>; enabled }` | quick toggle + Trailing `coffee` indicator |
-| Game mode | `hyprctl eval` to turn off animations, blur and gaps (Lua config); restore on exit; also turns on DND | quick toggle + temporary mode |
-| Keyboard layout | `hyprctl -j devices` (main keyboard) and the `activelayout` event | temporary mode on change; Trailing label only with more than one layout |
-| Power confirm | reboot, power off and log out need a second press | power section |
-| Hide island | IPC `island hide/show/toggle` | keybind (check for clashes) |
-| External-monitor brightness | `ddcutil setvcp 10` alongside `brightnessctl` | existing `Brightness` and OSD |
-| Night light schedule | fixed hours or sunset/sunrise from Config | settings |
+| Keep awake (caffeine) | done | Existed (`Idle.inhibited` → an `IdleInhibitor` on the island window, a `>` action). Added: a `coffee` icon in the trailing indicators while on (a click turns it off) and a "Keep awake" quick toggle; the toggles are two rows of four. |
+| Power confirm | already done | `PowerSection` and the `>` actions need a second press for reboot, power off and log out. |
+| Color picker | done | `Color` service: `hyprpicker -f hex` (Esc does nothing), copied through `Clipboard.copyText`; a message with a swatch and the hex. IPC `color pick`, `pickIn(ms)`, `last`; `>` "Pick a color"; Super+Ctrl+P. |
+| Keyboard layout | done | `Keyboard` service: the main keyboard from `hyprctl -j devices`, kept current by the `activelayout` event and re-read after a config reload; a message on switch; a trailing label ("US") only with more than one layout (the user has one, so it's hidden). IPC `keyboard status`. |
+| Game mode | done | `GameMode` service: reads animations, blur, shadows and gaps with `hyprctl -j getoption`, saves them and do-not-disturb to `~/.local/state/ezshell/gamemode.json`, turns them off (gaps 0) with `hyprctl eval 'hl.config({…})'` (keywords on a classic config) and DND on; off restores exactly the saved values. Re-applied after a shell restart or a Hyprland config reload while on. A message, a trailing controller icon (click turns it off), a quick toggle. IPC `gamemode on/off/toggle/status`; Super+Ctrl+G. |
+| Hide island | done | `Visibility.islandHidden`, IPC `island hide/show/toggle/status`: the resting pill parks off-screen and the reserved space drops to 0; messages, panels and polkit still drop in. `>` "Hide island"; Super+Ctrl+H. |
+| Night light schedule | done | `Config.nightLight.schedule` off / fixed (start, end) / sun (sunset to sunrise at the weather location, from `utils/Sun.qml`, no extra network). Applied only when the schedule's own state changes, so a manual toggle holds until the next change; the Timer runs only while a schedule is on and checks at least every 15 minutes (Qt timers don't count suspend). IPC `setSchedule`, `setTimes`; a section in Settings → Appearance. hyprsunset must run for it to tint (HYPRLAND.md §4). |
+| External-monitor brightness | skipped | No DDC monitor: no external display is connected, and `ddcutil detect` only finds the internal panel. Revisit with an external monitor. |
 
 ## F9. Keybind cheat sheet and updates
 
@@ -242,8 +242,8 @@ hyprism-style cards (clock, weather, performance, network, storage, sensors) on 
 | `noto-fonts-emoji` | F4 | already installed; `python-fonttools` only to re-run the generator |
 | `grim`, `slurp`, `gpu-screen-recorder` | F6 | all installed |
 | `swappy` or `satty` | F6 | optional, for Edit; swappy is installed |
-| `hyprpicker` | F8 | |
-| `ddcutil` | F8 | optional |
+| `hyprpicker` | F8 | installed |
+| `ddcutil` | F8 | optional; external brightness skipped (no DDC monitor) |
 | `pacman-contrib` | F9 | |
 
 F1 adds none. F5 landed: stop starting `polkit-gnome` (HYPRLAND.md §7).

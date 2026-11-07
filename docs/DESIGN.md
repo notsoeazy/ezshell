@@ -493,7 +493,7 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | --- | --- | --- |
 | `audio` | `services/Audio.qml` | `up`, `down`, `set(real)`, `toggleMute`, `toggleMicMute`, `status`, `outputs`, `inputs`, `streams`, `setOutput(name)`, `setInput(name)`, `setStreamVolume(id, real)`, `setMic(real)`, `mic` |
 | `brightness` | `services/Brightness.qml` | `up`, `down`, `set(real)` |
-| `nightlight` | `services/NightLight.qml` | `toggle`, `setTemperature(int)` |
+| `nightlight` | `services/NightLight.qml` | `toggle`, `set(bool)`, `setTemperature(int)`, `setSchedule(off/fixed/sun)`, `setTimes(start, end)`, `status` |
 | `players` | `services/Players.qml` | `playPause`, `next`, `previous`, `status`, `list`, `select(identity)`, `seek(seconds)`, `position` |
 | `hypr` | `services/Hypr.qml` | `toggleSpecial(string)`, `focus(int)`, `cycle(int)`, `screencast`, `simulateScreencast(bool)` |
 | `notifs` | `services/Notifs.qml` | `clear`, `toggleDnd`, `setDnd(bool)`, `status`, `list` |
@@ -514,6 +514,10 @@ Every action goes through `IpcHandler`, so it can be tested from a terminal with
 | `battery` | `services/Battery.qml` | `status`, `simulate(real, bool)`, `reset`, `profile`, `setProfile(string)` |
 | `launcher` | `state/Visibility.qml` | `open(prefix)`: the launcher with a provider prefix typed, e.g. `>` for actions (F2) |
 | `osd` | `state/Visibility.qml` | `say(icon, text)`, `say2(icon, text, subtitle)`: a short message in the island (F7) |
+| `island` | `state/Visibility.qml` | `hide`, `show`, `toggle`, `status` (F8) |
+| `color` | `services/Color.qml` | `pick`, `pickIn(ms)`, `last` |
+| `keyboard` | `services/Keyboard.qml` | `status` |
+| `gamemode` | `services/GameMode.qml` | `on`, `off`, `toggle`, `status` |
 | `panels` | `state/Visibility.qml` | `toggle(string)`, `open(name, arg)`, `close` (`open settings <page>` since E1); from E2 also `back`, from E3 `push(page)` (launcher, settings, island sections; see ISLAND.md) |
 | `lock` | `modules/lockscreen/Lockscreen.qml` | `lock` |
 

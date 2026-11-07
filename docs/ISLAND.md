@@ -132,6 +132,9 @@ Indicators **add** small icons or dots to a side section; the sides then rebalan
 | 6 | Low battery (≤ 15%) | trailing | `battery_alert` in `error` + "12%"; outline turns `error` at 50% opacity | `Battery` |
 | 7 | Charging | trailing | `battery_charging_full` in `success` + percentage | `Battery` |
 | 8 | Do not disturb | trailing | `do_not_disturb_on` in `onSurfaceVariant`; date stays | `Notifs.dnd` |
+| 9 | Keep awake | trailing | `coffee`; a click turns it off | `Idle.inhibited` |
+| 10 | Game mode | trailing | `sports_esports` in `primary`; a click turns it off | `GameMode.active` |
+| 11 | Keyboard layout | trailing | short code ("US"), only with more than one layout | `Keyboard.code`, `multiple` |
 
 - The equalizer animates bar heights (or a color pulse) with `Anim`. Stop the animation when paused; never leave a running animation on a hidden item.
 - Quantize once per track: bind `ColorQuantizer` source to the track art URL, and fall back to `primary` while it has no result. Check the exact property names in the Quickshell docs.
