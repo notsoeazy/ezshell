@@ -20,6 +20,15 @@ Test wallpapers are in `~/Pictures/Wallpapers/`. Wallpapers are drawn by the she
 - Format: `/usr/lib/qt6/bin/qmlformat -i <file>`. `/usr/bin/qmlformat` is the Qt 5 one and mangles pragmas. Keep `.qmlformat.ini` to `IndentWidth=4`: in qmlformat 6.11, `SemicolonRule=essential` and `MaxColumnWidth` de-indent function bodies and break template strings. Wrap lines over 120 columns by hand.
 - Lint: `/usr/lib/qt6/bin/qmllint`, with the import paths and `buildDir` from `.qmlls.ini` (only resolves while `qs` runs). Ignore the "pragma Singleton without qmldir", `FileViewAdapter` incomplete type, `PanelWindow is not creatable`, `QProcess::ExitStatus ... onExited`, `margins` grouped-property, and unresolved-type warnings for `Quickshell.Bluetooth` types, `Notification.actions`, `PwNodeType::Flags` and the polkit `AuthFlow`/`Identity` types (Quickshell type-info gaps).
 
+## Testing
+
+Tests never touch the user's real data.
+- Use scratch folders (point `Config` paths at them for the test and restore them after), a scratch cliphist database (`CLIPHIST_DB_PATH`), and stand-ins on `PATH` for `wl-copy` and `notify-send`.
+- Never clear or delete the user's notifications, clipboard history, screenshots or recordings, and never run `notifs clear`.
+- Never cancel a polkit prompt after a password was requested: PAM's faillock counts it as a failed login and locks the account after three.
+- Never show on-screen overlays (slurp, pickers) or simulate input without asking.
+- If a test can only run against real data, ask first.
+
 ## Directory layout
 
 Read `docs/ISLAND.md` before touching `modules/island/`.
