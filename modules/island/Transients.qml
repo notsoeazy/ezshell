@@ -139,6 +139,19 @@ Scope {
         target: Keyboard
     }
 
+    Connections {
+        function onChanged(active: bool): void {
+            Visibility.say({
+                icon: "sports_esports",
+                tone: active ? "primary" : "normal",
+                text: active ? "Game mode on" : "Game mode off",
+                subtitle: active ? "Animations, blur, shadows and gaps off · Do not disturb" : "Restored"
+            }, Config.osd.hideDelay);
+        }
+
+        target: GameMode
+    }
+
     // Every say() (here, from a service event, or `osd say` over IPC) becomes the message mode.
     Connections {
         function onMessageRequestChanged(): void {

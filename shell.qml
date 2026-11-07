@@ -27,6 +27,7 @@ ShellRoot {
         Capture;
         Color;
         Keyboard;
+        GameMode;
         Apps;
         Audio;
         Brightness;

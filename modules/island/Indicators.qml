@@ -6,7 +6,7 @@ import qs.state
 import qs.themes
 
 // Trailing indicators, highest priority first: recording / screen share, mic and camera, keyboard layout,
-// keep awake, DND, unread badge (docs/ISLAND.md "Default island variations"). No timers; workspaces and
+// game mode, keep awake, DND, unread badge (docs/ISLAND.md "Default island variations"). No timers; workspaces and
 // date are untouched.
 RowLayout {
     id: root
@@ -102,6 +102,26 @@ RowLayout {
         color: Colors.surfaceVariantFg
         font.pixelSize: Appearance.font.size.small
         font.weight: Font.DemiBold
+    }
+
+    // Game mode: a click turns it off.
+    MaterialIcon {
+        opacity: GameMode.active ? 1 : 0
+        // Fades out before leaving the layout, so the balance-rule width change follows the fade.
+        visible: opacity > 0
+
+        Behavior on opacity {
+            Anim {}
+        }
+        text: "sports_esports"
+        fill: 1
+        color: Colors.primary
+
+        TapHandler {
+            margin: Appearance.spacing.small
+            gesturePolicy: TapHandler.ReleaseWithinBounds
+            onTapped: GameMode.off()
+        }
     }
 
     // Keep awake: a click turns it off.

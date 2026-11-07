@@ -147,6 +147,9 @@ Every utility is an IPC call. Suggested binds, checked against `keybinds.lua` an
 ```lua
 -- Color picker: click a pixel; the hex is copied and shown in the island
 hl.bind("SUPER + CTRL + P", hl.dsp.exec_cmd(qs .. "color pick"))
+
+-- Game mode: animations, blur, shadows and gaps off and do not disturb on; the same key restores them
+hl.bind("SUPER + CTRL + G", hl.dsp.exec_cmd(qs .. "gamemode toggle"))
 ```
 
 ## 6. Already in place

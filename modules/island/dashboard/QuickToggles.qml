@@ -113,6 +113,17 @@ Card {
         Tile {
             Layout.fillWidth: true
             compact: true
+            icon: "sports_esports"
+            label: "Game mode"
+            status: GameMode.active ? "On" : "Off"
+            active: GameMode.active
+            hasDetail: false
+            onToggled: GameMode.toggle()
+        }
+
+        Tile {
+            Layout.fillWidth: true
+            compact: true
             icon: "bolt"
             label: "Power"
             status: Battery.profileLabel(Battery.profile)
