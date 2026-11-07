@@ -81,7 +81,8 @@ Scope {
                 anchors.top: true
                 implicitWidth: 1
                 implicitHeight: Appearance.island.margin + Appearance.island.height
-                exclusiveZone: implicitHeight
+                // Released while the island is hidden, so windows take the space.
+                exclusiveZone: Visibility.islandHidden ? 0 : implicitHeight
                 color: Colors.transparent
                 mask: Region {}
                 WlrLayershell.namespace: "ezshell-island-zone"

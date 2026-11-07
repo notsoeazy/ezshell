@@ -28,6 +28,9 @@ Singleton {
     // The message mode's content (MessageView.qml lists the fields), set by say(). The island shows it for
     // messageDuration ms (0 = until replaced); the request count changes on every say().
     property var message: ({})
+    // The resting island parked off-screen and its reserved space released (like under a fullscreen window).
+    // Temporary modes, panels and polkit still drop in.
+    property bool islandHidden: false
     property int messageDuration: 0
     property int messageRequest: 0
     readonly property list<string> tabs: ["overview", "media", "system", "calendar"]
@@ -140,6 +143,26 @@ Singleton {
         }
 
         target: "launcher"
+    }
+
+    IpcHandler {
+        function hide(): void {
+            root.islandHidden = true;
+        }
+
+        function show(): void {
+            root.islandHidden = false;
+        }
+
+        function toggle(): void {
+            root.islandHidden = !root.islandHidden;
+        }
+
+        function status(): string {
+            return root.islandHidden ? "hidden" : "shown";
+        }
+
+        target: "island"
     }
 
     // Short messages in the island, for scripts. icon is a Material Symbols name. Not "show": `qs ipc call osd show`

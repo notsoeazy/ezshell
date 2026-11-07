@@ -150,6 +150,9 @@ hl.bind("SUPER + CTRL + P", hl.dsp.exec_cmd(qs .. "color pick"))
 
 -- Game mode: animations, blur, shadows and gaps off and do not disturb on; the same key restores them
 hl.bind("SUPER + CTRL + G", hl.dsp.exec_cmd(qs .. "gamemode toggle"))
+
+-- Hide the island (it parks off-screen and windows take its space); messages and panels still drop in
+hl.bind("SUPER + CTRL + H", hl.dsp.exec_cmd(qs .. "island toggle"))
 ```
 
 ## 6. Already in place

@@ -71,6 +71,13 @@ Provider {
                     stays: true
                 });
         list.push(switchTo(";", "Clipboard history", "content_paste"), switchTo(":", "Emoji & symbols", "mood"));
+        list.push({
+            key: "island-hide",
+            title: Visibility.islandHidden ? "Show island" : "Hide island",
+            icon: Visibility.islandHidden ? "visibility" : "visibility_off",
+            group: "Island",
+            run: () => Visibility.islandHidden = !Visibility.islandHidden
+        });
         // Taken once the launcher has collapsed, so it isn't in the picture.
         const settle = Appearance.anim.scaled(Appearance.anim.islandCollapse + Appearance.anim.islandFadeOut);
         list.push({

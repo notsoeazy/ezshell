@@ -22,7 +22,7 @@ StyledRect {
     // The last OSD kind, kept while the OSD fades out so its icon doesn't flip to brightness.
     property string osdKind: "volume"
     readonly property bool fullscreen: Hypr.fullscreen(root.screenName)
-    readonly property string restMode: root.fullscreen ? "hidden" : "rest"
+    readonly property string restMode: root.fullscreen || Visibility.islandHidden ? "hidden" : "rest"
     // Panels (island sections and the launcher) win over temporary modes, on their own screen only.
     readonly property bool knownPanel: Visibility.expanded || Visibility.panel === "launcher"
     readonly property bool panelHere: root.knownPanel && Visibility.screen === root.screenName
