@@ -128,6 +128,17 @@ Scope {
         target: Color
     }
 
+    Connections {
+        function onSwitched(keymap: string): void {
+            Visibility.say({
+                icon: "keyboard",
+                text: keymap
+            }, Config.osd.hideDelay);
+        }
+
+        target: Keyboard
+    }
+
     // Every say() (here, from a service event, or `osd say` over IPC) becomes the message mode.
     Connections {
         function onMessageRequestChanged(): void {

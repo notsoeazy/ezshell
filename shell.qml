@@ -9,8 +9,8 @@ import qs.services
 ShellRoot {
     // Singletons load lazily. These must be live at startup: NightLight applies the saved state,
     // Notifs must own the notification bus name before the first notification arrives, Players backs
-    // media keys, Idle runs the idle timers, Apps indexes desktop entries before the launcher opens and
-    // Wallpapers, Clipboard, Emoji, Capture and Color own their IPC, and Polkit registers the authentication agent.
+    // media keys, Idle runs the idle timers, Apps indexes desktop entries before the launcher opens,
+    // Polkit registers the authentication agent, and the rest own IPC targets that must answer at once.
     Component.onCompleted: {
         Notifs;
         Players;
@@ -26,6 +26,7 @@ ShellRoot {
         Polkit;
         Capture;
         Color;
+        Keyboard;
         Apps;
         Audio;
         Brightness;

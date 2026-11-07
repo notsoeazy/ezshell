@@ -5,8 +5,9 @@ import qs.services
 import qs.state
 import qs.themes
 
-// Trailing indicators, highest priority first: recording / screen share, mic and camera, keep awake, DND, unread
-// badge (docs/ISLAND.md "Default island variations"). No timers; workspaces and date are untouched.
+// Trailing indicators, highest priority first: recording / screen share, mic and camera, keyboard layout,
+// keep awake, DND, unread badge (docs/ISLAND.md "Default island variations"). No timers; workspaces and
+// date are untouched.
 RowLayout {
     id: root
 
@@ -86,6 +87,21 @@ RowLayout {
             gesturePolicy: TapHandler.ReleaseWithinBounds
             onTapped: Visibility.openByPointer("audio", root.screenName)
         }
+    }
+
+    // The keyboard layout, only when more than one is configured.
+    StyledText {
+        opacity: Keyboard.multiple ? 1 : 0
+        // Fades out before leaving the layout, so the balance-rule width change follows the fade.
+        visible: opacity > 0
+
+        Behavior on opacity {
+            Anim {}
+        }
+        text: Keyboard.code
+        color: Colors.surfaceVariantFg
+        font.pixelSize: Appearance.font.size.small
+        font.weight: Font.DemiBold
     }
 
     // Keep awake: a click turns it off.
