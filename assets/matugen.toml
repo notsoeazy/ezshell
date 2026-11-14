@@ -1,0 +1,5 @@
+# Minimal matugen config: the shell only asks matugen for the palette (as
+# JSON) and fills in every file itself (services/Theming.qml).
+[config]
+
+[templates]

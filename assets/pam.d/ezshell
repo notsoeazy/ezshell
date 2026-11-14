@@ -1,0 +1,8 @@
+#%PAM-1.0
+# Checks the password for ezshell's lock screen (services/Lock.qml).
+# Counts failed attempts with faillock, as a login does.
+
+auth    required                    pam_faillock.so     preauth
+auth    [success=1 default=bad]     pam_unix.so         nullok
+auth    [default=die]               pam_faillock.so     authfail
+auth    required                    pam_faillock.so     authsucc
